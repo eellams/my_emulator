@@ -17,44 +17,22 @@
  *    along with my_emulator.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _LOG_HPP
+#define _LOG_HPP
+
 #include <iostream>
-#include <fstream>
 #include <string>
 
-#include "log.hpp"
-#include "singleton.hpp"
-
-bool do_clock() {
-  Singleton<Logger>::GetInstance()->Clock();
-  return true;
-}
-
-class meh {
+class Logger {
 public:
-  meh() {std::cout << "meh" << std::endl;};
-  int x;
+  void Log(std::string toWrite) {
+    std::cout << toWrite << std::endl;
+  }
+
+  bool Clock() {
+    std::cout << "Logger Clock" << std::endl;
+    return true;
+  }
 };
 
-int main(int argc, char *argv[]) {
-  std::string fileToExecute;
-  bool isBinary = true;
-
-  std::cout << "Startup" << std::endl;
-
-  std::cout << "File to read (leave blank for testprogram): ";
-  std::cin >> std::noskipws >> fileToExecute;
-
-  std::cin.clear();
-  std::cin >> std::skipws;
-
-  std::cout << std::endl << "File is binary? ";
-  std::cin >> isBinary;
-
-  if (fileToExecute == "") fileToExecute = "testprogram";
-  std::cout << std::endl << "Opening program" << fileToExecute << std::endl;
-
-  do_clock();
-
-  std::cout << "Finished" << std::endl;
-  return 0;
-}
+ #endif

@@ -1,39 +1,30 @@
-# Modified by Eddie Ellams, 2016
-
-# Based off of Hiltmon's lovely Makefile
-# http://hiltmon.com/blog/2013/07/03/a-simple-c-plus-plus-project-structure/
 
 CC := g++ # This is the main compiler
-# CC := clang --analyze # and comment out the linker last line for sanity
-SRCDIR := src
-BUILDDIR := build
-LIBDIR := lib
-TARGET := bin/emulator
+
+SRCDIR = src
+BUILDDIR = build
+TARGET = bin/emulator
 
 SRCEXT := cpp
-#SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
-SOURCES := src/main.cpp
+SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+SRC := $(SOURCES:$(SRCDIR)/%=%)
+SRC := $(basename $(SRC))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-
-LIBSOURCES :=
-LIBTARGETS := $(patsubst $(SRCDIR)/%,$(LIBDIR)/%,$(LIBSOURCES:.$(SRCEXT)=.so))
 
 CFLAGS :=
 LIB :=
-INC :=
+INC := -Iinclude
 
-$(TARGET): $(OBJECTS) $(LIBTARGETS)
+all: $(TARGET)
+
+$(TARGET): $(SRC) #$(OBJECTS)
 	@echo " Linking..."
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB)
+	@echo " $(CC) $(OBJECTS) -o $(TARGET) $(LIB)"; $(CC) $(OBJECTS) -o $(TARGET) $(LIB)
 
-$(BUILDDIR)/%.o: $(SOURCES) #$(SRCDIR)/%.$(SRCEXT)
+$(SRC):
+	@ echo " Building..."
 	@mkdir -p $(BUILDDIR)
-	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
-
-$(LIBTARGETS): $(LIBSOURCES)
-	@echo " Making libs...";
-	@echo " $(CC) -shared -fPIC $(CFLAGS) $(INC) -o $@ $< $(LIB)";
-	$(CC) -shared -fPIC $(CFLAGS) $(INC) -o lib/config.so src/config.cpp $(LIB)
+	@echo " $(CC) $(CFLAGS) $(INC) -c -o $(BUILDDIR)/$@.o $(SRCDIR)/$@.$(SRCEXT)"; $(CC) $(CFLAGS) $(INC) -c -o $(BUILDDIR)/$@.o $(SRCDIR)/$@.$(SRCEXT)
 
 clean:
 	@echo " Cleaning...";
@@ -47,5 +38,4 @@ tester:
 #ticket:
 #  $(CC) $(CFLAGS) spikes/ticket.cpp $(INC) $(LIB) -o bin/ticket
 
-.PHONY: clean
-.PHONY: mklibs
+.PHONY: clean all
