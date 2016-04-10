@@ -17,29 +17,8 @@
  *    along with my_emulator.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SINGLETON_HPP
-#define _SINGLETON_HPP
+#include "inputParser.hpp"
 
-template<typename T>
-class Singleton {
-public:
-  Singleton() {};
-  ~Singleton() {
-    delete _instance;
-  };
-
-  static T* GetInstance() {
-    if (!_instance) _instance = new T();
-
-    return _instance;
-  }
-
-protected:
-  static T* _instance;
-
-};
-
-template<typename T>
-T* Singleton<T>::_instance = 0;
-
- #endif
+void InputParser::ReadFile(std::string fileName, bool isBinary) {
+  
+}

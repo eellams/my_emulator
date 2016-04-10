@@ -21,7 +21,8 @@
 #include <fstream>
 #include <string>
 
-#include "log.hpp"
+#include "logger.hpp"
+#include "inputParser.hpp"
 #include "singleton.hpp"
 
 bool do_clock() {
@@ -39,8 +40,11 @@ int main(int argc, char *argv[]) {
   std::string fileToExecute;
   bool isBinary = true;
 
-  std::cout << "Startup" << std::endl;
+  // Startup all of the singleton instances
+  Logger *log = Singleton<Logger>::GetInstance();
+  InputParser *iparser = Singleton<InputParser>::GetInstance();
 
+  // Get the file we are reading
   std::cout << "File to read (leave blank for testprogram): ";
   std::cin >> std::noskipws >> fileToExecute;
 
@@ -51,10 +55,12 @@ int main(int argc, char *argv[]) {
   std::cin >> isBinary;
 
   if (fileToExecute == "") fileToExecute = "testprogram";
-  std::cout << std::endl << "Opening program" << fileToExecute << std::endl;
+  log->Log(LOG_TYPE_INFO, "Opening program: '" + fileToExecute);
+
+  iparser->ReadFile(fileToExecute, isBinary);
 
   do_clock();
 
-  std::cout << "Finished" << std::endl;
+  log->Log(LOG_TYPE_INFO, "Program finished executing");
   return 0;
 }

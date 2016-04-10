@@ -21,18 +21,46 @@
 #define _LOG_HPP
 
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <ctime>
+
+#define MAX_TIME_STR 80
+
+#define LOG_FILE_LOG "emulator.log"
+#define LOG_FILE_SIGNAL "emulation.csv"
+
+#define LOG_STRING_ERROR "ERROR:"
+#define LOG_STRING_DEBUG "DEBUG:"
+#define LOG_STRING_INFO "INFO:"
+
+#define LOG_TYPE_ERROR 0x00
+#define LOG_TYPE_DEBUG 0x01
+#define LOG_TYPE_INFO 0x02
 
 class Logger {
 public:
-  void Log(std::string toWrite) {
-    std::cout << toWrite << std::endl;
-  }
+  Logger(std::string logFile = LOG_FILE_LOG, std::string signalFile = LOG_FILE_SIGNAL);
+  ~Logger();
 
-  bool Clock() {
-    std::cout << "Logger Clock" << std::endl;
-    return true;
-  }
+  bool Clock();
+
+  void Log(char type, std::string toWrite);
+
+  /*void Error(std::string toWrite);
+  void Debug(std::string toWrite);
+  void Info(std::string toWrite);*/
+
+protected:
+  std::string createTimeString();
+  std::string createFullLogPrefix(std::string prefix);
+  void log(std::string prefix, std::string toWrite);
+
+  std::ofstream _logfile;
+  std::ofstream _signalFile;
+
+  time_t _rawTime;
+  struct tm *_timeInfo;
 };
 
  #endif

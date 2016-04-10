@@ -20,12 +20,24 @@
 #ifndef _INPUT_PARSER_HPP
 #define _INPUT_PARSER_HPP
 
+#include "singleton.hpp"
+
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <list>
+
+struct Opcode {
+  char Opcode;
+  char RegOrImm;
+};
 
 class InputParser {
 public:
-  static ReadFile() {}
+  void ReadFile(std::string fileName, bool isBinary);
+
+protected:
+  std::list<struct Opcode> _opcodes;
 };
 
  #endif
