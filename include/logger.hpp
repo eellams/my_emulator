@@ -47,7 +47,7 @@ public:
 
   void Log(char type, std::string toWrite);
 
-protected:
+private:
   std::string createTimeString();
   std::string createFullLogPrefix(std::string prefix);
 

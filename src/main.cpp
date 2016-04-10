@@ -22,8 +22,9 @@
 #include <string>
 
 #include "logger.hpp"
-#include "inputParser.hpp"
 #include "singleton.hpp"
+#include "bus.hpp"
+#include "memory.hpp"
 
 bool do_clock() {
   Singleton<Logger>::GetInstance()->Clock();
@@ -42,7 +43,11 @@ int main(int argc, char *argv[]) {
 
   // Startup all of the singleton instances
   Logger *log = Singleton<Logger>::GetInstance();
-  InputParser *iparser = Singleton<InputParser>::GetInstance();
+
+  // Other classes required
+  Bus dataBus;
+  Bus addressBus;
+  Memory memory(&dataBus, &addressBus);
 
   // Get the file we are reading
   std::cout << "File to read (leave blank for testprogram): ";
@@ -57,10 +62,14 @@ int main(int argc, char *argv[]) {
   if (fileToExecute == "") fileToExecute = "testprogram";
   log->Log(LOG_TYPE_INFO, "Opening program: '" + fileToExecute + "'");
 
-  iparser->ReadFile(fileToExecute, isBinary);
+  if (!memory.LoadFromFile(fileToExecute, isBinary)) {
+    log->Log(LOG_TYPE_ERROR, "Something went wrong reading the file");
+    return 0;
+  }
 
   do_clock();
 
   log->Log(LOG_TYPE_INFO, "Program finished executing");
-  return 0;
+
+  return 1;
 }

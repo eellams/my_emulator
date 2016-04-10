@@ -17,27 +17,12 @@
  *    along with my_emulator.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _INPUT_PARSER_HPP
-#define _INPUT_PARSER_HPP
+#include "bus.hpp"
 
-#include "singleton.hpp"
+Bus::Bus(int bitWidth) {
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <list>
+}
 
-struct Opcode {
-  char Opcode;
-  char RegOrImm;
-};
+Bus::~Bus() {
 
-class InputParser {
-public:
-  void ReadFile(std::string fileName, bool isBinary);
-
-protected:
-  std::list<struct Opcode> _opcodes;
-};
-
- #endif
+}

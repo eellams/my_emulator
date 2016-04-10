@@ -17,8 +17,17 @@
  *    along with my_emulator.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "inputParser.hpp"
+#ifndef _BUS_HPP
+#define _BUS_HPP
 
-void InputParser::ReadFile(std::string fileName, bool isBinary) {
-  
-}
+class Bus {
+public:
+  Bus() {}
+  Bus(int bitWidth);
+  ~Bus();
+
+private:
+
+};
+
+ #endif
