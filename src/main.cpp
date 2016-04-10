@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
   std::cin >> isBinary;
 
   if (fileToExecute == "") fileToExecute = "testprogram";
-  log->Log(LOG_TYPE_INFO, "Opening program: '" + fileToExecute);
+  log->Log(LOG_TYPE_INFO, "Opening program: '" + fileToExecute + "'");
 
   iparser->ReadFile(fileToExecute, isBinary);
 

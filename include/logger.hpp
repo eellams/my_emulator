@@ -34,9 +34,9 @@
 #define LOG_STRING_DEBUG "DEBUG:"
 #define LOG_STRING_INFO "INFO:"
 
-#define LOG_TYPE_ERROR 0x00
+#define LOG_TYPE_INFO 0x00
 #define LOG_TYPE_DEBUG 0x01
-#define LOG_TYPE_INFO 0x02
+#define LOG_TYPE_ERROR 0x02
 
 class Logger {
 public:
@@ -47,16 +47,15 @@ public:
 
   void Log(char type, std::string toWrite);
 
-  /*void Error(std::string toWrite);
-  void Debug(std::string toWrite);
-  void Info(std::string toWrite);*/
-
 protected:
   std::string createTimeString();
   std::string createFullLogPrefix(std::string prefix);
+
+  void writeToLog(std::string);
+
   void log(std::string prefix, std::string toWrite);
 
-  std::ofstream _logfile;
+  std::ofstream _logFile;
   std::ofstream _signalFile;
 
   time_t _rawTime;

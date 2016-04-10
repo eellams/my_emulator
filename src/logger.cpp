@@ -28,11 +28,16 @@ Logger::Logger(std::string logFile, std::string signalFile) {
   std::cout << "Starting logger with log file: '" << logFile << "' ";
   std::cout << "and signal file: '" << signalFile << "'"<< std::endl;
 
+  _logFile.open(logFile.c_str());
+  _signalFile.open(signalFile.c_str());
+
 }
 
 Logger::~Logger() {
   delete _timeInfo;
-  _logfile.close();
+
+  _logFile.close();
+  _signalFile.close();
 }
 
 bool Logger::Clock() {
@@ -74,11 +79,26 @@ std::string Logger::createFullLogPrefix(std::string prefix) {
   return toReturn;
 }
 
+void Logger::writeToLog(std::string toWrite) {
+  // Write to the log file, if possible
+  if (_logFile.is_open()) {
+    _logFile.write(toWrite.c_str(), toWrite.size());
+
+    // Flush the output, keeping the log up to date
+    //  note that this is not the most efficidnt way to do this
+    //  but this program isn't time critical, so should be okay
+    _logFile.flush();
+  } else {
+    Log(LOG_TYPE_ERROR, "Couldn't write to log file!");
+  }
+}
+
 void Logger::log(std::string prefix, std::string toWrite) {
   std::string logString;
 
   logString += createFullLogPrefix(prefix);
-  logString += ": " + toWrite;
+  logString += ": " + toWrite + "\r\n";
 
-  std::cout << logString << std::endl;
+  writeToLog(logString);
+  std::cout << logString;
 }
