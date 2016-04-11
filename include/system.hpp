@@ -23,6 +23,15 @@
 #define WORD_WIDTH 8
 #define MEMORY_SIZE WORD_WIDTH * WORD_WIDTH
 
+// Breakdown of each instructiom
+// Bit[7] | Bit[6] ] Bit[5] | Bit[4] | Bit[3] | Bit[2]   | Bit[1]   | Bit[0]
+// ---------------------------------------------------------------------------
+// Op[3]  | Op[2]  | Op[1]  | Op[0] | R/I flag| RegIm[2] | RegIm[1] | RegIm[0]
+
+#define OPCODE_BITS 4 // Top 4 bits are opcode
+#define REG_IMM_FLAG 1 // 1 flag
+#define REG_IMM 3 // Bottom 3 bits Reg or Imm
+
 // This is pretty standard these days - don't touch!
 #define BYTE_SIZE 8
 
@@ -59,6 +68,5 @@ enum Commands {
 typedef struct {
   unsigned data : BYTES_PER_WORD * BYTE_SIZE;
 } Word;
-
 
 #endif

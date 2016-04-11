@@ -17,32 +17,42 @@
  *    along with my_emulator.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _BUS_HPP
-#define _BUS_HPP
-
-#include <string>
-#include <sstream>
+#ifndef _REGISTER_HPP
+#define _REGISTER_HPP
 
 #include "system.hpp"
+#include "bus.hpp"
 #include "singleton.hpp"
 #include "logger.hpp"
 
-#define BUS_DEFAULT_NAME "UNKNOWN_BUS"
-
-class Bus {
+class Register : public BussedItem {
 public:
-  Bus(std::string name = BUS_DEFAULT_NAME);
-  ~Bus();
+  Register() : BussedItem() {}
+  ~Register() {}
 
-  void SetName(std::string name);
-  std::string GetName();
 
-  void Set(Word *value);
-  Word* Get();
 
-private:
-  std::string _name;
-  Word *_contents;
+  void Clock() {}
+
+/*private:
+  Word _value;
+  bool *_isEnabled;*/
 };
 
- #endif
+class GeneralRegisterDeMux : public BussedItem {
+public:
+  GeneralRegisterDeMux() : BussedItem() {
+
+  }
+  ~GeneralRegisterDeMux() {}
+
+private:
+  // The bottom bits of the CIR indicate the register to write to
+  //  TODO should this be a bus rather than a weird link?
+  Register *_CIR;
+
+  //Register _registers[8]; // TODO this shouldn't be hard-coded
+  //bool _registerEnable[8];
+};
+
+#endif

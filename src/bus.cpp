@@ -35,17 +35,17 @@ std::string Bus::GetName() {
   return _name;
 }
 
-void Bus::Set(Word value) {
+void Bus::Set(Word *value) {
   std::ostringstream valueSS;
-  valueSS << (int)value.data;
+  valueSS << (int)value->data;
 
   Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Setting value of bus '" + _name + "' (" + valueSS.str() + ")");
   _contents = value;
 };
 
-Word Bus::Get() {
+Word* Bus::Get() {
   std::ostringstream contentsSS;
-  contentsSS << (int)_contents.data;
+  contentsSS << (int)_contents->data;
 
   Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Getting value of bus '" + _name + "' (" + contentsSS.str() + ")");
   return _contents;

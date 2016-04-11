@@ -18,8 +18,8 @@
  */
 #include "memory.hpp"
 
-Memory::Memory() {
-  
+Memory::Memory() : BussedItem() {
+
 }
 
 Memory::~Memory() {
@@ -92,13 +92,3 @@ bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
 // TODO these two, when busses have been written
 char Memory::Get(){ return 0; }; // Get word at address
 void Memory::Set() {}; // Set word at address with data
-
-void Memory::SetDataBus(Bus *bus) {
-  Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Setting memory data bus");
-  _dataBus = bus;
-};
-
-void Memory::SetAddressBus(Bus *bus) {
-  Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Setting memory address bus");
-  _addressBus = bus;
-};

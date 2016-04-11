@@ -17,32 +17,27 @@
  *    along with my_emulator.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _BUS_HPP
-#define _BUS_HPP
+#ifndef _BUSSED_ITEM_HPP
+#define _BUSSED_ITEM_HPP
 
 #include <string>
 #include <sstream>
 
-#include "system.hpp"
-#include "singleton.hpp"
-#include "logger.hpp"
+#include "bus.hpp"
 
 #define BUS_DEFAULT_NAME "UNKNOWN_BUS"
 
-class Bus {
+class BussedItem {
 public:
-  Bus(std::string name = BUS_DEFAULT_NAME);
-  ~Bus();
+  BussedItem() {}
+  ~BussedItem() {}
 
-  void SetName(std::string name);
-  std::string GetName();
+  void SetDataBus(Bus *bus) { _dataBus = bus; }
+  void SetAddressBus(Bus *bus) { _addressBus = bus; }
 
-  void Set(Word *value);
-  Word* Get();
-
-private:
-  std::string _name;
-  Word *_contents;
+protected:
+  Bus *_addressBus;
+  Bus *_dataBus;
 };
 
  #endif

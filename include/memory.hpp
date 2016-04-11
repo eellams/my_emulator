@@ -24,12 +24,13 @@
 #include "bus.hpp"
 #include "singleton.hpp"
 #include "logger.hpp"
+#include "bussedItem.hpp"
 
 #include <fstream>
 #include <sstream>
 #include <cstring>
 
-class Memory {
+class Memory : public BussedItem {
 public:
   Memory();
   ~Memory();
@@ -39,14 +40,8 @@ public:
   char Get(); // Get word at address
   void Set(); // Set word at address with data
 
-  void SetDataBus(Bus *bus);
-  void SetAddressBus(Bus *bus);
-
 private:
   Word _memory[MEMORY_SIZE];
-
-  Bus *_dataBus;
-  Bus *_addressBus;
 };
 
  #endif
