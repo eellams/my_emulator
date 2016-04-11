@@ -40,9 +40,9 @@ int main(int argc, char *argv[]) {
   Logger *log = Singleton<Logger>::GetInstance();
 
   // Classes that we are going to use
-  Bus addressBus;
-  Bus dataBus;
-  Memory memory;
+  Bus<ADDRESS_WIDTH> addressBus;
+  Bus<DATA_WIDTH> dataBus;
+  Memory<ADDRESS_WIDTH, DATA_WIDTH> memory;
 
   // Set bus names
   dataBus.SetName("Data Bus");

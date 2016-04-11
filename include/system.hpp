@@ -21,7 +21,10 @@
 #define _SYSTEM_HPP
 
 #define WORD_WIDTH 8
-#define MEMORY_SIZE WORD_WIDTH * WORD_WIDTH
+
+#define DATA_WIDTH 8
+#define ADDRESS_WIDTH 8
+//#define MEMORY_SIZE 2^ADDRESS_WIDTH
 
 // Breakdown of each instructiom
 // Bit[7] | Bit[6] ] Bit[5] | Bit[4] | Bit[3] | Bit[2]   | Bit[1]   | Bit[0]
@@ -31,6 +34,7 @@
 #define OPCODE_BITS 4 // Top 4 bits are opcode
 #define REG_IMM_FLAG 1 // 1 flag
 #define REG_IMM 3 // Bottom 3 bits Reg or Imm
+#define REG_NUM 2^REG_IMM
 
 // This is pretty standard these days - don't touch!
 #define BYTE_SIZE 8
@@ -38,14 +42,6 @@
 // NOTE the compiled binary files will probably have wated space
 //  i.e. a 9-bit word would occupy 2 bytes, as would a 10-16 bit word width
 //  but, a 1-8 bit word width would only require 1 bit
-
-#if WORD_WIDTH % 8 != 0
-  #define BYTES_PER_WORD (WORD_WIDTH / BYTE_SIZE + 1)
-#else
-  #define BYTES_PER_WORD (WORD_WIDTH / BYTE_SIZE)
-#endif
-
-#define REQUIRED_FILE_SIZE MEMORY_SIZE * BYTES_PER_WORD
 
 enum Commands {
   JMP = 0x01,
@@ -64,9 +60,5 @@ enum Commands {
   OP14=0x0E,
   OP15=0x0F
 };
-
-typedef struct {
-  unsigned data : BYTES_PER_WORD * BYTE_SIZE;
-} Word;
 
 #endif

@@ -20,6 +20,7 @@
 #ifndef _BUS_HPP
 #define _BUS_HPP
 
+#include <bitset>
 #include <string>
 #include <sstream>
 
@@ -29,20 +30,34 @@
 
 #define BUS_DEFAULT_NAME "UNKNOWN_BUS"
 
+template<size_t N>
 class Bus {
 public:
-  Bus(std::string name = BUS_DEFAULT_NAME);
-  ~Bus();
+  Bus() {}
+  ~Bus() {};
 
-  void SetName(std::string name);
-  std::string GetName();
+  void SetName(std::string name) { _name = name; }
+  std::string GetName() { return _name; }
 
-  void Set(Word *value);
-  Word* Get();
+  void Set(std::bitset<N> *value) {
+    std::ostringstream valueSS;
+    valueSS << (int)value->data;
+
+    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Setting value of bus '" + _name + "' (" + valueSS.str() + ")");
+    _contents = value;
+  };
+
+  std::bitset<N>* Get() {
+    std::ostringstream contentsSS;
+    contentsSS << (int)_contents->data;
+
+    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Getting value of bus '" + _name + "' (" + contentsSS.str() + ")");
+    return _contents;
+  };
 
 private:
   std::string _name;
-  Word *_contents;
+  std::bitset<N> *_contents;
 };
 
  #endif

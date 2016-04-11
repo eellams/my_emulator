@@ -27,17 +27,19 @@
 
 #define BUS_DEFAULT_NAME "UNKNOWN_BUS"
 
+// As the width of data and address bus could differ
+template<size_t aN, size_t dN>
 class BussedItem {
 public:
   BussedItem() {}
   ~BussedItem() {}
 
-  void SetDataBus(Bus *bus) { _dataBus = bus; }
-  void SetAddressBus(Bus *bus) { _addressBus = bus; }
+  void SetDataBus(Bus<dN> *bus) { _dataBus = bus; }
+  void SetAddressBus(Bus<aN> *bus) { _addressBus = bus; }
 
-protected:
-  Bus *_addressBus;
-  Bus *_dataBus;
+private:
+  Bus<aN> *_addressBus;
+  Bus<dN> *_dataBus;
 };
 
  #endif
