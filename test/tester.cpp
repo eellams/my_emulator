@@ -93,6 +93,7 @@ void testBusses() {
     std::cout << "Busses not working correctly" << std::endl;
   }
 
+  // See what happens if we change the input
   input = 0x88;
   output = testBus.GetValue();
   if (output != 0x88) {

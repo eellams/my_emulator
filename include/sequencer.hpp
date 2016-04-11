@@ -41,46 +41,28 @@ template<size_t aN, size_t dN, size_t cN>
 class Sequencer : public BussedItem<aN, dN, cN> {
 public:
   Sequencer() : BussedItem<aN, dN, cN>() {
-    _controlReg.SetName(REG_CONTROL_NAME);
-
-    _PC.SetName(REG_PC_NAME);
-    _CIR.SetName(REG_CIR_NAME);
-    _MAR.SetName(REG_MAR_NAME);
-    _MDR.SetName(REG_MDR_NAME);
-
     _state = FETCH;
   };
+  
   ~Sequencer() {};
 
   void SetupControlConnections() {
-    BussedItem<aN, dN, cN>::_controlBus->Set(&_controlReg);
+    BussedItem<aN, dN, cN>::_controlBus->SetInput(&_controlValue);
   }
 
   void Decode() {
-    std::bitset<dN> *word;
-
-    word = _CIR.GetValuePointer();
-
-    for (int i=0; i<OPCODE_BITS; i++) {
-      _opcode.set(OPCODE_BITS - 1 - i, word->test(word->size() - 1 - i));
-    }
-
-    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Decoded Opcode " + CreateString(_opcode.to_ulong()));
   }
 
   void Fetch() {
-    BussedItem<aN, dN, cN>::_addressBus->Set(_PC);
-
-    _controlReg->SetBit(CONTROL_WRITE);
-
   }
 
   void Store() {
-
   }
 
   void Initialise() {
-    BussedItem<aN, dN, cN>::_addressBus->Set(&_PC);
+    // TODO Initialise correctly, as and when registers available
+    BussedItem<aN, dN, cN>::_dataBus->SetInput(&_zeroBits);
+    BussedItem<aN, dN, cN>::_addressBus->SetInput(&_zeroBits);
   }
 
   void Clock() {
@@ -99,9 +81,12 @@ public:
 private:
   States _state;
 
+  std::bitset<dN> _zeroBits;
+
   std::bitset<OPCODE_BITS> _opcode;
   std::bitset<OPERAND_BITS> _operand; // TODO this is not used
 
-  Register<cN> _controlReg; // Value on the control bus
+  std::bitset<cN> _controlValue;
+
 };
  #endif

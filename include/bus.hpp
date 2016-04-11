@@ -33,6 +33,9 @@
 #define BUS_DEFAULT_NAME "UNKNOWN_BUS"
 #define BUS_PREFIX "BUS"
 
+// TODO contention checking?
+//  i.e. if input changed more than once per clock cycle
+
 template<size_t N>
 class Bus {
 public:
