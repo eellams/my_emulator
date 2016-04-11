@@ -31,6 +31,7 @@
 #include "register.hpp"
 
 #define BUS_DEFAULT_NAME "UNKNOWN_BUS"
+#define BUS_PREFIX "BUS"
 
 template<size_t N>
 class Bus {
@@ -44,28 +45,25 @@ public:
   void SetName(std::string name) { _name = name; }
   std::string GetName() { return _name; }
 
-  /*void Set(std::bitset<N> *value) {
-    _contents = value;
-    //Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Setting value of bus '" + _name + "' (" + CreateString(_contents->to_ulong()) + ")");
-    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Setting bus '" + _name + "' to " + value->GetName() + "(" + CreateString(_contents->to_ulong()) + ")");
-  };*/
-
-  void Set(Register<N> *toSet) {
-    _register = toSet;
-    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Changing bus '" + _name + "' to register '"+ toSet->GetName() + "' (" + CreateString(toSet->GetValuePointer()->to_ulong()) + ")");
+  void SetInput(std::bitset<N> *input) {
+    LOG(LOG_TYPE_DEBUG, createLogPrefix() + "setting input to: " + CreateString(input->to_ulong()));
+    _input = input;
   }
 
-  std::bitset<N>* Get() {
-    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Getting value of bus '" + _name + "' from register '"+ _register->GetName() + "' (" + CreateString(_register->GetValuePointer()->to_ulong()) + ")");
-    return _register->GetValuePointer();
-  };
-
-  bool GetBit(size_t index) { return _register->GetValuePointer()->test(index); }
+  std::bitset<N> GetValue() {
+    LOG(LOG_TYPE_DEBUG, createLogPrefix() + "getting value: " + CreateString(_input->to_ulong()));
+    return std::bitset<N>(*_input);
+  }
 
 private:
+  std::string createLogPrefix() {
+      std::string toReturn;
+      toReturn = "[" + std::string(BUS_PREFIX) + ":\"" + _name + "\"] ";
+      return toReturn;
+  }
+
   std::string _name;
-  //std::bitset<N> *_contents;
-  Register<N> *_register;
+  std::bitset<N> *_input;
 };
 
  #endif

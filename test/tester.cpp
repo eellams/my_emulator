@@ -22,6 +22,7 @@
 #include "singleton.hpp"
 #include "logger.hpp"
 #include "register.hpp"
+#include "bus.hpp"
 
 #define TEST_BIT_SIZE 8
 
@@ -74,10 +75,36 @@ void testRegisters() {
   testRegWrite(testRegister, input, regEnable);
 }
 
+void testBusses() {
+  std::cout << "Testing busses..." << std::endl;
+
+  Bus<TEST_BIT_SIZE> testBus("test Bus");
+  std::bitset<TEST_BIT_SIZE> input, output;
+
+  // Set up the bus
+  testBus.SetInput(&input);
+
+  // Set the input value
+  input = 0xff;
+
+  output = testBus.GetValue();
+
+  if (input != output) {
+    std::cout << "Busses not working correctly" << std::endl;
+  }
+
+  input = 0x88;
+  output = testBus.GetValue();
+  if (output != 0x88) {
+    std::cout << "Bus pointers not working properly" << std::endl;
+  }
+}
+
 int main(int argc, char *argv[]) {
   Logger *log = Singleton<Logger>::GetInstance();
 
   testRegisters();
+  testBusses();
 
   return 0;
 }
