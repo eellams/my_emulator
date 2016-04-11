@@ -21,38 +21,36 @@
 #define _REGISTER_HPP
 
 #include "system.hpp"
-#include "bus.hpp"
 #include "singleton.hpp"
 #include "logger.hpp"
+#include <string>
 
-class Register : public BussedItem {
+#define REGISTER_DEFAULT_NAME "UNKNOWN_REGISTER"
+
+template<size_t N>
+class Register {
 public:
-  Register() : BussedItem() {}
+  Register(std::string name = REGISTER_DEFAULT_NAME) { SetName(name); }
   ~Register() {}
-
-
 
   void Clock() {}
 
-/*private:
-  Word _value;
-  bool *_isEnabled;*/
-};
+  void SetValue(int value) {
 
-class GeneralRegisterDeMux : public BussedItem {
-public:
-  GeneralRegisterDeMux() : BussedItem() {
-
+    _contents = value;
   }
-  ~GeneralRegisterDeMux() {}
+
+  void SetName(std::string name) {
+    _name = name;
+  }
+  std::string GetName() { return _name; }
+
+  std::bitset<N>* GetValuePointer() { return &_contents; }
 
 private:
-  // The bottom bits of the CIR indicate the register to write to
-  //  TODO should this be a bus rather than a weird link?
-  Register *_CIR;
+  std::string _name;
+  std::bitset<N> _contents;
 
-  //Register _registers[8]; // TODO this shouldn't be hard-coded
-  //bool _registerEnable[8];
 };
 
 #endif

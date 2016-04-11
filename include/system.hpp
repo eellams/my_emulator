@@ -20,11 +20,20 @@
 #ifndef _SYSTEM_HPP
 #define _SYSTEM_HPP
 
+#include <string>
+#include <sstream>
+#include <bitset>
+
 #define WORD_WIDTH 8
 
 #define DATA_WIDTH 8
 #define ADDRESS_WIDTH 8
-//#define MEMORY_SIZE 2^ADDRESS_WIDTH
+#define CONTROL_WIDTH 4
+
+#define CONTROL_READ 0
+#define CONTROL_WRITE 1
+#define CONTROL_CLOCK 2 // Never actually used in this simulation
+#define CONTROL_UNUSED 3
 
 // Breakdown of each instructiom
 // Bit[7] | Bit[6] ] Bit[5] | Bit[4] | Bit[3] | Bit[2]   | Bit[1]   | Bit[0]
@@ -34,7 +43,6 @@
 #define OPCODE_BITS 4 // Top 4 bits are opcode
 #define REG_IMM_FLAG 1 // 1 flag
 #define REG_IMM 3 // Bottom 3 bits Reg or Imm
-#define REG_NUM 2^REG_IMM
 
 // This is pretty standard these days - don't touch!
 #define BYTE_SIZE 8
@@ -60,5 +68,11 @@ enum Commands {
   OP14=0x0E,
   OP15=0x0F
 };
+
+std::string CreateString(long input) {
+  std::ostringstream ss;
+  ss << input;
+  return ss.str();
+}
 
 #endif

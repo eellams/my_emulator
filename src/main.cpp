@@ -25,6 +25,8 @@
 #include "singleton.hpp"
 #include "bus.hpp"
 #include "memory.hpp"
+#include "sequencer.hpp"
+#include "register.hpp"
 
 class meh {
 public:
@@ -42,11 +44,14 @@ int main(int argc, char *argv[]) {
   // Classes that we are going to use
   Bus<ADDRESS_WIDTH> addressBus;
   Bus<DATA_WIDTH> dataBus;
-  Memory<ADDRESS_WIDTH, DATA_WIDTH> memory;
+  Bus<CONTROL_WIDTH> controlBus;
+  Sequencer<ADDRESS_WIDTH, DATA_WIDTH, CONTROL_WIDTH> sequencer;
+  Memory<ADDRESS_WIDTH, DATA_WIDTH, CONTROL_WIDTH> memory;
 
   // Set bus names
   dataBus.SetName("Data Bus");
   addressBus.SetName("Address Bus");
+  controlBus.SetName("Control Bus");
 
   // Get the file we are reading
   std::cout << "File to read (leave blank for testprogram): ";
@@ -69,6 +74,14 @@ int main(int argc, char *argv[]) {
   // Setup our connections
   memory.SetDataBus(&dataBus);
   memory.SetAddressBus(&addressBus);
+  memory.SetControlBus(&controlBus);
+
+  sequencer.SetDataBus(&dataBus);
+  sequencer.SetAddressBus(&addressBus);
+  sequencer.SetControlBus(&controlBus);
+  sequencer.SetupControlConnections(); // Sequencer controls control bus
+
+  sequencer.FirstClock();
 
   log->Log(LOG_TYPE_INFO, "Program finished executing");
 

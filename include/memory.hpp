@@ -28,41 +28,33 @@
 
 #include <bitset>
 #include <fstream>
-#include <sstream>
 #include <cstring>
 #include <cmath>
 
-template<size_t aN, size_t dN>
-class Memory : public BussedItem<aN, dN> {
+template<size_t aN, size_t dN, size_t cN>
+class Memory : public BussedItem<aN, dN, cN> {
 public:
-  Memory() : BussedItem<aN, dN>() {};
+  Memory() : BussedItem<aN, dN, cN>() {};
   ~Memory() {};
 
   bool LoadFromFile(std::string fileName, bool isBinary) {
     std::ifstream inputFile;
     char read[(size_t)std::ceil(log2(dN))];
     std::bitset<dN> readWord;
-    int filesize, memorySize, expectedFileSize;
-
-    std::ostringstream filesizeSS;
-    std::ostringstream expectedSS;
+    int filesize, expectedFileSize;
 
     // Open the file, at the end to check file size
     inputFile.open(fileName.c_str(), std::ios::binary | std::ios::ate);
     filesize = inputFile.tellg();
 
-    memorySize = std::pow(2,dN);
-
-    if (dN % BYTE_SIZE != 0) expectedFileSize = memorySize * (dN / BYTE_SIZE + 1);
-    else expectedFileSize = memorySize * (dN / BYTE_SIZE);
-
-    filesizeSS << filesize;
-    expectedSS << expectedFileSize;
+    // Memory size = ( 1 << aN )
+    if (dN % BYTE_SIZE != 0) expectedFileSize = (1 << aN) * (dN / BYTE_SIZE + 1);
+    else expectedFileSize = (1 << aN) * (dN / BYTE_SIZE);
 
     if (filesize < expectedFileSize) {
-      Singleton<Logger>::GetInstance()->Log(LOG_TYPE_INFO, "Unexpected file size, read " + filesizeSS.str() + " bytes, expected " + expectedSS.str() + " bytes, will pad out the rest of data with 0x00");
+      Singleton<Logger>::GetInstance()->Log(LOG_TYPE_INFO, "Unexpected file size, read " + CreateString(filesize) + " bytes, expected " + CreateString(expectedFileSize) + " bytes, will pad out the rest of data with 0x00");
     } else if (filesize > expectedFileSize) {
-      Singleton<Logger>::GetInstance()->Log(LOG_TYPE_INFO, "Unexpected file size, read " + filesizeSS.str() + " bytes, expected " + expectedSS.str() + " bytes, some data will be lost!");
+      Singleton<Logger>::GetInstance()->Log(LOG_TYPE_INFO, "Unexpected file size, read " + CreateString(filesize) + " bytes, expected " + CreateString(expectedFileSize) + " bytes, some data will be lost!");
     }
 
     // Return to the top of the file
@@ -96,10 +88,6 @@ public:
       return false;
     }
 
-    /*for (int i=0; i<MEMORY_SIZE; i++) {
-      std::cout << "Memory address: " << i << " value: " << (int)_memory[i].data << std::endl;
-    }*/
-
     Singleton<Logger>::GetInstance()->Log(LOG_TYPE_INFO, "Successfully loaded the file into memory");
 
     inputFile.close();
@@ -108,12 +96,15 @@ public:
 
   void Clock() {
     // TODO clock in if the flags permit
+    if (BussedItem<aN, dN, cN>::_controlBus->GetBit(CONTROL_READ) && !BussedItem<aN, dN, cN>::_controlBus->GetBit(CONTROL_WRITE)) {
+      // Write data
+      Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Loading contents of data bus (" + CreateString(BussedItem<aN, dN, cN>::_dataBus->GetInt()) + \
+        ") at address of address bus (" + CreateString(BussedItem<aN, dN, cN>::_controlBus->GetInt()) + ")");
+    }
   }
 
 private:
-  std::bitset<dN> _memory[2^aN];
-
-  bool *_writeEnable; // TODO correct the flags
+  std::bitset<dN> _memory[1 << aN];
 };
 
  #endif

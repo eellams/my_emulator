@@ -23,12 +23,13 @@
 #include <string>
 #include <sstream>
 
+#include "system.hpp"
 #include "bus.hpp"
 
 #define BUS_DEFAULT_NAME "UNKNOWN_BUS"
 
 // As the width of data and address bus could differ
-template<size_t aN, size_t dN>
+template<size_t aN, size_t dN, size_t cN>
 class BussedItem {
 public:
   BussedItem() {}
@@ -36,10 +37,12 @@ public:
 
   void SetDataBus(Bus<dN> *bus) { _dataBus = bus; }
   void SetAddressBus(Bus<aN> *bus) { _addressBus = bus; }
+  void SetControlBus(Bus<cN> *bus) { _controlBus = bus; }
 
-private:
+protected:
   Bus<aN> *_addressBus;
   Bus<dN> *_dataBus;
+  Bus<cN> *_controlBus;
 };
 
  #endif

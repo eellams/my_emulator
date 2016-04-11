@@ -23,41 +23,49 @@
 #include <bitset>
 #include <string>
 #include <sstream>
+#include <stdexcept>
 
 #include "system.hpp"
 #include "singleton.hpp"
 #include "logger.hpp"
+#include "register.hpp"
 
 #define BUS_DEFAULT_NAME "UNKNOWN_BUS"
 
 template<size_t N>
 class Bus {
 public:
-  Bus() {}
+  Bus(std::string name = BUS_DEFAULT_NAME) {
+    SetName(name);
+  }
+
   ~Bus() {};
 
   void SetName(std::string name) { _name = name; }
   std::string GetName() { return _name; }
 
-  void Set(std::bitset<N> *value) {
-    std::ostringstream valueSS;
-    valueSS << (int)value->data;
-
-    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Setting value of bus '" + _name + "' (" + valueSS.str() + ")");
+  /*void Set(std::bitset<N> *value) {
     _contents = value;
-  };
+    //Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Setting value of bus '" + _name + "' (" + CreateString(_contents->to_ulong()) + ")");
+    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Setting bus '" + _name + "' to " + value->GetName() + "(" + CreateString(_contents->to_ulong()) + ")");
+  };*/
+
+  void Set(Register<N> *toSet) {
+    _register = toSet;
+    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Changing bus '" + _name + "' to register '"+ toSet->GetName() + "' (" + CreateString(toSet->GetValuePointer()->to_ulong()) + ")");
+  }
 
   std::bitset<N>* Get() {
-    std::ostringstream contentsSS;
-    contentsSS << (int)_contents->data;
-
-    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Getting value of bus '" + _name + "' (" + contentsSS.str() + ")");
-    return _contents;
+    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Getting value of bus '" + _name + "' from register '"+ _register->GetName() + "' (" + CreateString(_register->GetValuePointer()->to_ulong()) + ")");
+    return _register->GetValuePointer();
   };
+
+  //bool GetBit(size_t index) { return _contents->test(index); }
 
 private:
   std::string _name;
-  std::bitset<N> *_contents;
+  //std::bitset<N> *_contents;
+  Register<N> *_register;
 };
 
  #endif
