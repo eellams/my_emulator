@@ -20,14 +20,29 @@
 #ifndef _BUS_HPP
 #define _BUS_HPP
 
+#include <string>
+#include <sstream>
+
+#include "system.hpp"
+#include "singleton.hpp"
+#include "logger.hpp"
+
+#define BUS_DEFAULT_NAME "UNKNOWN_BUS"
+
 class Bus {
 public:
-  Bus() {}
-  Bus(int bitWidth);
+  Bus(std::string name = BUS_DEFAULT_NAME);
   ~Bus();
 
-private:
+  void SetName(std::string name);
+  std::string GetName();
 
+  void Set(Word value);
+  Word Get();
+
+private:
+  std::string _name;
+  Word _contents;
 };
 
  #endif

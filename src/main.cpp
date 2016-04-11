@@ -26,11 +26,6 @@
 #include "bus.hpp"
 #include "memory.hpp"
 
-bool do_clock() {
-  Singleton<Logger>::GetInstance()->Clock();
-  return true;
-}
-
 class meh {
 public:
   meh() {std::cout << "meh" << std::endl;};
@@ -44,10 +39,14 @@ int main(int argc, char *argv[]) {
   // Startup all of the singleton instances
   Logger *log = Singleton<Logger>::GetInstance();
 
-  // Other classes required
-  Bus dataBus;
+  // Classes that we are going to use
   Bus addressBus;
-  Memory memory(&dataBus, &addressBus);
+  Bus dataBus;
+  Memory memory;
+
+  // Set bus names
+  dataBus.SetName("Data Bus");
+  addressBus.SetName("Address Bus");
 
   // Get the file we are reading
   std::cout << "File to read (leave blank for testprogram): ";
@@ -67,7 +66,9 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  do_clock();
+  // Setup our connections
+  memory.SetDataBus(&dataBus);
+  memory.SetAddressBus(&addressBus);
 
   log->Log(LOG_TYPE_INFO, "Program finished executing");
 
