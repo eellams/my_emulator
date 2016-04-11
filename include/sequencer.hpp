@@ -32,6 +32,11 @@
 #define REG_PC_NAME "Program Counter"
 #define REG_MDR_NAME "Memory Data Register"
 
+enum States{
+  FETCH,
+  EXECUTE
+};
+
 template<size_t aN, size_t dN, size_t cN>
 class Sequencer : public BussedItem<aN, dN, cN> {
 public:
@@ -42,6 +47,8 @@ public:
     _CIR.SetName(REG_CIR_NAME);
     _MAR.SetName(REG_MAR_NAME);
     _MDR.SetName(REG_MDR_NAME);
+
+    _state = FETCH;
   };
   ~Sequencer() {};
 
@@ -49,21 +56,52 @@ public:
     BussedItem<aN, dN, cN>::_controlBus->Set(&_controlReg);
   }
 
-  void FirstClock() {
+  void Decode() {
+    std::bitset<dN> *word;
+
+    word = _CIR.GetValuePointer();
+
+    for (int i=0; i<OPCODE_BITS; i++) {
+      _opcode.set(OPCODE_BITS - 1 - i, word->test(word->size() - 1 - i));
+    }
+
+    Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Decoded Opcode " + CreateString(_opcode.to_ulong()));
+  }
+
+  void Fetch() {
+    BussedItem<aN, dN, cN>::_addressBus->Set(_PC);
+
+    _controlReg->SetBit(CONTROL_WRITE);
+
+  }
+
+  void Store() {
+
+  }
+
+  void Initialise() {
     BussedItem<aN, dN, cN>::_addressBus->Set(&_PC);
-    
   }
 
   void Clock() {
-
+    switch (_state) {
+      case FETCH:
+        Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Fetch");
+        _state = EXECUTE;
+        break;
+      case EXECUTE:
+        Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Execute");
+        _state = FETCH;
+        break;
+    }
   }
 
 private:
-  Register<cN> _controlReg; // Value on the control bus
+  States _state;
 
-  Register<dN> _PC; // Address of current instruction
-  Register<aN> _CIR; // Value of current instruction
-  Register<aN> _MAR; // Memory address register
-  Register<dN> _MDR; // Memory data register
+  std::bitset<OPCODE_BITS> _opcode;
+  std::bitset<OPERAND_BITS> _operand; // TODO this is not used
+
+  Register<cN> _controlReg; // Value on the control bus
 };
  #endif

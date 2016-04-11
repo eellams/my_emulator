@@ -27,6 +27,7 @@
 #include "memory.hpp"
 #include "sequencer.hpp"
 #include "register.hpp"
+#include "registerFile.hpp"
 
 class meh {
 public:
@@ -45,6 +46,7 @@ int main(int argc, char *argv[]) {
   Bus<ADDRESS_WIDTH> addressBus;
   Bus<DATA_WIDTH> dataBus;
   Bus<CONTROL_WIDTH> controlBus;
+  RegisterFile<ADDRESS_WIDTH, DATA_WIDTH, CONTROL_WIDTH> regFile;
   Sequencer<ADDRESS_WIDTH, DATA_WIDTH, CONTROL_WIDTH> sequencer;
   Memory<ADDRESS_WIDTH, DATA_WIDTH, CONTROL_WIDTH> memory;
 
@@ -81,7 +83,10 @@ int main(int argc, char *argv[]) {
   sequencer.SetControlBus(&controlBus);
   sequencer.SetupControlConnections(); // Sequencer controls control bus
 
-  sequencer.FirstClock();
+  sequencer.Initialise();
+
+  sequencer.Clock();
+  memory.Clock();
 
   log->Log(LOG_TYPE_INFO, "Program finished executing");
 

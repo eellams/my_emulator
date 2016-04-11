@@ -97,9 +97,14 @@ public:
   void Clock() {
     // TODO clock in if the flags permit
     if (BussedItem<aN, dN, cN>::_controlBus->GetBit(CONTROL_READ) && !BussedItem<aN, dN, cN>::_controlBus->GetBit(CONTROL_WRITE)) {
-      // Write data
-      Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Loading contents of data bus (" + CreateString(BussedItem<aN, dN, cN>::_dataBus->GetInt()) + \
-        ") at address of address bus (" + CreateString(BussedItem<aN, dN, cN>::_controlBus->GetInt()) + ")");
+      // Read address of address bus to data bus
+
+      /*Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Loading contents of data bus (" + CreateString(BussedItem<aN, dN, cN>::_dataBus->GetInt()) + \
+        ") at address of address bus (" + CreateString(BussedItem<aN, dN, cN>::_controlBus->GetInt()) + ")");*/
+    }
+    else if (BussedItem<aN, dN, cN>::_controlBus->GetBit(CONTROL_WRITE) && !BussedItem<aN, dN, cN>::_controlBus->GetBit(CONTROL_READ) ) {
+      // Write data bus's data to address of address bus
+
     }
   }
 

@@ -26,30 +26,59 @@
 #include <string>
 
 #define REGISTER_DEFAULT_NAME "UNKNOWN_REGISTER"
+#define REGISTER_PREFIX "REGISTER"
 
 template<size_t N>
 class Register {
 public:
   Register(std::string name = REGISTER_DEFAULT_NAME) { SetName(name); }
-  ~Register() {}
 
-  void Clock() {}
+  ~Register() {  }
 
-  void SetValue(int value) {
-
-    _contents = value;
+  // Clock in the input (if enabled)
+  void Clock() {
+    if (*_writeEnable) {
+      _contents = *_input;
+      LOG(LOG_TYPE_DEBUG, createLogPrefix() + "clocking in value: " + CreateString(_input->to_ulong()));
+    }
   }
 
+  // Set the register's name (for logging)
   void SetName(std::string name) {
+    if(name != REGISTER_DEFAULT_NAME && name != "")
+      LOG(LOG_TYPE_DEBUG, createLogPrefix() + "renaming register to '" + name + "'");
     _name = name;
   }
+
   std::string GetName() { return _name; }
 
-  std::bitset<N>* GetValuePointer() { return &_contents; }
+  void SetWriteEnable(bool *value) {
+    // TODO do we need to put a log here?
+    _writeEnable = value;
+  }
+
+  void SetInput(std::bitset<N> *value) {
+    // TODO do we need a log here?
+    _input = value;
+  }
+
+  std::bitset<N> GetContents() {
+    LOG(LOG_TYPE_DEBUG, createLogPrefix() + "getting contents: " + CreateString(_contents.to_ulong()));
+    return _contents;
+  }
 
 private:
+  std::string createLogPrefix() {
+      std::string toReturn;
+      toReturn = "[" + std::string(REGISTER_PREFIX) + ":\"" + _name + "\"] ";
+      return toReturn;
+  }
+
   std::string _name;
   std::bitset<N> _contents;
+  std::bitset<N> *_input;
+
+  bool *_writeEnable;
 
 };
 

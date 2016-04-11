@@ -60,7 +60,7 @@ public:
     return _register->GetValuePointer();
   };
 
-  //bool GetBit(size_t index) { return _contents->test(index); }
+  bool GetBit(size_t index) { return _register->GetValuePointer()->test(index); }
 
 private:
   std::string _name;
