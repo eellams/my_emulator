@@ -26,23 +26,58 @@
 #include "system.hpp"
 #include "bus.hpp"
 
-#define BUS_DEFAULT_NAME "UNKNOWN_BUS"
+#define BUSSED_ITEM_DEFAULT_NAME "UNKNOWN_ITEM"
+#define BUSSED_ITEM_DEFAULT_TYPE_NAME "UNKNOWN_TYPE"
 
-// As the width of data and address bus could differ
-template<size_t aN, size_t dN, size_t cN>
+// Forward definiton, avoids cyclic dependencies with "myBitset.hpp"
+template<size_t N> class MyBitset;
+
 class BussedItem {
 public:
-  BussedItem() {}
-  ~BussedItem() {}
+  BussedItem(std::string typeName = BUSSED_ITEM_DEFAULT_TYPE_NAME,
+    std::string name = BUSSED_ITEM_DEFAULT_NAME);
+  ~BussedItem();
 
-  void SetDataBus(Bus<dN> *bus) { _dataBus = bus; }
-  void SetAddressBus(Bus<aN> *bus) { _addressBus = bus; }
-  void SetControlBus(Bus<cN> *bus) { _controlBus = bus; }
+  void SetDataBus(Bus<DATA_WIDTH> *bus);
+  void SetAddressBus(Bus<ADDRESS_WIDTH> *bus);
+  void SetControlBus(Bus<CONTROL_WIDTH> *bus);
+
+  void SetName(std::string name);
+  std::string GetName();
+
+  void SetTypeName(std::string typeName);
+  std::string GetTypeName();
+
+  void SetInput(MyBitset<DATA_WIDTH> *input) { _input = input; }
+  MyBitset<DATA_WIDTH>* GetOutputP() { return _output; }
 
 protected:
-  Bus<aN> *_addressBus;
-  Bus<dN> *_dataBus;
-  Bus<cN> *_controlBus;
+  std::string createLogPrefix();
+  void log(int logType, std::string logStr);
+
+  static std::string createString(long input, bool hex = true) {
+    std::ostringstream ss;
+    if (hex) {
+      ss << std::hex << input;
+      return "0x" + ss.str();
+    }
+    else {
+      ss << input;
+      return ss.str();
+    }
+  }
+
+  // TODO setInput and setOutput?
+
+  std::string _name;
+  std::string _typeName;
+
+  MyBitset<DATA_WIDTH> *_input;
+  MyBitset<DATA_WIDTH> *_output;
+
+  Bus<ADDRESS_WIDTH> *_addressBus;
+  Bus<DATA_WIDTH> *_dataBus;
+  Bus<CONTROL_WIDTH> *_controlBus;
 };
 
  #endif

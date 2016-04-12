@@ -20,7 +20,6 @@
 #ifndef _BUS_HPP
 #define _BUS_HPP
 
-#include <bitset>
 #include <string>
 #include <sstream>
 #include <stdexcept>
@@ -28,7 +27,8 @@
 #include "system.hpp"
 #include "singleton.hpp"
 #include "logger.hpp"
-#include "register.hpp"
+
+template<size_t N> class MyBitset;
 
 #define BUS_DEFAULT_NAME "UNKNOWN_BUS"
 #define BUS_PREFIX "BUS"
@@ -48,25 +48,45 @@ public:
   void SetName(std::string name) { _name = name; }
   std::string GetName() { return _name; }
 
-  void SetInput(std::bitset<N> *input) {
-    LOG(LOG_TYPE_DEBUG, createLogPrefix() + "setting input to: " + CreateString(input->to_ulong()));
+  void SetInput(MyBitset<N> *input) {
+    log(LOG_TYPE_DEBUG, "Setting input to: " + createString(input->to_ulong()));
     _input = input;
   }
 
-  std::bitset<N> GetValue() {
-    LOG(LOG_TYPE_DEBUG, createLogPrefix() + "getting value: " + CreateString(_input->to_ulong()));
-    return std::bitset<N>(*_input);
+  MyBitset<N> GetValue() {
+    log(LOG_TYPE_DEBUG, "Getting value: " + createString(_input->to_ulong()));
+    return *_input;
+  }
+
+  MyBitset<N>* GetValueP() {
+    return _input;
   }
 
 private:
   std::string createLogPrefix() {
       std::string toReturn;
-      toReturn = "[" + std::string(BUS_PREFIX) + ":\"" + _name + "\"] ";
+      toReturn = "[" + std::string(BUS_PREFIX) + ": " + _name + "] ";
       return toReturn;
   }
 
+  void log(int logType, std::string logStr) {
+    Singleton<Logger>::GetInstance()->Log(logType, createLogPrefix() + logStr);
+  }
+
+  std::string createString(long input, bool hex = true) {
+    std::ostringstream ss;
+    if (hex) {
+      ss << std::hex << input;
+      return "0x" + ss.str();
+    }
+    else {
+      ss << input;
+      return ss.str();
+    }
+  }
+
   std::string _name;
-  std::bitset<N> *_input;
+  MyBitset<N> *_input;
 };
 
  #endif

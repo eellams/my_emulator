@@ -21,10 +21,10 @@
 #define _SEQUENCER_HPP
 
 #include "system.hpp"
-#include "singleton.hpp"
-#include "logger.hpp"
 #include "bussedItem.hpp"
 #include "register.hpp"
+#include "registerFile.hpp"
+#include "memory.hpp"
 
 #define REG_CONTROL_NAME "Sequencer Control Register"
 #define REG_CIR_NAME "Current Instruction Register"
@@ -32,61 +32,45 @@
 #define REG_PC_NAME "Program Counter"
 #define REG_MDR_NAME "Memory Data Register"
 
+#define SEQUENCER_NAME "Sequencer"
+#define SEQUENCER_TYPE_NAME "SEQUENCER"
+
 enum States{
-  FETCH,
+  FETCH_PC,
+  FETCH_IST,
   EXECUTE
 };
 
-template<size_t aN, size_t dN, size_t cN>
-class Sequencer : public BussedItem<aN, dN, cN> {
+class Sequencer : public BussedItem {
 public:
-  Sequencer() : BussedItem<aN, dN, cN>() {
-    _state = FETCH;
-  };
-  
-  ~Sequencer() {};
+  Sequencer();
+  ~Sequencer();
 
-  void SetupControlConnections() {
-    BussedItem<aN, dN, cN>::_controlBus->SetInput(&_controlValue);
-  }
+  void SetupControlConnections();
 
-  void Decode() {
-  }
+  void Decode();
+  void Fetch();
+  void Store();
 
-  void Fetch() {
-  }
+  void GetNextInstruction();
 
-  void Store() {
-  }
+  void Initialise();
+  void Clock();
 
-  void Initialise() {
-    // TODO Initialise correctly, as and when registers available
-    BussedItem<aN, dN, cN>::_dataBus->SetInput(&_zeroBits);
-    BussedItem<aN, dN, cN>::_addressBus->SetInput(&_zeroBits);
-  }
+  void SetRegisterFile(RegisterFile *registerFile);
+  void SetMemory(Memory *memory);
 
-  void Clock() {
-    switch (_state) {
-      case FETCH:
-        Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Fetch");
-        _state = EXECUTE;
-        break;
-      case EXECUTE:
-        Singleton<Logger>::GetInstance()->Log(LOG_TYPE_DEBUG, "Execute");
-        _state = FETCH;
-        break;
-    }
-  }
 
 private:
   States _state;
+  RegisterFile *_registerFile;
+  Memory *_memory;
 
-  std::bitset<dN> _zeroBits;
+  MyBitset<DATA_WIDTH> _zeroBitsData;
+  MyBitset<ADDRESS_WIDTH> _zeroBitsAddress;
 
-  std::bitset<OPCODE_BITS> _opcode;
-  std::bitset<OPERAND_BITS> _operand; // TODO this is not used
+  MyBitset<ADDRESS_WIDTH> _PCAddress;
 
-  std::bitset<cN> _controlValue;
-
+  MyBitset<CONTROL_WIDTH> _controlBusValue;
 };
  #endif

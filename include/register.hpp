@@ -21,62 +21,46 @@
 #define _REGISTER_HPP
 
 #include "system.hpp"
-#include "singleton.hpp"
-#include "logger.hpp"
+#include "bussedItem.hpp"
+#include "myBitset.hpp"
+
 #include <string>
 
 #define REGISTER_DEFAULT_NAME "UNKNOWN_REGISTER"
 #define REGISTER_PREFIX "REGISTER"
 
 template<size_t N>
-class Register {
+class Register : public BussedItem {
 public:
-  Register(std::string name = REGISTER_DEFAULT_NAME) { SetName(name); }
-
+  Register(std::string name = REGISTER_DEFAULT_NAME) : BussedItem(name) {}
   ~Register() {  }
 
   // Clock in the input (if enabled)
   void Clock() {
     if (*_writeEnable) {
       _contents = *_input;
-      LOG(LOG_TYPE_DEBUG, createLogPrefix() + "clocking in value: " + CreateString(_input->to_ulong()));
+      log(LOG_TYPE_DEBUG, "Clocking in value: " + BussedItem::createString(_input->to_ulong()));
     }
   }
-
-  // Set the register's name (for logging)
-  void SetName(std::string name) {
-    if(name != REGISTER_DEFAULT_NAME && name != "")
-      LOG(LOG_TYPE_DEBUG, createLogPrefix() + "renaming register to '" + name + "'");
-    _name = name;
-  }
-
-  std::string GetName() { return _name; }
 
   void SetWriteEnable(bool *value) {
     // TODO do we need to put a log here?
     _writeEnable = value;
   }
 
-  void SetInput(std::bitset<N> *value) {
-    // TODO do we need a log here?
-    _input = value;
-  }
-
-  std::bitset<N> GetContents() {
-    LOG(LOG_TYPE_DEBUG, createLogPrefix() + "getting contents: " + CreateString(_contents.to_ulong()));
+  MyBitset<N> GetContents() {
+    log(LOG_TYPE_DEBUG, "Getting contents: " + BussedItem::createString(_contents.to_ulong()));
     return _contents;
   }
 
-private:
-  std::string createLogPrefix() {
-      std::string toReturn;
-      toReturn = "[" + std::string(REGISTER_PREFIX) + ":\"" + _name + "\"] ";
-      return toReturn;
+  MyBitset<N>* GetContentsP() {
+    log(LOG_TYPE_DEBUG, "Getting pointer to contents: " + BussedItem::createString(_contents.to_ulong()));
+    return &_contents;
   }
 
+private:
   std::string _name;
-  std::bitset<N> _contents;
-  std::bitset<N> *_input;
+  MyBitset<N> _contents;
 
   bool *_writeEnable;
 

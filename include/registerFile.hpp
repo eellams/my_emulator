@@ -20,33 +20,47 @@
 #ifndef _REGISTER_FILE_HPP
 #define _REGISTER_FILE_HPP
 
+#include <string>
+
 #include "system.hpp"
-#include "singleton.hpp"
-#include "logger.hpp"
 #include "bussedItem.hpp"
+#include "register.hpp"
 
-#define REG_NUM 1 << OPERAND_BITS
+#define REG_NUM 1 << REG_WIDTH
+#define REG_GEN_NAME "Registers"
 
-template<size_t aN, size_t dN, size_t cN>
-class RegisterFile : BussedItem<aN, dN, cN> {
+// Reserved registers
+#define REG_ZERO 0
+#define REG_ACC 1
+#define REG_MAR 2
+#define REG_MDR 3
+#define REG_PC 4
+#define REG_CIR 5
+
+#define REG_ZERO_NAME "Zero Reg"
+#define REG_ACC_NAME "Accumulator"
+#define REG_MAR_NAME "Memory Address Register"
+#define REG_MDR_NAME "Memory Data Register"
+#define REG_PC_NAME "Program Counter"
+#define REG_CIR_NAME "Current Instruction Register"
+
+class RegisterFile : public BussedItem {
 public:
-  RegisterFile() {
-    for (int i=0; i<REG_NUM; i++) {
-      _generalReg[i].SetWriteEnable(&_registerEnables[i]);
-      // TODO name the registers
-    }
-  }
+  RegisterFile();
+  ~RegisterFile();
 
-  ~RegisterFile() {}
 
-  void Clock() {}
+  void SetupRegisters();
+
+  void Clock();
+
+  void ReadFromRegister(int registerNumber);
+  void WriteToRegister(int registerNumber);
 
 private:
-  Register<dN> _generalReg[REG_NUM];
-  bool _registerEnables[REG_NUM];
+  Register<DATA_WIDTH> _reg[REGISTER_NUMBER];
 
-  //std::bitset<dN> _input;
-  Register<dN> *_output;
+  bool _registerEnables[REGISTER_NUMBER];
 };
 
 #endif
