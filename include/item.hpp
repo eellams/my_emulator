@@ -28,8 +28,8 @@
 #include "singleton.hpp"
 #include "logger.hpp"
 
-template<size_t N>
-class MyBitset;
+template<size_t N> class MyBitset;
+
 
 #define ITEM_DEFAULT_NAME "UNKNOWN_ITEM"
 #define ITEM_TYPE_DEFAULT_NAME "ITEM"
@@ -37,51 +37,57 @@ class MyBitset;
 class Item {
 public:
   Item(std::string typeName = ITEM_TYPE_DEFAULT_NAME,
-    std::string name = ITEM_DEFAULT_NAME);
+    std::string name = ITEM_DEFAULT_NAME) {
+      SetTypeName(typeName);
+      SetName(name);
+    }
 
-  ~Item();
+  ~Item() {}
 
-  void SetName(std::string name);
-  std::string GetName();
+  void SetName(std::string name) { _name = name; }
+  std::string GetName() { return _name; }
 
-  void SetTypeName(std::string typeName);
-  std::string GetTypeName();
-
-  void SetInput(MyBitset<BUS_WIDTH> *input);
+  void SetTypeName(std::string typeName) { _typeName = typeName; }
+  std::string GetTypeName() { return _typeName; }
 
   std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > GetSignals() {
     std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signals;
-    std::pair<std::string, MyBitset<BUS_WIDTH>* > toAdd;
-
-    toAdd.first = createLogPrefix() + "input";
-    toAdd.second = _input;
-    signals.push_back(toAdd);
-
-    toAdd.first = createLogPrefix() + "output";
-    toAdd.second = _output;
-    signals.push_back(toAdd);
-    
     return signals;
   }
 
-  MyBitset<BUS_WIDTH>** GetOutputP();
-
 protected:
-  std::string createLogPrefix();
+  std::string createLogPrefix() {
+    std::string toReturn;
+    toReturn = "[" + GetTypeName() + ": " + GetName() + "] ";
+    return toReturn;
+  }
 
-  void log(int logType, std::string logStr);
+  void log(int logType, std::string logStr) {
+    Singleton<Logger>::GetInstance()->Log(logType, createLogPrefix() + logStr);
+  }
 
-  static std::string createString(long input, bool hex = true);
+  static std::string createString(long input, bool hex = true) {
+    std::ostringstream ss;
+    if (hex) {
+      ss << std::hex << input;
+      return "0x" + ss.str();
+    }
+    else {
+      ss << input;
+      return ss.str();
+    }
+  }
 
-  static std::string createString(void* input);
+  static std::string createString(void* input) {
+    std::ostringstream ss;
+    ss << std::hex << input;
+    return ss.str();
+  }
 
   // TODO setInput and setOutput?
 
   std::string _name;
   std::string _typeName;
-
-  MyBitset<BUS_WIDTH> *_input;
-  MyBitset<BUS_WIDTH> *_output;
 };
 
  #endif

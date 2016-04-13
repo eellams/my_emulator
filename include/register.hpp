@@ -44,10 +44,11 @@ public:
   void Clock() {
     MyBitset<N> input(this, "Register Input Buffer");
     if (*_writeEnable) {
-      //log(LOG_TYPE_INFO, "Clocking in " + _input->);
       log(LOG_TYPE_DEBUG, "Clocking in " + _input->GetDetails() + "value: " + createString(_input->to_ulong()));
-       input = *_input;
-      _contents = input;
+       //input = *_input;
+      _contents.SetValue(*_input);
+
+      log(LOG_TYPE_DEBUG, "Contents " + _contents.GetDetails() + "value: " + createString(_contents.to_ulong()));
     }
   }
 
@@ -70,6 +71,9 @@ private:
   std::string _name;
   MyBitset<N> _contents;
   MyBitset<N> *_contentsP;
+
+  MyBitset<N> **_inputP;
+
 
   bool *_writeEnable;
 

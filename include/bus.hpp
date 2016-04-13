@@ -44,23 +44,24 @@ public:
   }
   ~Bus() {};
 
-  MyBitset<N>** GetValue() { return &_input; }
+  // Will need to update the value whenever required
+  MyBitset<N>* GetValueP() { return _valueP; }
 
-  void SetInput(MyBitset<BUS_WIDTH> *input) {
-    log(LOG_TYPE_DEBUG, "Setting bus input to: " + input->GetDetails() + "value: " + createString(input->to_ulong()) );
-    Item::SetInput(input);
+  void SetValueP(MyBitset<N> *value) {
+    log(LOG_TYPE_DEBUG, "Setting bus value to: " + value->GetDetails() + "value: " + createString(value->to_ulong()) );
+    _valueP = value;
   }
+
 
   std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > GetSignals() {
     std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signals;
     std::pair<std::string, MyBitset<BUS_WIDTH>* > toAdd;
 
-    toAdd.first = createLogPrefix() + "input";
-    toAdd.second = _input;
-    signals.push_back(toAdd);
-
     return signals;
   }
+
+private:
+  MyBitset<N> *_valueP;
 };
 
  #endif

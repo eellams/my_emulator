@@ -18,19 +18,3 @@
  */
 
 #include "bussedItem.hpp"
-
-
-BussedItem::BussedItem(std::string typeName, std::string name) : Item(typeName, name) {}
-
-BussedItem::~BussedItem() {
-}
-
-void BussedItem::SetDataBus(Bus<BUS_WIDTH> *bus) {
-  _dataBus = bus;
-}
-void BussedItem::SetAddressBus(Bus<BUS_WIDTH> *bus) {
-  _addressBus = bus;
-}
-void BussedItem::SetControlBus(Bus<BUS_WIDTH> *bus) {
-  _controlBus = bus;
-}

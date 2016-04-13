@@ -21,12 +21,13 @@
 
 #include "singleton.hpp"
 #include "logger.hpp"
-#include "register.hpp"
+//#include "register.hpp"
 #include "bus.hpp"
+#include "myBitset.hpp"
 
 #define TEST_BIT_SIZE 8
 
-void testRegWrite(Register<TEST_BIT_SIZE>& reg, std::bitset<TEST_BIT_SIZE>& input, bool enabled) {
+/*void testRegWrite(Register<TEST_BIT_SIZE>& reg, std::bitset<TEST_BIT_SIZE>& input, bool enabled) {
   std::bitset<TEST_BIT_SIZE> output, testing;
 
   // Initial value
@@ -50,10 +51,10 @@ void testRegWrite(Register<TEST_BIT_SIZE>& reg, std::bitset<TEST_BIT_SIZE>& inpu
   } else if (!enabled && output != testing) {
     std::cout << "Register clocked in data without correct enable flag" << std::endl;
   }
-}
+}*/
 
 void testRegisters() {
-  std::cout << "Testing register class..." << std::endl;
+  /*std::cout << "Testing register class..." << std::endl;
 
   std::bitset<TEST_BIT_SIZE> input = 0xff;
   std::bitset<TEST_BIT_SIZE> output, testing;
@@ -72,30 +73,30 @@ void testRegisters() {
   regEnable = true;
   input = 0xaa;
   std::cout << "Testing register when enabled..." << std::endl;
-  testRegWrite(testRegister, input, regEnable);
+  testRegWrite(testRegister, input, regEnable);*/
 }
 
 void testBusses() {
   std::cout << "Testing busses..." << std::endl;
 
   Bus<TEST_BIT_SIZE> testBus("test Bus");
-  std::bitset<TEST_BIT_SIZE> input, output;
+  MyBitset<TEST_BIT_SIZE> input, output;
 
   // Set up the bus
-  testBus.SetInput(&input);
+  testBus.SetValueP(&input);
 
   // Set the input value
-  input = 0xff;
+  input.SetValue(0xff);
 
-  output = testBus.GetValue();
+  output = *testBus.GetValueP();
 
   if (input != output) {
     std::cout << "Busses not working correctly" << std::endl;
   }
 
   // See what happens if we change the input
-  input = 0x88;
-  output = testBus.GetValue();
+  input.SetValue(0x88);
+  output = *testBus.GetValueP();
   if (output != 0x88) {
     std::cout << "Bus pointers not working properly" << std::endl;
   }

@@ -72,8 +72,8 @@ unsigned long MyBitset<N>::to_ulong() {
   return std::bitset<N>::to_ulong();
 }
 
-template<size_t N>
-void MyBitset<N>::operator|=(const std::bitset<N>& __rhs) _GLIBCXX_NOEXCEPT { std::bitset<N>::operator|=(__rhs); }
+//template<size_t N>
+//void MyBitset<N>::operator|=(const std::bitset<N>& __rhs) _GLIBCXX_NOEXCEPT { std::bitset<N>::operator|=(__rhs); }
 
 template<size_t N>
 std::string MyBitset<N>::createLogPrefix() {

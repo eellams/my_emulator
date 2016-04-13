@@ -38,7 +38,7 @@
 #define LOG_TYPE_ERROR 0x02
 
 template<size_t N>
-class MyBitset : std::bitset<N> {
+class MyBitset : public std::bitset<N> {
 public:
   MyBitset(Item *parent = 0, std::string name = MY_BITSET_DEFAULT_NAME);
 
@@ -50,13 +50,25 @@ public:
   void SetParent(Item *parent);
   Item* GetParent();
 
+  void SetValue(MyBitset<N> value) {
+    reset();
+    (*this) |= value;
+  }
+
+  void SetValue(long value) {
+    reset();
+    (*this) |= value;
+  }
+
+
   std::string GetDetails();
 
   void set(size_t __position, bool __val = true);
   bool test(size_t __position);
   void reset();
   unsigned long to_ulong();
-  void operator|=(const std::bitset<N>& __rhs) _GLIBCXX_NOEXCEPT;
+  //void operator|=(const std::bitset<N>& __rhs) _GLIBCXX_NOEXCEPT;
+  //bool operator!=(const MyBitset<N>& __rhs) _GLIBCXX_NOEXCEPT { return std::bitset<N>::operator!=(__rhs); }
 
 private:
   std::string createLogPrefix();

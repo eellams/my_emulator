@@ -49,38 +49,21 @@
 
 class RegisterFile : public BussedItem {
 public:
-  RegisterFile(std::string name) : BussedItem(REG_FILE_TYPE_NAME, name) {
-    _ACC.SetWriteEnable(&_eACC);
-    _ACC.SetInput(_dataBus->GetValue());
+  RegisterFile(std::string name);
+  ~RegisterFile();
 
+  void SetupRegisters();
+  void UpdateRegisterInputs();
 
+  void Clock();
 
-    _PC.SetWriteEnable(&_ePC);
-  }
-
-  ~RegisterFile() {
-
-  }
-
-  void GetACC() {}
-  void SetACC(MyBitset<REGISTER_WIDTH> *value) {
-    SetInput(value);
-    _eACC = true;
-  }
-
-  void GetPC() {
-    return *_PC;
-  }
-
-  void Clock() {
-    _ACC.Clock();
-    _eACC = false;
-  }
+  void ReadFromRegister(int registerNumber);
+  void WriteToRegister(int registerNumber);
 
 private:
-  Register<REGISTER_WIDTH> _ACC, _PC;
+  //Register<REGISTER_WIDTH> _reg[REGISTER_NUMBER];
 
-  bool _eACC, _ePC;
+  //bool _registerEnables[REGISTER_NUMBER];
 };
 
 #endif
