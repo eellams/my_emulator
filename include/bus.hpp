@@ -44,7 +44,7 @@ public:
 
   // Will need to update the value whenever required
   MyBitset<N>* GetValueP() {
-    log(LOG_TYPE_DEBUG, "Getting value pointer: " + createString(static_cast<void*>(_valueP)) + "value: " + createString(_valueP->to_ulong()) );
+    //log(LOG_TYPE_DEBUG, "Getting value pointer: " + createString(static_cast<void*>(_valueP)) + "value: " + createString(_valueP->to_ulong()) );
     return _valueP;
   }
 
@@ -53,11 +53,16 @@ public:
     _valueP = value;
   }
 
-  std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > GetSignals() {
-    std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signals;
-    std::pair<std::string, MyBitset<BUS_WIDTH>* > toAdd;
+  virtual void LogSignals() {
+    std::vector<struct Signal> toSend;
+    struct Signal toAdd;
 
-    return signals;
+    toAdd.Name = createLogPrefix() + std::string("Bus value");
+    toAdd.Value = _valueP->to_ulong();
+    toAdd.Address = static_cast<void*>(_valueP);
+
+    toSend.push_back(toAdd);
+    sendSignals(toSend);
   }
 
 private:

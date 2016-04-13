@@ -42,11 +42,11 @@
 #define SEQUENCER_TYPE_NAME "SEQUENCER"
 
 enum States{
-  FETCH_PC,
-  FETCH_INSTRUCTION,
-  STORE_INSTRUCTION,
-  EXECUTE,
-  FINISHED
+  FETCH_PC = 0x00,
+  FETCH_INSTRUCTION = 0x01,
+  STORE_INSTRUCTION = 0x02,
+  EXECUTE = 0x03,
+  FINISHED = 0x04
 };
 
 class Sequencer : public BussedItem {
@@ -60,16 +60,36 @@ public:
     log(LOG_TYPE_INFO, "Clock");
     switch (_state) {
       case FETCH_PC:
+        // Set address bus to PC
         _addressBusP->SetValueP(_registerFileP->GetPCP());
+
+        _state = FETCH_INSTRUCTION;
+        break;
+
+      case FETCH_INSTRUCTION:
+        // Read at addreses bus, write to CIR
+        _memoryP->Read();
+
+        _registerFileP->SetCIRP(_dataBusP->GetValueP());
+
         _state = FINISHED;
         break;
     }
 
-    _memoryP->Update();
     _memoryP->Clock();
+    Update();
 
-    _registerFileP->Update();
     _registerFileP->Clock();
+    Update();
+
+    LogSignals();
+    _addressBusP->LogSignals();
+    _dataBusP->LogSignals();
+    //_controlBusP->LogSignals();
+
+    _memoryP->LogSignals();
+    _registerFileP->LogSignals();
+    Singleton<Logger>::GetInstance()->WriteSignals();
   }
 
   void SetRegisterFileP(RegisterFile *registerFileP) { _registerFileP = registerFileP; }
@@ -78,6 +98,24 @@ public:
   bool Finished() {
     if (_state == FINISHED) return true;
     return false;
+   }
+
+   virtual void LogSignals() {
+     std::vector<struct Signal> toSend;
+     struct Signal toAdd;
+
+     toAdd.Name = createLogPrefix() + std::string("Sequencer State");
+     toAdd.Value = static_cast<long>(_state);
+     toAdd.Address = 0;
+
+     toSend.push_back(toAdd);
+     sendSignals(toSend);
+   }
+
+   void Update() {
+     log(LOG_TYPE_UPDATE, "Update");
+     _registerFileP->Update();
+     _memoryP->Update();
    }
 
 private:

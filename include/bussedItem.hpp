@@ -48,8 +48,8 @@ public:
      _addressBusP = bus;
    }
   void SetControlBusP(Bus<BUS_WIDTH> *bus) {
-    log(LOG_TYPE_INFO, "Setting control bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
-    _controlBusP = bus;
+    //log(LOG_TYPE_INFO, "Setting control bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
+    //_controlBusP = bus;
   }
 
 protected:
@@ -58,7 +58,7 @@ protected:
 
   Bus<BUS_WIDTH> *_addressBusP;
   Bus<BUS_WIDTH> *_dataBusP;
-  Bus<BUS_WIDTH> *_controlBusP;
+  //Bus<BUS_WIDTH> *_controlBusP;
 };
 
  #endif

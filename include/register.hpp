@@ -42,9 +42,10 @@ public:
   // Clock in the input (if enabled)
   void Clock() {
     Update();
-    if (*_writeEnableP) {
+    if ((*_writeEnableP) == true) {
       log(LOG_TYPE_DEBUG, "Clocking in " + _inputP->GetDetails() + "value: " + createString(_inputP->to_ulong()));
       _output.SetValue(*_inputP);
+      Update();
     }
   }
 
@@ -64,8 +65,23 @@ public:
   }
 
   void Update() {
-    log(LOG_TYPE_INFO, "Updating");
-    _output = *_inputP;
+    log(LOG_TYPE_UPDATE, "Update");
+  }
+
+  virtual void LogSignals() {
+    std::vector<struct Signal> toSend;
+    struct Signal toAdd;
+
+    toAdd.Name = createLogPrefix() + std::string("Input");
+    toAdd.Value = _inputP->to_ulong();
+    toAdd.Address = static_cast<void*>(_inputP);
+
+    toAdd.Name = createLogPrefix() + std::string("Contents");
+    toAdd.Value = _output.to_ulong();
+    toAdd.Address = static_cast<void*>(&_output);
+
+    toSend.push_back(toAdd);
+    sendSignals(toSend);
   }
 
 private:

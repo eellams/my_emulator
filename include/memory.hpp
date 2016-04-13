@@ -100,13 +100,32 @@ public:
     return true;
   }
 
-  //void Update() {}
-  void Clock() {}
+  // Read
+  void Read() { _read = true; }
+
+  void Clock() {
+    log(LOG_TYPE_ERROR, "Clock");
+    Update();
+
+    if (_read) {
+      log(LOG_TYPE_INFO, "Reading from memory");
+
+      _dataBusP->SetValueP(&_memory[_addressBusP->GetValueP()->to_ulong()]);
+    }
+
+    if (_write) {
+      log(LOG_TYPE_INFO, "Writing to memory");
+      _memory[_addressBusP->GetValueP()->to_ulong()] = *_dataBusP->GetValueP();
+    }
+
+    Update();
+  }
 
 private:
   MyBitset<BUS_WIDTH> _memory[MEMORY_SIZE];
 
-  MyBitset<BUS_WIDTH> _outputBuffer;
+  bool _read;
+  bool _write;
 
 };
 

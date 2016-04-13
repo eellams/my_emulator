@@ -55,26 +55,6 @@
 // ---------------------------------------------------------------------------
 // Op[3]  | Op[2]  | Op[1]  | Op[0] | R/I flag| RegIm[2] | RegIm[1] | RegIm[0]
 
-/*#define OPCODE_BITS 4 // Top 4 bits are opcode
-#define REG_IMM_FLAG 1 // 1 flag
-#define OPERAND_BITS 3 // Bottom 3 bits Reg or Imm
-*/
-
-/*
-#define BITS_OP 6
-#define BITS_REG 5
-#define BITS_SHIFT 5
-#define BITS_FUNCT 6
-
-#define RTYPE_OPCODE 0xFC000000
-#define RTYPE_RS 0x03E00000
-#define RTYPE_RT 0x001F0000
-#define RTYPE_RD 0x0000F800
-#define RTYPE_SHIFT 0x000007c0
-#define RTYPE_FUNCT 0x0000003F
-*/
-
-// TODO I, J, FR and FI instructions
 
 // This is pretty standard these days - don't touch!
 #define BYTE_SIZE 8
@@ -83,11 +63,15 @@
 //  i.e. a 9-bit word would occupy 2 bytes, as would a 10-16 bit word width
 //  but, a 1-8 bit word width would only require 1 bit
 
-//#define LOG Singleton<Logger>::GetInstance()->Log
-
 enum Commands {
   ADD = 0x00,
   ADDI = 0x01
+};
+
+struct Signal {
+  std::string Name;
+  long Value;
+  void *Address;
 };
 
 #endif

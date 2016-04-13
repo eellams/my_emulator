@@ -72,45 +72,76 @@ public:
 
   MyBitset<REGISTER_WIDTH>* GetACCP() { return _ACC.GetOutputP(); }
   void SetACCP(MyBitset<REGISTER_WIDTH> *value) {
+    log(LOG_TYPE_DEBUG, "Setting ACC value");
     _ACC.SetInputP(value);
     _eACC = true;
   }
 
   MyBitset<REGISTER_WIDTH>* GetPCP() { return _PC.GetOutputP(); }
   void SetPCP(MyBitset<REGISTER_WIDTH> *value) {
+    log(LOG_TYPE_DEBUG, "Setting PC value");
     _PC.SetInputP(value);
     _ePC = true;
   }
 
   MyBitset<REGISTER_WIDTH>* GetCIRP() { return _CIR.GetOutputP(); }
   void SetCIRP(MyBitset<REGISTER_WIDTH> *value) {
+    log(LOG_TYPE_DEBUG, "Setting CIR value");
     _CIR.SetInputP(value);
     _eCIR = true;
   }
 
   void Clock() {
     Update();
-    
+
     _ACC.Clock();
+    Update();
+
     _PC.Clock();
+    Update();
+
     _CIR.Clock();
+    Update();
 
     _eACC = false;
     _ePC = false;
     _eCIR = false;
   }
 
+  virtual void LogSignals() {
+    std::vector<struct Signal> toSend;
+    struct Signal toAdd;
+
+    _ACC.LogSignals();
+    _PC.LogSignals();
+    _CIR.LogSignals();
+  }
+
   void Update() {
-    log(LOG_TYPE_DEBUG, "Updating values");
-    SetACCP(_dataBusP->GetValueP());
-    SetPCP(_dataBusP->GetValueP());
-    SetCIRP(_dataBusP->GetValueP());
+    log(LOG_TYPE_UPDATE, "Update");
+    MyBitset<BUS_WIDTH> *tempP = _dataBusP->GetValueP();
+
+    if (static_cast<void*>(tempP) != static_cast<void*>(_prevDataValue)) {
+      _ACC.SetInputP(tempP);
+      _PC.SetInputP(tempP);
+      _CIR.SetInputP(tempP);
+
+      //SetPCP(tempP);
+      //SetCIRP(tempP);
+      _prevDataValue = tempP;
+    }
+
+    _ACC.Update();
+    _PC.Update();
+    _CIR.Update();
   }
 
 private:
   Register<REGISTER_WIDTH> _ACC, _PC, _CIR;
 
   bool _eACC, _ePC, _eCIR;
+
+  MyBitset<REGISTER_WIDTH> *_prevDataValue;
 };
 
 #endif

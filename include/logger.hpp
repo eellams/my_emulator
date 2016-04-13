@@ -27,6 +27,8 @@
 #include <vector>
 #include <sstream>
 
+#include "system.hpp"
+
 #define MAX_TIME_STR 80
 
 #define LOG_FILE_LOG "emulator.log"
@@ -35,10 +37,12 @@
 #define LOG_STRING_ERROR "ERROR:"
 #define LOG_STRING_DEBUG "DEBUG:"
 #define LOG_STRING_INFO "INFO:"
+#define LOG_STRING_UPDATE "UPDATE:"
 
 #define LOG_TYPE_INFO 0x00
 #define LOG_TYPE_DEBUG 0x01
 #define LOG_TYPE_ERROR 0x02
+#define LOG_TYPE_UPDATE 0x03
 
 class Logger {
 public:
@@ -49,11 +53,25 @@ public:
 
   void Log(char type, std::string toWrite);
 
-  void AddLogSignal(std::string label, std::string name, long value) {
-    std::ostringstream ss;
-    ss << std::hex << value;
+  void SendSignals(std::vector<struct Signal> toSend) {
+    Log(LOG_TYPE_DEBUG, "Sending signals");
+    for (int i=0; i<toSend.size(); i++) {
+      _signals.push_back(toSend[i]);
+    }
+  }
 
-    Log(LOG_TYPE_INFO, "Adding signal: " + label + " current name: ['" + name +": 0x" + ss.str() + "]");
+  void WriteSignals() {
+    Log(LOG_TYPE_DEBUG, "Writing signals");
+    _signalFile << "New set\r\n";
+
+    for(int i=0; i<_signals.size(); i++) {
+      _signalFile << std::hex << _signals[i].Name << ": 0x" << _signals[i].Value << ": " << _signals[i].Address << "\r\n";
+      _signalFile.flush();
+    }
+
+    _signals.clear();
+
+    _signalFile << "End set\r\n";
   }
 
 private:
@@ -66,6 +84,8 @@ private:
 
   std::ofstream _logFile;
   std::ofstream _signalFile;
+
+  std::vector<struct Signal> _signals;
 
   time_t _rawTime;
   struct tm *_timeInfo;

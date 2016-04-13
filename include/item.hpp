@@ -54,16 +54,19 @@ public:
   void SetTypeName(std::string typeName) { _typeName = typeName; }
   std::string GetTypeName() { return _typeName; }
 
-  std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > GetSignals() {
-    std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signals;
-    return signals;
-  }
-
   virtual void Update() {
     log(LOG_TYPE_ERROR, "Unimplemented Update function");
   }
 
+  virtual void LogSignals() {
+    log(LOG_TYPE_ERROR, "Unimplemented LogSignals function");
+  }
+
 protected:
+  void sendSignals(std::vector<struct Signal> toSend) {
+    Singleton<Logger>::GetInstance()->SendSignals(toSend);
+  }
+
   std::string createLogPrefix() {
     std::string toReturn;
     toReturn = "[" + GetTypeName() + ": " + GetName() + "] ";
