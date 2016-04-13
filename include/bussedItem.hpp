@@ -39,9 +39,18 @@ public:
     }
   ~BussedItem() {}
 
-  void SetDataBus(Bus<BUS_WIDTH> *bus) { _dataBusP = bus; }
-  void SetAddressBus(Bus<BUS_WIDTH> *bus) { _addressBusP = bus; }
-  void SetControlBus(Bus<BUS_WIDTH> *bus) { _controlBusP = bus; }
+  void SetDataBusP(Bus<BUS_WIDTH> *bus) {
+    log(LOG_TYPE_INFO, "Setting data bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
+    _dataBusP = bus;
+  }
+  void SetAddressBusP(Bus<BUS_WIDTH> *bus) {
+    log(LOG_TYPE_INFO, "Setting address bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
+     _addressBusP = bus;
+   }
+  void SetControlBusP(Bus<BUS_WIDTH> *bus) {
+    log(LOG_TYPE_INFO, "Setting control bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
+    _controlBusP = bus;
+  }
 
 protected:
 

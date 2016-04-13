@@ -51,18 +51,30 @@ enum States{
 
 class Sequencer : public BussedItem {
 public:
-  Sequencer(std::string name);
-  ~Sequencer();
+  Sequencer(std::string name = SEQUENCER_NAME) : BussedItem(SEQUENCER_TYPE_NAME, name) {}
+  ~Sequencer() {}
 
-  void SetupControlConnections();
+  void Clock() {
+    Update();
 
-  void Clock();
+    log(LOG_TYPE_INFO, "Clock");
+    switch (_state) {
+      case FETCH_PC:
+        _addressBusP->SetValueP(_registerFileP->GetPCP());
+        _state = FINISHED;
+        break;
+    }
 
-  void SetRegisterFile(RegisterFile *registerFile);
-  void SetMemory(Memory *memory);
+    _memoryP->Update();
+    _memoryP->Clock();
 
-  void Signals();
-  
+    _registerFileP->Update();
+    _registerFileP->Clock();
+  }
+
+  void SetRegisterFileP(RegisterFile *registerFileP) { _registerFileP = registerFileP; }
+  void SetMemoryP(Memory *memoryP) { _memoryP = memoryP; }
+
   bool Finished() {
     if (_state == FINISHED) return true;
     return false;
@@ -70,8 +82,8 @@ public:
 
 private:
   States _state;
-  RegisterFile *_registerFile;
-  Memory *_memory;
+  RegisterFile *_registerFileP;
+  Memory *_memoryP;
 
   MyBitset<BUS_WIDTH> _controlBusValue;
 };

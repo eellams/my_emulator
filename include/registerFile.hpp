@@ -49,38 +49,68 @@
 
 class RegisterFile : public BussedItem {
 public:
-  RegisterFile(std::string name) : BussedItem(REG_FILE_TYPE_NAME, name) {
-    _ACC.SetWriteEnable(&_eACC);
-    _ACC.SetInput(_dataBus->GetValue());
-
-
-
-    _PC.SetWriteEnable(&_ePC);
+  RegisterFile(std::string name = REG_FILE_NAME) : BussedItem(REG_FILE_TYPE_NAME, name) {
+    _eACC = _ePC = _eCIR = false;
   }
 
-  ~RegisterFile() {
+  ~RegisterFile() {}
 
+  void SetupRegisters() {
+    _ACC.SetName("Accumulator");
+    _PC.SetName("Program Counter");
+    _CIR.SetName("Current Instruction Register");
+
+    _ACC.SetWriteEnableP(&_eACC);
+    SetACCP(_dataBusP->GetValueP());
+
+    _PC.SetWriteEnableP(&_ePC);
+    SetPCP(_dataBusP->GetValueP());
+
+    _CIR.SetWriteEnableP(&_eCIR);
+    SetCIRP(_dataBusP->GetValueP());
   }
 
-  void GetACC() {}
-  void SetACC(MyBitset<REGISTER_WIDTH> *value) {
-    SetInput(value);
+  MyBitset<REGISTER_WIDTH>* GetACCP() { return _ACC.GetOutputP(); }
+  void SetACCP(MyBitset<REGISTER_WIDTH> *value) {
+    _ACC.SetInputP(value);
     _eACC = true;
   }
 
-  void GetPC() {
-    return *_PC;
+  MyBitset<REGISTER_WIDTH>* GetPCP() { return _PC.GetOutputP(); }
+  void SetPCP(MyBitset<REGISTER_WIDTH> *value) {
+    _PC.SetInputP(value);
+    _ePC = true;
+  }
+
+  MyBitset<REGISTER_WIDTH>* GetCIRP() { return _CIR.GetOutputP(); }
+  void SetCIRP(MyBitset<REGISTER_WIDTH> *value) {
+    _CIR.SetInputP(value);
+    _eCIR = true;
   }
 
   void Clock() {
+    Update();
+    
     _ACC.Clock();
+    _PC.Clock();
+    _CIR.Clock();
+
     _eACC = false;
+    _ePC = false;
+    _eCIR = false;
+  }
+
+  void Update() {
+    log(LOG_TYPE_DEBUG, "Updating values");
+    SetACCP(_dataBusP->GetValueP());
+    SetPCP(_dataBusP->GetValueP());
+    SetCIRP(_dataBusP->GetValueP());
   }
 
 private:
-  Register<REGISTER_WIDTH> _ACC, _PC;
+  Register<REGISTER_WIDTH> _ACC, _PC, _CIR;
 
-  bool _eACC, _ePC;
+  bool _eACC, _ePC, _eCIR;
 };
 
 #endif

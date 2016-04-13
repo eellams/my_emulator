@@ -39,19 +39,19 @@
 template<size_t N>
 class Bus : public Item {
 public:
-  Bus(std::string name = BUS_DEFAULT_NAME) : Item(BUS_PREFIX, name) {
-    SetName(name);
-  }
+  Bus(std::string name = BUS_DEFAULT_NAME) : Item(BUS_PREFIX, name) {}
   ~Bus() {};
 
   // Will need to update the value whenever required
-  MyBitset<N>* GetValueP() { return _valueP; }
+  MyBitset<N>* GetValueP() {
+    log(LOG_TYPE_DEBUG, "Getting value pointer: " + createString(static_cast<void*>(_valueP)) + "value: " + createString(_valueP->to_ulong()) );
+    return _valueP;
+  }
 
   void SetValueP(MyBitset<N> *value) {
     log(LOG_TYPE_DEBUG, "Setting bus value to: " + value->GetDetails() + "value: " + createString(value->to_ulong()) );
     _valueP = value;
   }
-
 
   std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > GetSignals() {
     std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signals;

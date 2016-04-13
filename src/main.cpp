@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
   // Startup all of the singleton instances
   Logger *log = Singleton<Logger>::GetInstance();
 
+  /*
   MyBitset<BUS_WIDTH> zeros(0, "ZEROS");
 
   // Classes that we are going to use
@@ -43,9 +44,20 @@ int main(int argc, char *argv[]) {
   Bus<BUS_WIDTH> dataBus("Data Bus");
   Bus<BUS_WIDTH> controlBus("Control Bus");
 
-  RegisterFile registerFile("Register File");
+  RegisterFile registerFile;//("Register File");
+  Sequencer sequencer;//("Sequencer");
+  Memory memory;//("Memory");
+  */
+
+  MyBitset<BUS_WIDTH> zeros(0, "ZEROS");
+
+  Bus<BUS_WIDTH> addressBus("Address Bus");
+  Bus<BUS_WIDTH> dataBus("Data Bus");
+  Bus<BUS_WIDTH> controlBus("Control Bus");
+
+  RegisterFile registerFile("RegisterFile");
   Sequencer sequencer("Sequencer");
-  Memory memory("Memory");
+  Memory memory("Main Memory");
 
   // Get the file we are reading
   std::cout << "File to read (leave blank for testprogram): ";
@@ -65,26 +77,30 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  dataBus.SetInput(&zeros);
-  addressBus.SetInput(&zeros);
-  controlBus.SetInput(&zeros);
 
-  registerFile.SetDataBus(&dataBus);
-  registerFile.SetAddressBus(&addressBus);
-  registerFile.SetControlBus(&controlBus);
+  dataBus.SetValueP(&zeros);
+  addressBus.SetValueP(&zeros);
+  controlBus.SetValueP(&zeros);
+
+
+  registerFile.SetDataBusP(&dataBus);
+  registerFile.SetAddressBusP(&addressBus);
+  registerFile.SetControlBusP(&controlBus);
   registerFile.SetupRegisters();
 
-  // Setup our connections
-  memory.SetDataBus(&dataBus);
-  memory.SetAddressBus(&addressBus);
-  memory.SetControlBus(&controlBus);
 
-  sequencer.SetDataBus(&dataBus);
-  sequencer.SetAddressBus(&addressBus);
-  sequencer.SetControlBus(&controlBus);
-  sequencer.SetRegisterFile(&registerFile);
-  sequencer.SetMemory(&memory);
-  sequencer.SetupControlConnections(); // Sequencer controls control bus
+  // Setup our connections
+  memory.SetDataBusP(&dataBus);
+  memory.SetAddressBusP(&addressBus);
+  memory.SetControlBusP(&controlBus);
+
+  sequencer.SetDataBusP(&dataBus);
+  sequencer.SetAddressBusP(&addressBus);
+  sequencer.SetControlBusP(&controlBus);
+  sequencer.SetRegisterFileP(&registerFile);
+  sequencer.SetMemoryP(&memory);
+
+  //sequencer.SetupControlConnections(); // Sequencer controls control bus
 
   while(!sequencer.Finished()) sequencer.Clock();
 

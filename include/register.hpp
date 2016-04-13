@@ -42,31 +42,29 @@ public:
   // Clock in the input (if enabled)
   void Clock() {
     Update();
-    if (*_writeEnable) {
-      //log(LOG_TYPE_DEBUG, "Clocking in " + _inputP->GetDetails() + "value: " + createString(_inputP->to_ulong()));
+    if (*_writeEnableP) {
+      log(LOG_TYPE_DEBUG, "Clocking in " + _inputP->GetDetails() + "value: " + createString(_inputP->to_ulong()));
       _output.SetValue(*_inputP);
     }
   }
 
-  void SetWriteEnable(bool *value) {
+  void SetWriteEnableP(bool *value) {
     // TODO do we need to put a log here?
-    _writeEnable = value;
+    _writeEnableP = value;
   }
 
-  void SetInputP(MyBitset<N> *  inputP) { _inputP = inputP; }
-
-  MyBitset<N> GetOutput() {
-    //log(LOG_TYPE_DEBUG, "Getting output: (" + BussedItem::createString(_output.to_ulong()) + ")");
-    return _output;
+  void SetInputP(MyBitset<N> *inputP) {
+    _inputP = inputP;
   }
 
   // Return the pointer to the output
   //  useful for setting busses
-  MyBitset<N> GetOutputP() {
+  MyBitset<N>* GetOutputP() {
     return &_output;
   }
 
   void Update() {
+    log(LOG_TYPE_INFO, "Updating");
     _output = *_inputP;
   }
 
@@ -76,7 +74,7 @@ private:
   MyBitset<N> *_inputP;
   MyBitset<N> _output;
 
-  bool *_writeEnable;
+  bool *_writeEnableP;
 
 };
 
