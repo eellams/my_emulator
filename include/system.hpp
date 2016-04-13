@@ -63,10 +63,7 @@
 //  i.e. a 9-bit word would occupy 2 bytes, as would a 10-16 bit word width
 //  but, a 1-8 bit word width would only require 1 bit
 
-enum Commands {
-  ADD = 0x00,
-  ADDI = 0x01
-};
+#define INSTR_ADD 0x00
 
 struct Signal {
   std::string Name;

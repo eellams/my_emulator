@@ -36,19 +36,6 @@ int main(int argc, char *argv[]) {
   // Startup all of the singleton instances
   Logger *log = Singleton<Logger>::GetInstance();
 
-  /*
-  MyBitset<BUS_WIDTH> zeros(0, "ZEROS");
-
-  // Classes that we are going to use
-  Bus<BUS_WIDTH> addressBus("Address Bus");
-  Bus<BUS_WIDTH> dataBus("Data Bus");
-  Bus<BUS_WIDTH> controlBus("Control Bus");
-
-  RegisterFile registerFile;//("Register File");
-  Sequencer sequencer;//("Sequencer");
-  Memory memory;//("Memory");
-  */
-
   MyBitset<BUS_WIDTH> zeros(0, "ZEROS");
 
   Bus<BUS_WIDTH> addressBus("Address Bus");
@@ -77,11 +64,9 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-
   dataBus.SetValueP(&zeros);
   addressBus.SetValueP(&zeros);
   controlBus.SetValueP(&zeros);
-
 
   registerFile.SetDataBusP(&dataBus);
   registerFile.SetAddressBusP(&addressBus);

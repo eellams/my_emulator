@@ -57,7 +57,7 @@ void Logger::Log(char type, std::string toWrite) {
       log(LOG_STRING_INFO, toWrite);
       break;
     case LOG_TYPE_UPDATE:
-      log(LOG_STRING_UPDATE, toWrite);
+      //log(LOG_STRING_UPDATE, toWrite);
       break;
   }
 }

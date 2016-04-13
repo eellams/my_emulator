@@ -44,9 +44,8 @@
 enum States{
   FETCH_PC = 0x00,
   FETCH_INSTRUCTION = 0x01,
-  STORE_INSTRUCTION = 0x02,
-  EXECUTE = 0x03,
-  FINISHED = 0x04
+  EXECUTE = 0x02,
+  FINISHED = 0x03
 };
 
 class Sequencer : public BussedItem {
@@ -72,6 +71,22 @@ public:
 
         _registerFileP->SetCIRP(_dataBusP->GetValueP());
 
+        _state = EXECUTE;
+        break;
+
+      case EXECUTE:
+        // Current instruction is on the data bus, and in CIR
+        long instruction;
+        instruction = _registerFileP->GetCIRP()->to_ulong();
+
+        switch(instruction) {
+          case INSTR_ADD:
+            log(LOG_TYPE_INFO, "Add command");
+            break;
+          default:
+            log(LOG_TYPE_ERROR, "Unknown instruction");
+            break;
+        }
         _state = FINISHED;
         break;
     }

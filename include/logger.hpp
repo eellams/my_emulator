@@ -54,7 +54,6 @@ public:
   void Log(char type, std::string toWrite);
 
   void SendSignals(std::vector<struct Signal> toSend) {
-    Log(LOG_TYPE_DEBUG, "Sending signals");
     for (int i=0; i<toSend.size(); i++) {
       _signals.push_back(toSend[i]);
     }

@@ -102,6 +102,7 @@ public:
 
   // Read
   void Read() { _read = true; }
+  void Write() { _write = true; }
 
   void Clock() {
     log(LOG_TYPE_ERROR, "Clock");
@@ -109,7 +110,6 @@ public:
 
     if (_read) {
       log(LOG_TYPE_INFO, "Reading from memory");
-
       _dataBusP->SetValueP(&_memory[_addressBusP->GetValueP()->to_ulong()]);
     }
 
@@ -118,6 +118,8 @@ public:
       _memory[_addressBusP->GetValueP()->to_ulong()] = *_dataBusP->GetValueP();
     }
 
+    _read = _write = false;
+    
     Update();
   }
 
