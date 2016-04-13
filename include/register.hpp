@@ -34,21 +34,17 @@ class Register : public BussedItem {
 public:
 
   Register(std::string name = REGISTER_DEFAULT_NAME) : BussedItem(REGISTER_TYPE_NAME, name) {
-    _contents.SetParent(this);
-    _contents.SetName("Register Contents");
-    _contentsP = &_contents;
+    _output.SetParent(this);
+    _output.SetName("Register Output");
   }
   ~Register() {  }
 
   // Clock in the input (if enabled)
   void Clock() {
-    MyBitset<N> input(this, "Register Input Buffer");
+    Update();
     if (*_writeEnable) {
-      log(LOG_TYPE_DEBUG, "Clocking in " + _input->GetDetails() + "value: " + createString(_input->to_ulong()));
-       //input = *_input;
-      _contents.SetValue(*_input);
-
-      log(LOG_TYPE_DEBUG, "Contents " + _contents.GetDetails() + "value: " + createString(_contents.to_ulong()));
+      //log(LOG_TYPE_DEBUG, "Clocking in " + _inputP->GetDetails() + "value: " + createString(_inputP->to_ulong()));
+      _output.SetValue(*_inputP);
     }
   }
 
@@ -57,23 +53,28 @@ public:
     _writeEnable = value;
   }
 
-  MyBitset<N> GetContents() {
-    log(LOG_TYPE_DEBUG, "Getting contents: (" + BussedItem::createString(_contents.to_ulong()) + ")");
-    return _contents;
+  void SetInputP(MyBitset<N> *  inputP) { _inputP = inputP; }
+
+  MyBitset<N> GetOutput() {
+    //log(LOG_TYPE_DEBUG, "Getting output: (" + BussedItem::createString(_output.to_ulong()) + ")");
+    return _output;
   }
 
-  MyBitset<N>* GetContentsP() {
-    log(LOG_TYPE_DEBUG, "Getting pointer to contents: " + BussedItem::createString(_contents.to_ulong()));
-    return _contentsP;
+  // Return the pointer to the output
+  //  useful for setting busses
+  MyBitset<N> GetOutputP() {
+    return &_output;
+  }
+
+  void Update() {
+    _output = *_inputP;
   }
 
 private:
   std::string _name;
-  MyBitset<N> _contents;
-  MyBitset<N> *_contentsP;
 
-  MyBitset<N> **_inputP;
-
+  MyBitset<N> *_inputP;
+  MyBitset<N> _output;
 
   bool *_writeEnable;
 

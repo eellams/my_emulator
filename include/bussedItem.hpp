@@ -31,26 +31,25 @@
 #define BUSSED_ITEM_DEFAULT_NAME "UNKNOWN_ITEM"
 #define BUSSED_ITEM_DEFAULT_TYPE_NAME "UNKNOWN_TYPE"
 
-// Forward definiton, avoids cyclic dependencies with "myBitset.hpp"
-//template<size_t N> class MyBitset;
-
 class BussedItem : public Item {
 public:
   BussedItem(std::string typeName = BUSSED_ITEM_DEFAULT_TYPE_NAME,
-    std::string name = BUSSED_ITEM_DEFAULT_NAME);
-  ~BussedItem();
+    std::string name = BUSSED_ITEM_DEFAULT_NAME) : Item(typeName, name) {
 
-  void SetDataBus(Bus<BUS_WIDTH> *bus);
-  void SetAddressBus(Bus<BUS_WIDTH> *bus);
-  void SetControlBus(Bus<BUS_WIDTH> *bus);
+    }
+  ~BussedItem() {}
+
+  void SetDataBus(Bus<BUS_WIDTH> *bus) { _dataBusP = bus; }
+  void SetAddressBus(Bus<BUS_WIDTH> *bus) { _addressBusP = bus; }
+  void SetControlBus(Bus<BUS_WIDTH> *bus) { _controlBusP = bus; }
 
 protected:
 
   // TODO setInput and setOutput?
 
-  Bus<BUS_WIDTH> *_addressBus;
-  Bus<BUS_WIDTH> *_dataBus;
-  Bus<BUS_WIDTH> *_controlBus;
+  Bus<BUS_WIDTH> *_addressBusP;
+  Bus<BUS_WIDTH> *_dataBusP;
+  Bus<BUS_WIDTH> *_controlBusP;
 };
 
  #endif

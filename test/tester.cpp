@@ -21,43 +21,43 @@
 
 #include "singleton.hpp"
 #include "logger.hpp"
-//#include "register.hpp"
+#include "register.hpp"
 #include "bus.hpp"
 #include "myBitset.hpp"
 
 #define TEST_BIT_SIZE 8
 
-/*void testRegWrite(Register<TEST_BIT_SIZE>& reg, std::bitset<TEST_BIT_SIZE>& input, bool enabled) {
-  std::bitset<TEST_BIT_SIZE> output, testing;
+void testRegWrite(Register<TEST_BIT_SIZE>& reg, MyBitset<TEST_BIT_SIZE>& input, bool enabled) {
+  MyBitset<TEST_BIT_SIZE> output, testing;
 
   // Initial value
-  testing = reg.GetContents();
+  testing = reg.GetOutput();
 
   // Set the value on the input
-  reg.SetInput(&input);
+  reg.SetInputP(&input);
 
   // Check if changed before the clock signal
-  if (reg.GetContents() != testing) {
+  if (reg.GetOutput() != testing) {
     std::cout << "Register doesn't wait for clock signal" << std::endl;
   }
 
   // Clock in data
   reg.Clock();
 
-  output = reg.GetContents();
+  output = reg.GetOutput();
 
   if (enabled && output != input) {
     std::cout << "Register did not clock in data as expected" << std::endl;
   } else if (!enabled && output != testing) {
     std::cout << "Register clocked in data without correct enable flag" << std::endl;
   }
-}*/
+}
 
 void testRegisters() {
-  /*std::cout << "Testing register class..." << std::endl;
+  std::cout << "Testing register class..." << std::endl;
 
-  std::bitset<TEST_BIT_SIZE> input = 0xff;
-  std::bitset<TEST_BIT_SIZE> output, testing;
+  MyBitset<TEST_BIT_SIZE> input;
+  MyBitset<TEST_BIT_SIZE> output, testing;
   bool regEnable = false;
   Register<TEST_BIT_SIZE> testRegister;
 
@@ -71,9 +71,9 @@ void testRegisters() {
 
   // Change values, and check for the other regEnable
   regEnable = true;
-  input = 0xaa;
+  input.SetValue(0xaa);
   std::cout << "Testing register when enabled..." << std::endl;
-  testRegWrite(testRegister, input, regEnable);*/
+  testRegWrite(testRegister, input, regEnable);
 }
 
 void testBusses() {

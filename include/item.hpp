@@ -55,6 +55,8 @@ public:
     return signals;
   }
 
+  virtual void Update() {}
+
 protected:
   std::string createLogPrefix() {
     std::string toReturn;
