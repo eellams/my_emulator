@@ -30,17 +30,12 @@ Sequencer::Sequencer(std::string name) : BussedItem(SEQUENCER_TYPE_NAME, name) {
   _PCAddress.SetName("_PCAddress");
   _controlBusValue.SetParent(this);
   _controlBusValue.SetName("_controlBusValue");
-
-  _zeroBitsDataP = &_zeroBitsData;
-  _zeroBitsAddressP = &_zeroBitsAddress;
-  _PCAddressP = &_PCAddress;
-  _controlBusValueP = &_controlBusValue;
 };
 
 Sequencer::~Sequencer() {};
 
 void Sequencer::SetupControlConnections() {
-  BussedItem::_controlBus->SetInput(&_controlBusValueP);
+  BussedItem::_controlBus->SetInput(&_controlBusValue);
 }
 
 void Sequencer::Decode() { }
@@ -51,8 +46,12 @@ void Sequencer::GetNextInstruction() { }
 
 void Sequencer::Initialise() {
   // TODO Initialise correctly, as and when registers available
-  BussedItem::_dataBus->SetInput(&_zeroBitsDataP);
-  BussedItem::_addressBus->SetInput(&_zeroBitsAddressP);
+
+  _zeroBitsData = 0;
+  _zeroBitsAddress = 0;
+
+  _dataBus->SetInput(&_zeroBitsData);
+  _addressBus->SetInput(&_zeroBitsAddress);
 
   _PCAddress |= REG_PC;
 }

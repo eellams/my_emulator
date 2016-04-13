@@ -42,9 +42,8 @@ public:
 
 private:
   MyBitset<BUS_WIDTH> _memory[MEMORY_SIZE];
-  
+
   MyBitset<BUS_WIDTH> _outputBuffer;
-  MyBitset<BUS_WIDTH> *_outputBufferP;
 
 };
 

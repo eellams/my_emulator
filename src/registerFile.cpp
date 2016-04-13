@@ -27,6 +27,8 @@ RegisterFile::~RegisterFile() {}
 void RegisterFile::SetupRegisters() {
   std::string name;
 
+  log(LOG_TYPE_DEBUG, "Setting up registers");
+
   // Setup general registers
   for (int i=0; i<REGISTER_NUMBER; i++) {
     if (i == REG_ZERO) name = std::string(REG_ZERO_NAME);
@@ -41,7 +43,7 @@ void RegisterFile::SetupRegisters() {
 
     _reg[i].SetWriteEnable(&_registerEnables[i]);
     _registerEnables[i] = false;
-    _reg[i].SetInput( BussedItem::_dataBus->GetValue() );
+    _reg[i].SetInput( *_dataBus->GetValue() );
   }
 }
 
@@ -62,10 +64,9 @@ void RegisterFile::ReadFromRegister(int registerNumber) {
   if ((*control)->test(CONTROL_WHICH_BUS)) {
     // Address bus
     //void SetInput(MyBitset<BUS_WIDTH> **input) {
-    MyBitset<BUS_WIDTH> **x = _reg[registerNumber].GetContentsPP();
 
-    log(LOG_TYPE_INFO, "Reading to address bus: " + createString((*x)->to_ulong() ));
-    //_addressBus->SetInput(_reg[registerNumber].GetContentsPP());
+    log(LOG_TYPE_INFO, "Reading to address bus: " + createString(_reg[registerNumber].GetContentsP()->to_ulong() ));
+    _addressBus->SetInput( _reg[registerNumber].GetContentsP() );
   }
   else {
     // Data bus

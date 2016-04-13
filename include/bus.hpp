@@ -44,19 +44,14 @@ public:
   Bus(std::string name = BUS_DEFAULT_NAME) : Item(BUS_PREFIX, name) {
     SetName(name);
   }
-
-  MyBitset<N>** GetValue() { return _input; }
-
-  void SetInput(MyBitset<BUS_WIDTH> **input) {
-    log(LOG_TYPE_DEBUG, "Setting bus input to: [" + (*input)->GetParent()->GetName() + ":" + (*input)->GetName() + "]" );
-    Item::SetInput(input);
-  }
-
   ~Bus() {};
 
-private:
-  std::string _name;
-  //MyBitset<N> *_input;
+  MyBitset<N>** GetValue() { return &_input; }
+
+  void SetInput(MyBitset<BUS_WIDTH> *input) {
+    log(LOG_TYPE_DEBUG, "Setting bus input to: " + input->GetDetails() + "value: " + createString(input->to_ulong()) );
+    Item::SetInput(input);
+  }
 };
 
  #endif

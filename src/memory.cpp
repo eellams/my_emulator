@@ -23,8 +23,7 @@ Memory::Memory(std::string name) : BussedItem(MEMORY_TYPE_NAME, name) {
   _outputBuffer.SetParent(this);
   _outputBuffer.SetName("Memory Output Buffer");
 
-  _outputBufferP = &_outputBuffer;
-  _output = &_outputBufferP;
+  _output = &_outputBuffer;
 };
 
 Memory::~Memory() {};
@@ -93,7 +92,7 @@ bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
 
 void Memory::Clock() {
   //TODO work this out
-  log(LOG_TYPE_DEBUG, "Clock - not implemented");
+  log(LOG_TYPE_DEBUG, "Clock - not fully implemented");
   MyBitset<BUS_WIDTH> **address;
   MyBitset<BUS_WIDTH> **data;
   MyBitset<BUS_WIDTH> **control;
@@ -127,6 +126,7 @@ void Memory::Clock() {
     else if ((*control)->test(CONTROL_READ) && (*control)->test(CONTROL_WRITE)) {
       log(LOG_TYPE_ERROR, "Both reading and writing to memory: " + createString((*address)->to_ulong()));
     }
+    else log(LOG_TYPE_INFO, "Nothing to do here");
   }
   else {
     log(LOG_TYPE_ERROR, "Memory address out of range");

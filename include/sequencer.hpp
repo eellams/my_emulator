@@ -69,10 +69,10 @@ private:
   MyBitset<BUS_WIDTH> _zeroBitsData;
   MyBitset<BUS_WIDTH> _zeroBitsAddress;
 
-  MyBitset<BUS_WIDTH> *_zeroBitsDataP;
-  MyBitset<BUS_WIDTH> *_zeroBitsAddressP;
-  MyBitset<BUS_WIDTH> *_controlBusValueP;
-  MyBitset<BUS_WIDTH> *_PCAddressP;
+  //MyBitset<BUS_WIDTH> *_zeroBitsDataP;
+  //MyBitset<BUS_WIDTH> *_zeroBitsAddressP;
+  //MyBitset<BUS_WIDTH> *_controlBusValueP;
+  //MyBitset<BUS_WIDTH> *_PCAddressP;
 
   MyBitset<BUS_WIDTH> _PCAddress;
 

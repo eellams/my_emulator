@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
   sequencer.Initialise();
 
   sequencer.Clock();
-  //sequencer.Clock();
+  sequencer.Clock();
   //memory.Clock();
   //regFile.Clock();
 

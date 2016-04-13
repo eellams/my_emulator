@@ -32,13 +32,8 @@
 template<size_t N>
 class Register : public BussedItem {
 public:
-  Register() {
-    _contents.SetParent(this);
-    _contents.SetName("Register Contents");
-    _contentsP = &_contents;
-  }
-  
-  Register(std::string typeName) : BussedItem(REGISTER_TYPE_NAME, typeName) {
+
+  Register(std::string name = REGISTER_DEFAULT_NAME) : BussedItem(REGISTER_TYPE_NAME, name) {
     _contents.SetParent(this);
     _contents.SetName("Register Contents");
     _contentsP = &_contents;
@@ -48,7 +43,9 @@ public:
   // Clock in the input (if enabled)
   void Clock() {
     if (*_writeEnable) {
-      log(LOG_TYPE_DEBUG, "Clocking in value: " + BussedItem::createString((*_input)->to_ulong()));
+      log(LOG_TYPE_INFO, "Clocking in");
+      std::cout << _input << std::endl;
+      //log(LOG_TYPE_DEBUG, "Clocking in value: " + createString((*_input)->to_ulong()));
     }
   }
 
@@ -64,13 +61,13 @@ public:
 
   MyBitset<N>* GetContentsP() {
     log(LOG_TYPE_DEBUG, "Getting pointer to contents: " + BussedItem::createString(_contents.to_ulong()));
-    return &_contents;
+    return _contentsP;
   }
 
-  MyBitset<N>** GetContentsPP() {
+  /*MyBitset<N>** GetContentsPP() {
     log(LOG_TYPE_DEBUG, "Getting pointer to contents: " + BussedItem::createString(_contents.to_ulong()));
     return &_contentsP;
-  }
+  }*/
 
 private:
   std::string _name;

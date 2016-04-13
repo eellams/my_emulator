@@ -49,7 +49,7 @@ public:
   void SetTypeName(std::string typeName) { _typeName = typeName; }
   std::string GetTypeName() { return _typeName; }
 
-  void SetInput(MyBitset<BUS_WIDTH> **input) {
+  void SetInput(MyBitset<BUS_WIDTH> *input) {
     std::ostringstream ss;
     std::string result;
 
@@ -60,7 +60,7 @@ public:
     _input = input;
   }
 
-  MyBitset<BUS_WIDTH>** GetOutputP() { return _output; }
+  MyBitset<BUS_WIDTH>** GetOutputP() { return &_output; }
 
 protected:
   std::string createLogPrefix() {
@@ -96,8 +96,8 @@ protected:
   std::string _name;
   std::string _typeName;
 
-  MyBitset<BUS_WIDTH> **_input;
-  MyBitset<BUS_WIDTH> **_output;
+  MyBitset<BUS_WIDTH> *_input;
+  MyBitset<BUS_WIDTH> *_output;
 };
 
  #endif
