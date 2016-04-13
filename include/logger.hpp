@@ -24,6 +24,8 @@
 #include <fstream>
 #include <string>
 #include <ctime>
+#include <vector>
+#include <sstream>
 
 #define MAX_TIME_STR 80
 
@@ -46,6 +48,13 @@ public:
   bool Clock();
 
   void Log(char type, std::string toWrite);
+
+  void AddLogSignal(std::string label, std::string name, long value) {
+    std::ostringstream ss;
+    ss << std::hex << value;
+
+    Log(LOG_TYPE_INFO, "Adding signal: " + label + " current name: ['" + name +": 0x" + ss.str() + "]");
+  }
 
 private:
   std::string createTimeString();

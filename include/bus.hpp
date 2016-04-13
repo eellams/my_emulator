@@ -25,8 +25,6 @@
 #include <stdexcept>
 
 #include "system.hpp"
-#include "singleton.hpp"
-#include "logger.hpp"
 #include "item.hpp"
 #include "myBitset.hpp"
 
@@ -51,6 +49,17 @@ public:
   void SetInput(MyBitset<BUS_WIDTH> *input) {
     log(LOG_TYPE_DEBUG, "Setting bus input to: " + input->GetDetails() + "value: " + createString(input->to_ulong()) );
     Item::SetInput(input);
+  }
+
+  std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > GetSignals() {
+    std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signals;
+    std::pair<std::string, MyBitset<BUS_WIDTH>* > toAdd;
+
+    toAdd.first = createLogPrefix() + "input";
+    toAdd.second = _input;
+    signals.push_back(toAdd);
+
+    return signals;
   }
 };
 

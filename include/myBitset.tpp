@@ -90,7 +90,8 @@ std::string MyBitset<N>::createLogPrefix() {
 
 template<size_t N>
 void MyBitset<N>::log(int logType, std::string logStr) {
-  Singleton<Logger>::GetInstance()->Log(logType, createLogPrefix() + logStr);
+  // TODO
+  //Singleton<Logger>::GetInstance()->Log(logType, createLogPrefix() + logStr);
 }
 
 template<size_t N>

@@ -24,6 +24,9 @@
 #include <sstream>
 #include <bitset>
 
+#include <vector>
+#include <utility>
+
 #define WORD_WIDTH 8
 
 //#define DATA_WIDTH 16

@@ -42,10 +42,12 @@ public:
 
   // Clock in the input (if enabled)
   void Clock() {
+    MyBitset<N> input(this, "Register Input Buffer");
     if (*_writeEnable) {
-      log(LOG_TYPE_INFO, "Clocking in");
-      std::cout << _input << std::endl;
-      //log(LOG_TYPE_DEBUG, "Clocking in value: " + createString((*_input)->to_ulong()));
+      //log(LOG_TYPE_INFO, "Clocking in " + _input->);
+      log(LOG_TYPE_DEBUG, "Clocking in " + _input->GetDetails() + "value: " + createString(_input->to_ulong()));
+       input = *_input;
+      _contents = input;
     }
   }
 
@@ -63,11 +65,6 @@ public:
     log(LOG_TYPE_DEBUG, "Getting pointer to contents: " + BussedItem::createString(_contents.to_ulong()));
     return _contentsP;
   }
-
-  /*MyBitset<N>** GetContentsPP() {
-    log(LOG_TYPE_DEBUG, "Getting pointer to contents: " + BussedItem::createString(_contents.to_ulong()));
-    return &_contentsP;
-  }*/
 
 private:
   std::string _name;

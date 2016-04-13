@@ -3,7 +3,7 @@
  *
  *    This file is part of my_emulator.
  *
- *    My_emulator is free software: you can redistribute it and/or modify
+ *    My_emulator is free software: you can _controlBusValueredistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
@@ -21,39 +21,14 @@
 
 Sequencer::Sequencer(std::string name) : BussedItem(SEQUENCER_TYPE_NAME, name) {
   _state = FETCH_PC;
-
-  _zeroBitsData.SetParent(this);
-  _zeroBitsData.SetName("_zeroBitsData");
-  _zeroBitsAddress.SetParent(this);
-  _zeroBitsAddress.SetName("_zeroBitsAddress");
-  _PCAddress.SetParent(this);
-  _PCAddress.SetName("_PCAddress");
   _controlBusValue.SetParent(this);
-  _controlBusValue.SetName("_controlBusValue");
+  _controlBusValue.SetName("Control Bus Value");
 };
 
 Sequencer::~Sequencer() {};
 
 void Sequencer::SetupControlConnections() {
   BussedItem::_controlBus->SetInput(&_controlBusValue);
-}
-
-void Sequencer::Decode() { }
-void Sequencer::Fetch() { }
-void Sequencer::Store() { }
-
-void Sequencer::GetNextInstruction() { }
-
-void Sequencer::Initialise() {
-  // TODO Initialise correctly, as and when registers available
-
-  _zeroBitsData = 0;
-  _zeroBitsAddress = 0;
-
-  _dataBus->SetInput(&_zeroBitsData);
-  _addressBus->SetInput(&_zeroBitsAddress);
-
-  _PCAddress |= REG_PC;
 }
 
 void Sequencer::Clock() {
@@ -70,23 +45,63 @@ void Sequencer::Clock() {
 
       _registerFile->ReadFromRegister(REG_PC);
 
-      _state = FETCH_IST;
+      _state = FETCH_INSTRUCTION;
       break;
-    case FETCH_IST:
+    case FETCH_INSTRUCTION:
       // Store memory at address in CIR
       log(LOG_TYPE_INFO, "Fetch Instruction");
+
+      // Set address bus to PC
+      //BussedItem<aN, dN, cN>::_addressBus->SetInput(&_PCAddress);
+      _controlBusValue.set(CONTROL_READ);
+      _controlBusValue.set(CONTROL_WHICH_BUS, 0); // To data bus
+
       _registerFile->WriteToRegister(REG_CIR);
 
-      _state = EXECUTE;
+      _state = STORE_INSTRUCTION;
       break;
+
+    case STORE_INSTRUCTION:
+      log(LOG_TYPE_INFO, "Store Instruction");
+
+      _registerFile->WriteToRegister(REG_CIR);
+
+      _state = FINISHED;
+      break;
+
     case EXECUTE:
       log(LOG_TYPE_INFO, "Execute");
       _state = FETCH_PC;
+      break;
+
+    default:
       break;
   }
 
   _memory->Clock();
   _registerFile->Clock();
+
+  Signals();
+}
+
+void Sequencer::Signals() {
+  std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signals;
+  std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signalsAddress = _addressBus->GetSignals();
+  std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signalsData = _dataBus->GetSignals();
+  std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signalsControl = _controlBus->GetSignals();
+
+  while(signalsAddress.size()) { signals.push_back(signalsAddress.back()); signalsAddress.pop_back(); }
+  while(signalsData.size()) { signals.push_back(signalsData.back()); signalsData.pop_back(); }
+  while(signalsControl.size()) { signals.push_back(signalsControl.back()); signalsControl.pop_back(); }
+
+  for (int i=0; i<signals.size(); i++) {
+    if (signals[i].second) {
+      Singleton<Logger>::GetInstance()->AddLogSignal(signals[i].first, signals[i].second->GetName(), signals[i].second->to_ulong());
+    }
+    else {
+      Singleton<Logger>::GetInstance()->AddLogSignal(signals[i].first, "NOT SET", 0);
+    }
+  }
 }
 
 void Sequencer::SetRegisterFile(RegisterFile *registerFile) { _registerFile = registerFile; }

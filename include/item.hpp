@@ -22,74 +22,58 @@
 
 #include <string>
 #include <sstream>
+#include <utility>
 
 #include "system.hpp"
 #include "singleton.hpp"
 #include "logger.hpp"
-//#include "myBitset.hpp"
+
+template<size_t N>
+class MyBitset;
 
 #define ITEM_DEFAULT_NAME "UNKNOWN_ITEM"
 #define ITEM_TYPE_DEFAULT_NAME "ITEM"
 
-template<size_t N> class MyBitset;
-
 class Item {
 public:
   Item(std::string typeName = ITEM_TYPE_DEFAULT_NAME,
-    std::string name = ITEM_DEFAULT_NAME) {
-      SetTypeName(typeName);
-      SetName(name);
-    }
+    std::string name = ITEM_DEFAULT_NAME);
 
-  ~Item() {}
+  ~Item();
 
-  void SetName(std::string name) { _name = name; }
-  std::string GetName() { return _name; }
+  void SetName(std::string name);
+  std::string GetName();
 
-  void SetTypeName(std::string typeName) { _typeName = typeName; }
-  std::string GetTypeName() { return _typeName; }
+  void SetTypeName(std::string typeName);
+  std::string GetTypeName();
 
-  void SetInput(MyBitset<BUS_WIDTH> *input) {
-    std::ostringstream ss;
-    std::string result;
+  void SetInput(MyBitset<BUS_WIDTH> *input);
 
-    ss << std::hex << static_cast<void*>(input);
-    result = ss.str();
+  std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > GetSignals() {
+    std::vector< std::pair<std::string, MyBitset<BUS_WIDTH>* > > signals;
+    std::pair<std::string, MyBitset<BUS_WIDTH>* > toAdd;
 
-    log(LOG_TYPE_DEBUG, "Setting input to pointer: " + result);
-    _input = input;
+    toAdd.first = createLogPrefix() + "input";
+    toAdd.second = _input;
+    signals.push_back(toAdd);
+
+    toAdd.first = createLogPrefix() + "output";
+    toAdd.second = _output;
+    signals.push_back(toAdd);
+    
+    return signals;
   }
 
-  MyBitset<BUS_WIDTH>** GetOutputP() { return &_output; }
+  MyBitset<BUS_WIDTH>** GetOutputP();
 
 protected:
-  std::string createLogPrefix() {
-      std::string toReturn;
-      toReturn = "[" + GetTypeName() + ": " + GetName() + "] ";
-      return toReturn;
-  }
+  std::string createLogPrefix();
 
-  void log(int logType, std::string logStr) {
-    Singleton<Logger>::GetInstance()->Log(logType, createLogPrefix() + logStr);
-  };
+  void log(int logType, std::string logStr);
 
-  static std::string createString(long input, bool hex = true) {
-    std::ostringstream ss;
-    if (hex) {
-      ss << std::hex << input;
-      return "0x" + ss.str();
-    }
-    else {
-      ss << input;
-      return ss.str();
-    }
-  }
+  static std::string createString(long input, bool hex = true);
 
-  static std::string createString(void* input) {
-    std::ostringstream ss;
-    ss << std::hex << input;
-    return ss.str();
-  }
+  static std::string createString(void* input);
 
   // TODO setInput and setOutput?
 

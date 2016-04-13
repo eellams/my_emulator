@@ -20,7 +20,13 @@
 #ifndef _SEQUENCER_HPP
 #define _SEQUENCER_HPP
 
+#include <vector>
+#include <iterator>
+
 #include "system.hpp"
+#include "singleton.hpp"
+#include "logger.hpp"
+
 #include "bussedItem.hpp"
 #include "register.hpp"
 #include "registerFile.hpp"
@@ -37,8 +43,10 @@
 
 enum States{
   FETCH_PC,
-  FETCH_IST,
-  EXECUTE
+  FETCH_INSTRUCTION,
+  STORE_INSTRUCTION,
+  EXECUTE,
+  FINISHED
 };
 
 class Sequencer : public BussedItem {
@@ -48,33 +56,22 @@ public:
 
   void SetupControlConnections();
 
-  void Decode();
-  void Fetch();
-  void Store();
-
-  void GetNextInstruction();
-
-  void Initialise();
   void Clock();
 
   void SetRegisterFile(RegisterFile *registerFile);
   void SetMemory(Memory *memory);
 
+  void Signals();
+  
+  bool Finished() {
+    if (_state == FINISHED) return true;
+    return false;
+   }
 
 private:
   States _state;
   RegisterFile *_registerFile;
   Memory *_memory;
-
-  MyBitset<BUS_WIDTH> _zeroBitsData;
-  MyBitset<BUS_WIDTH> _zeroBitsAddress;
-
-  //MyBitset<BUS_WIDTH> *_zeroBitsDataP;
-  //MyBitset<BUS_WIDTH> *_zeroBitsAddressP;
-  //MyBitset<BUS_WIDTH> *_controlBusValueP;
-  //MyBitset<BUS_WIDTH> *_PCAddressP;
-
-  MyBitset<BUS_WIDTH> _PCAddress;
 
   MyBitset<BUS_WIDTH> _controlBusValue;
 };

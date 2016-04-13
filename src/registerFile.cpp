@@ -63,14 +63,13 @@ void RegisterFile::ReadFromRegister(int registerNumber) {
 
   if ((*control)->test(CONTROL_WHICH_BUS)) {
     // Address bus
-    //void SetInput(MyBitset<BUS_WIDTH> **input) {
-
     log(LOG_TYPE_INFO, "Reading to address bus: " + createString(_reg[registerNumber].GetContentsP()->to_ulong() ));
     _addressBus->SetInput( _reg[registerNumber].GetContentsP() );
   }
   else {
     // Data bus
-    //BussedItem::_dataBus->SetInput(_reg[registerNumber].GetContentsPP());
+    log(LOG_TYPE_INFO, "Reading to address bus: " + createString(_reg[registerNumber].GetContentsP()->to_ulong() ));
+    _dataBus->SetInput( _reg[registerNumber].GetContentsP() );
   }
 }
 

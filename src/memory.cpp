@@ -30,8 +30,8 @@ Memory::~Memory() {};
 
 bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
   std::ifstream inputFile;
-  char read[(size_t)std::ceil( 1 << BUS_WIDTH )];
-  MyBitset<BUS_WIDTH> readWord(this, "MEMORY_CELL");
+  char read[8]; //TODO this should vary
+  MyBitset<BUS_WIDTH> readWord(this, "Reading");
   int filesize, expectedFileSize, numberCharactersPerOpcode;
 
   // Open the file, at the end to check file size
@@ -58,9 +58,11 @@ bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
   if (isBinary) {
     for (int i=0; i<expectedFileSize; i++) {
       readWord = 0;
-      if (!inputFile.eof()) {
+      //if (!inputFile.eof()) {
+      if (i<=filesize) {
 
-        inputFile.read(read, sizeof(read));
+        inputFile.read(read, numberCharactersPerOpcode);
+        //std::cout << read << std::endl;
 
         // Need to 'flip' the read data, such that the first byte becomes
         //  the last byte
@@ -68,8 +70,8 @@ bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
         //   but would otherwise become [n], ..., [2], [1] through a memcpy
         //   I'm guessing it's some endian thing...
 
-        for (int j=0; j<sizeof(read); j++) {
-          int toShift = (sizeof(read) - j - 1) * BYTE_SIZE;
+        for (int j=0; j<numberCharactersPerOpcode; j++) {
+          int toShift = (numberCharactersPerOpcode - j - 1) * BYTE_SIZE;
           if (toShift >= 0) readWord |= read[j] << toShift;
         }
       }

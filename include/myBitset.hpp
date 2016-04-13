@@ -21,16 +21,21 @@
 #define _MY_BITSET
 
 #include "system.hpp"
-#include "singleton.hpp"
-#include "logger.hpp"
-//#include "bussedItem.hpp"
+//#include "singleton.hpp"
+//#include "logger.hpp"
 #include "item.hpp"
+
+//class Item;
 
 #include <string>
 #include <sstream>
 #include <bitset>
 
 #define MY_BITSET_DEFAULT_NAME "UNKNOWN_BITSET"
+
+#define LOG_TYPE_INFO 0x00
+#define LOG_TYPE_DEBUG 0x01
+#define LOG_TYPE_ERROR 0x02
 
 template<size_t N>
 class MyBitset : std::bitset<N> {
