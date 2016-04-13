@@ -19,7 +19,7 @@
 
 #include "registerFile.hpp"
 
-RegisterFile::RegisterFile() : BussedItem() {}
+RegisterFile::RegisterFile(std::string name) : BussedItem(REG_FILE_TYPE_NAME, name) {}
 
 RegisterFile::~RegisterFile() {}
 
@@ -29,10 +29,6 @@ void RegisterFile::SetupRegisters() {
 
   // Setup general registers
   for (int i=0; i<REGISTER_NUMBER; i++) {
-    _reg[i].SetWriteEnable(&_registerEnables[i]);
-    _registerEnables[i] = false;
-    _reg[i].SetInput(_input);
-
     if (i == REG_ZERO) name = std::string(REG_ZERO_NAME);
     else if (i == REG_ACC) name = std::string(REG_ACC_NAME);
     else if (i == REG_MAR) name = std::string(REG_MAR_NAME);
@@ -42,11 +38,15 @@ void RegisterFile::SetupRegisters() {
     else name = std::string(REG_GEN_NAME) + BussedItem::createString(i, false);
 
     _reg[i].SetName(name);
+
+    _reg[i].SetWriteEnable(&_registerEnables[i]);
+    _registerEnables[i] = false;
+    _reg[i].SetInput( BussedItem::_dataBus->GetValue() );
   }
 }
 
 void RegisterFile::Clock() {
-  log(LOG_TYPE_DEBUG, "Register clock");
+  log(LOG_TYPE_DEBUG, "Register file clock");
 
   // Clock all the registers
   for (int i=0; i<REGISTER_NUMBER; i++) {
@@ -56,16 +56,20 @@ void RegisterFile::Clock() {
 }
 
 void RegisterFile::ReadFromRegister(int registerNumber) {
-  std::bitset<CONTROL_WIDTH> control;
+  MyBitset<BUS_WIDTH> **control;
   control = BussedItem::_controlBus->GetValue();
 
-  if (control.test(CONTROL_WHICH_BUS)) {
+  if ((*control)->test(CONTROL_WHICH_BUS)) {
     // Address bus
-    BussedItem::_addressBus->SetInput(_reg[registerNumber].GetContentsP());
+    //void SetInput(MyBitset<BUS_WIDTH> **input) {
+    MyBitset<BUS_WIDTH> **x = _reg[registerNumber].GetContentsPP();
+
+    log(LOG_TYPE_INFO, "Reading to address bus: " + createString((*x)->to_ulong() ));
+    //_addressBus->SetInput(_reg[registerNumber].GetContentsPP());
   }
   else {
     // Data bus
-    BussedItem::_dataBus->SetInput(_reg[registerNumber].GetContentsP());
+    //BussedItem::_dataBus->SetInput(_reg[registerNumber].GetContentsPP());
   }
 }
 

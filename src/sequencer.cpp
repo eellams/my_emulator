@@ -19,14 +19,28 @@
 
 #include "sequencer.hpp"
 
-Sequencer::Sequencer() : BussedItem(SEQUENCER_TYPE_NAME, SEQUENCER_NAME) {
+Sequencer::Sequencer(std::string name) : BussedItem(SEQUENCER_TYPE_NAME, name) {
   _state = FETCH_PC;
+
+  _zeroBitsData.SetParent(this);
+  _zeroBitsData.SetName("_zeroBitsData");
+  _zeroBitsAddress.SetParent(this);
+  _zeroBitsAddress.SetName("_zeroBitsAddress");
+  _PCAddress.SetParent(this);
+  _PCAddress.SetName("_PCAddress");
+  _controlBusValue.SetParent(this);
+  _controlBusValue.SetName("_controlBusValue");
+
+  _zeroBitsDataP = &_zeroBitsData;
+  _zeroBitsAddressP = &_zeroBitsAddress;
+  _PCAddressP = &_PCAddress;
+  _controlBusValueP = &_controlBusValue;
 };
 
 Sequencer::~Sequencer() {};
 
 void Sequencer::SetupControlConnections() {
-  BussedItem::_controlBus->SetInput(&_controlBusValue);
+  BussedItem::_controlBus->SetInput(&_controlBusValueP);
 }
 
 void Sequencer::Decode() { }
@@ -37,20 +51,18 @@ void Sequencer::GetNextInstruction() { }
 
 void Sequencer::Initialise() {
   // TODO Initialise correctly, as and when registers available
-  BussedItem::_dataBus->SetInput(&_zeroBitsData);
-  BussedItem::_addressBus->SetInput(&_zeroBitsAddress);
+  BussedItem::_dataBus->SetInput(&_zeroBitsDataP);
+  BussedItem::_addressBus->SetInput(&_zeroBitsAddressP);
 
   _PCAddress |= REG_PC;
 }
 
 void Sequencer::Clock() {
-  //std::bitset<aN> value;
-
   _controlBusValue.reset();
 
   switch (_state) {
     case FETCH_PC:
-      log(LOG_TYPE_DEBUG, "Fetch");
+      log(LOG_TYPE_INFO, "Fetch");
 
       // Set address bus to PC
       //BussedItem<aN, dN, cN>::_addressBus->SetInput(&_PCAddress);
@@ -63,13 +75,13 @@ void Sequencer::Clock() {
       break;
     case FETCH_IST:
       // Store memory at address in CIR
-      log(LOG_TYPE_DEBUG, "Fetch Instruction");
+      log(LOG_TYPE_INFO, "Fetch Instruction");
       _registerFile->WriteToRegister(REG_CIR);
 
       _state = EXECUTE;
       break;
     case EXECUTE:
-      log(LOG_TYPE_DEBUG, "Execute");
+      log(LOG_TYPE_INFO, "Execute");
       _state = FETCH_PC;
       break;
   }

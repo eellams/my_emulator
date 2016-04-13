@@ -20,7 +20,9 @@
 #ifndef _MEMORY_HPP
 #define _MEMORY_HPP
 
+#include "system.hpp"
 #include "myBitset.hpp"
+#include "bussedItem.hpp"
 
 #include <fstream>
 #include <cstring>
@@ -31,7 +33,7 @@
 
 class Memory : public BussedItem {
 public:
-  Memory();
+  Memory(std::string name);
   ~Memory();
 
   bool LoadFromFile(std::string fileName, bool isBinary);
@@ -39,7 +41,7 @@ public:
   void Clock();
 
 private:
-  MyBitset<DATA_WIDTH> _memory[MEMORY_SIZE];
+  MyBitset<BUS_WIDTH> _memory[MEMORY_SIZE];
 };
 
  #endif

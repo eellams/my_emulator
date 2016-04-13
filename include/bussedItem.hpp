@@ -24,60 +24,33 @@
 #include <sstream>
 
 #include "system.hpp"
+#include "item.hpp"
 #include "bus.hpp"
+#include "myBitset.hpp"
 
 #define BUSSED_ITEM_DEFAULT_NAME "UNKNOWN_ITEM"
 #define BUSSED_ITEM_DEFAULT_TYPE_NAME "UNKNOWN_TYPE"
 
 // Forward definiton, avoids cyclic dependencies with "myBitset.hpp"
-template<size_t N> class MyBitset;
+//template<size_t N> class MyBitset;
 
-class BussedItem {
+class BussedItem : public Item {
 public:
   BussedItem(std::string typeName = BUSSED_ITEM_DEFAULT_TYPE_NAME,
     std::string name = BUSSED_ITEM_DEFAULT_NAME);
   ~BussedItem();
 
-  void SetDataBus(Bus<DATA_WIDTH> *bus);
-  void SetAddressBus(Bus<ADDRESS_WIDTH> *bus);
-  void SetControlBus(Bus<CONTROL_WIDTH> *bus);
-
-  void SetName(std::string name);
-  std::string GetName();
-
-  void SetTypeName(std::string typeName);
-  std::string GetTypeName();
-
-  void SetInput(MyBitset<DATA_WIDTH> *input) { _input = input; }
-  MyBitset<DATA_WIDTH>* GetOutputP() { return _output; }
+  void SetDataBus(Bus<BUS_WIDTH> *bus);
+  void SetAddressBus(Bus<BUS_WIDTH> *bus);
+  void SetControlBus(Bus<BUS_WIDTH> *bus);
 
 protected:
-  std::string createLogPrefix();
-  void log(int logType, std::string logStr);
-
-  static std::string createString(long input, bool hex = true) {
-    std::ostringstream ss;
-    if (hex) {
-      ss << std::hex << input;
-      return "0x" + ss.str();
-    }
-    else {
-      ss << input;
-      return ss.str();
-    }
-  }
 
   // TODO setInput and setOutput?
 
-  std::string _name;
-  std::string _typeName;
-
-  MyBitset<DATA_WIDTH> *_input;
-  MyBitset<DATA_WIDTH> *_output;
-
-  Bus<ADDRESS_WIDTH> *_addressBus;
-  Bus<DATA_WIDTH> *_dataBus;
-  Bus<CONTROL_WIDTH> *_controlBus;
+  Bus<BUS_WIDTH> *_addressBus;
+  Bus<BUS_WIDTH> *_dataBus;
+  Bus<BUS_WIDTH> *_controlBus;
 };
 
  #endif

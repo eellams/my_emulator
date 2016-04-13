@@ -20,46 +20,17 @@
 #include "bussedItem.hpp"
 
 
-BussedItem::BussedItem(std::string typeName, std::string name) {
-    SetTypeName(typeName);
-    SetName(name);
-  }
+BussedItem::BussedItem(std::string typeName, std::string name) : Item(typeName, name) {}
 
 BussedItem::~BussedItem() {
 }
 
-void BussedItem::SetDataBus(Bus<DATA_WIDTH> *bus) {
+void BussedItem::SetDataBus(Bus<BUS_WIDTH> *bus) {
   _dataBus = bus;
 }
-void BussedItem::SetAddressBus(Bus<ADDRESS_WIDTH> *bus) {
+void BussedItem::SetAddressBus(Bus<BUS_WIDTH> *bus) {
   _addressBus = bus;
 }
-void BussedItem::SetControlBus(Bus<CONTROL_WIDTH> *bus) {
+void BussedItem::SetControlBus(Bus<BUS_WIDTH> *bus) {
   _controlBus = bus;
-}
-
-void BussedItem::SetName(std::string name) {
-  if (_name != BUSSED_ITEM_DEFAULT_NAME && _name != "")
-    log(LOG_TYPE_DEBUG, "Changing name from: '" + _name + "' to: '" + name + "'");
-  _name = name;
-}
-std::string BussedItem::GetName() {
-  return _name;
-}
-
-void BussedItem::SetTypeName(std::string typeName) {
-  _typeName = typeName;
-}
-std::string BussedItem::GetTypeName() {
-  return _typeName;
-}
-
-std::string BussedItem::createLogPrefix() {
-    std::string toReturn;
-    toReturn = "[" + GetTypeName() + ": " + GetName() + "] ";
-    return toReturn;
-}
-
-void BussedItem::log(int logType, std::string logStr) {
-  Singleton<Logger>::GetInstance()->Log(logType, createLogPrefix() + logStr);
 }

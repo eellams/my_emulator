@@ -24,6 +24,7 @@
 #include "singleton.hpp"
 #include "logger.hpp"
 #include "bussedItem.hpp"
+#include "item.hpp"
 
 #include <string>
 #include <sstream>
@@ -31,36 +32,40 @@
 
 #define MY_BITSET_DEFAULT_NAME "UNKNOWN_BITSET"
 
-class BussedItem;
-
 template<size_t N>
-class MyBitset : public std::bitset<N> {
+class MyBitset : std::bitset<N> {
 public:
-  MyBitset(BussedItem *parent = 0, std::string name = MY_BITSET_DEFAULT_NAME) : std::bitset<N>() {
-    SetParent(parent);
-    SetName(name);
-   }
-  ~MyBitset() {};
+  MyBitset(Item *parent = 0, std::string name = MY_BITSET_DEFAULT_NAME);
 
-  void SetName(std::string name) { _name = name; }
-  std::string GetName() { return _name; }
+  ~MyBitset();
 
-  void SetParent(BussedItem *parent) { _parent = parent; }
+  void SetName(std::string name);
+  std::string GetName();
+
+  void SetParent(Item *parent);
+
+  std::string GetDetails();
+
+  void set(size_t __position, bool __val = true);
+  bool test(size_t __position);
+  void reset();
+  unsigned long to_ulong();
+  void operator|=(const std::bitset<N>& __rhs) _GLIBCXX_NOEXCEPT;
 
 private:
-  std::string createLogPrefix() {
-    std::string toReturn;
-    toReturn = "[" + _parent->GetTypeName() + ": " + _parent->GetName() + "] " + \
-      "[bitset: " + GetName() + "] ";
+  std::string createLogPrefix();
 
-    return toReturn;
-  }
+  void log(int logType, std::string logStr);
 
-  BussedItem *_parent;
+  std::string createString(long input, bool hex = true);
+
+  Item *_parent;
 
   std::string _name;
   std::string _parentType;
   std::string _parentName;
 };
+
+#include "myBitset.tpp"
 
 #endif

@@ -27,6 +27,7 @@
 #include "system.hpp"
 #include "singleton.hpp"
 #include "logger.hpp"
+#include "item.hpp"
 
 template<size_t N> class MyBitset;
 
@@ -37,56 +38,19 @@ template<size_t N> class MyBitset;
 //  i.e. if input changed more than once per clock cycle
 
 template<size_t N>
-class Bus {
+class Bus : public Item {
 public:
-  Bus(std::string name = BUS_DEFAULT_NAME) {
+  Bus(std::string name = BUS_DEFAULT_NAME) : Item(BUS_PREFIX, name) {
     SetName(name);
   }
 
+  MyBitset<N>** GetValue() { return _input; }
+
   ~Bus() {};
 
-  void SetName(std::string name) { _name = name; }
-  std::string GetName() { return _name; }
-
-  void SetInput(MyBitset<N> *input) {
-    log(LOG_TYPE_DEBUG, "Setting input to: " + createString(input->to_ulong()));
-    _input = input;
-  }
-
-  MyBitset<N> GetValue() {
-    log(LOG_TYPE_DEBUG, "Getting value: " + createString(_input->to_ulong()));
-    return *_input;
-  }
-
-  MyBitset<N>* GetValueP() {
-    return _input;
-  }
-
 private:
-  std::string createLogPrefix() {
-      std::string toReturn;
-      toReturn = "[" + std::string(BUS_PREFIX) + ": " + _name + "] ";
-      return toReturn;
-  }
-
-  void log(int logType, std::string logStr) {
-    Singleton<Logger>::GetInstance()->Log(logType, createLogPrefix() + logStr);
-  }
-
-  std::string createString(long input, bool hex = true) {
-    std::ostringstream ss;
-    if (hex) {
-      ss << std::hex << input;
-      return "0x" + ss.str();
-    }
-    else {
-      ss << input;
-      return ss.str();
-    }
-  }
-
   std::string _name;
-  MyBitset<N> *_input;
+  //MyBitset<N> *_input;
 };
 
  #endif

@@ -27,13 +27,7 @@
 #include "memory.hpp"
 #include "sequencer.hpp"
 #include "register.hpp"
-//#include "registerFile.hpp"
-
-class meh {
-public:
-  meh() {std::cout << "meh" << std::endl;};
-  int x;
-};
+#include "registerFile.hpp"
 
 int main(int argc, char *argv[]) {
   std::string fileToExecute;
@@ -43,13 +37,13 @@ int main(int argc, char *argv[]) {
   Logger *log = Singleton<Logger>::GetInstance();
 
   // Classes that we are going to use
-  Bus<ADDRESS_WIDTH> addressBus;
-  Bus<DATA_WIDTH> dataBus;
-  Bus<CONTROL_WIDTH> controlBus;
+  Bus<BUS_WIDTH> addressBus("Address Bus");
+  Bus<BUS_WIDTH> dataBus("Data Bus");
+  Bus<BUS_WIDTH> controlBus("Control Bus");
 
-  RegisterFile registerFile;
-  Sequencer sequencer;
-  Memory memory;
+  RegisterFile registerFile("Register File");
+  Sequencer sequencer("Sequencer");
+  Memory memory("Memory");
 
   // Get the file we are reading
   std::cout << "File to read (leave blank for testprogram): ";
@@ -68,11 +62,6 @@ int main(int argc, char *argv[]) {
     log->Log(LOG_TYPE_ERROR, "Something went wrong reading the file");
     return 0;
   }
-
-  // Set bus names
-  dataBus.SetName("Data Bus");
-  addressBus.SetName("Address Bus");
-  controlBus.SetName("Control Bus");
 
   registerFile.SetDataBus(&dataBus);
   registerFile.SetAddressBus(&addressBus);
@@ -94,7 +83,7 @@ int main(int argc, char *argv[]) {
   sequencer.Initialise();
 
   sequencer.Clock();
-  sequencer.Clock();
+  //sequencer.Clock();
   //memory.Clock();
   //regFile.Clock();
 

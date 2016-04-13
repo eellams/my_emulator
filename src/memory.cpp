@@ -19,13 +19,13 @@
 
 #include "memory.hpp"
 
-Memory::Memory() : BussedItem(MEMORY_TYPE_NAME, MEMORY_NAME) {};
+Memory::Memory(std::string name) : BussedItem(MEMORY_TYPE_NAME, name) {};
 Memory::~Memory() {};
 
 bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
   std::ifstream inputFile;
-  char read[(size_t)std::ceil( 1 << DATA_WIDTH )];
-  MyBitset<DATA_WIDTH> readWord(this);
+  char read[(size_t)std::ceil( 1 << BUS_WIDTH )];
+  MyBitset<BUS_WIDTH> readWord(this, "MEMORY_CELL");
   int filesize, expectedFileSize, numberCharactersPerOpcode;
 
   // Open the file, at the end to check file size
@@ -68,6 +68,8 @@ bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
         }
       }
       _memory[i] = readWord;
+      _memory[i].SetParent(this);
+      _memory[i].SetName("Memory Cell: " + createString(i));
     }
   } else {
     log(LOG_TYPE_ERROR, "Non-binary files not implemented yet");
@@ -83,18 +85,19 @@ bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
 }
 
 void Memory::Clock() {
-  log(LOG_TYPE_DEBUG, "Clock");
-  std::bitset<ADDRESS_WIDTH> *address;
-  std::bitset<DATA_WIDTH> *data;
-  std::bitset<CONTROL_WIDTH> *control;
+  //TODO work this out
+  log(LOG_TYPE_DEBUG, "Clock - not implemented");
+  MyBitset<BUS_WIDTH> **address;
+  MyBitset<BUS_WIDTH> **data;
+  MyBitset<BUS_WIDTH> **control;
 
   /*address = BussedItem<aN, dN, cN>::_addressBus->GetValue( CLOCK_GET_PREFIX );
   data = BussedItem<aN, dN, cN>::_dataBus->GetValue();
   control = BussedItem<aN, dN, cN>::_controlBus->GetValue();*/
 
-  address = BussedItem::_addressBus->GetValueP();
+  /*address = BussedItem::_addressBus->GetValueP();
   data = BussedItem::_dataBus->GetValueP();
-  control = BussedItem::_controlBus->GetValueP();
+  control = BussedItem::_controlBus->GetValueP();*/
 
   /*
   if (address->to_ulong() < MEMORY_SIZE){

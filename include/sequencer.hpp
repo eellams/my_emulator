@@ -43,7 +43,7 @@ enum States{
 
 class Sequencer : public BussedItem {
 public:
-  Sequencer();
+  Sequencer(std::string name);
   ~Sequencer();
 
   void SetupControlConnections();
@@ -66,11 +66,16 @@ private:
   RegisterFile *_registerFile;
   Memory *_memory;
 
-  MyBitset<DATA_WIDTH> _zeroBitsData;
-  MyBitset<ADDRESS_WIDTH> _zeroBitsAddress;
+  MyBitset<BUS_WIDTH> _zeroBitsData;
+  MyBitset<BUS_WIDTH> _zeroBitsAddress;
 
-  MyBitset<ADDRESS_WIDTH> _PCAddress;
+  MyBitset<BUS_WIDTH> *_zeroBitsDataP;
+  MyBitset<BUS_WIDTH> *_zeroBitsAddressP;
+  MyBitset<BUS_WIDTH> *_controlBusValueP;
+  MyBitset<BUS_WIDTH> *_PCAddressP;
 
-  MyBitset<CONTROL_WIDTH> _controlBusValue;
+  MyBitset<BUS_WIDTH> _PCAddress;
+
+  MyBitset<BUS_WIDTH> _controlBusValue;
 };
  #endif

@@ -27,19 +27,28 @@
 #include <string>
 
 #define REGISTER_DEFAULT_NAME "UNKNOWN_REGISTER"
-#define REGISTER_PREFIX "REGISTER"
+#define REGISTER_TYPE_NAME "REGISTER"
 
 template<size_t N>
 class Register : public BussedItem {
 public:
-  Register(std::string name = REGISTER_DEFAULT_NAME) : BussedItem(name) {}
+  Register() {
+    _contents.SetParent(this);
+    _contents.SetName("Register Contents");
+    _contentsP = &_contents;
+  }
+  
+  Register(std::string typeName) : BussedItem(REGISTER_TYPE_NAME, typeName) {
+    _contents.SetParent(this);
+    _contents.SetName("Register Contents");
+    _contentsP = &_contents;
+  }
   ~Register() {  }
 
   // Clock in the input (if enabled)
   void Clock() {
     if (*_writeEnable) {
-      _contents = *_input;
-      log(LOG_TYPE_DEBUG, "Clocking in value: " + BussedItem::createString(_input->to_ulong()));
+      log(LOG_TYPE_DEBUG, "Clocking in value: " + BussedItem::createString((*_input)->to_ulong()));
     }
   }
 
@@ -49,7 +58,7 @@ public:
   }
 
   MyBitset<N> GetContents() {
-    log(LOG_TYPE_DEBUG, "Getting contents: " + BussedItem::createString(_contents.to_ulong()));
+    log(LOG_TYPE_DEBUG, "Getting contents: (" + BussedItem::createString(_contents.to_ulong()) + ")");
     return _contents;
   }
 
@@ -58,9 +67,15 @@ public:
     return &_contents;
   }
 
+  MyBitset<N>** GetContentsPP() {
+    log(LOG_TYPE_DEBUG, "Getting pointer to contents: " + BussedItem::createString(_contents.to_ulong()));
+    return &_contentsP;
+  }
+
 private:
   std::string _name;
   MyBitset<N> _contents;
+  MyBitset<N> *_contentsP;
 
   bool *_writeEnable;
 

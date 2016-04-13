@@ -27,7 +27,7 @@
 #include "register.hpp"
 
 #define REG_NUM 1 << REG_WIDTH
-#define REG_GEN_NAME "Registers"
+#define REG_GEN_NAME "Registers" // Prefix used for generating names
 
 // Reserved registers
 #define REG_ZERO 0
@@ -44,11 +44,13 @@
 #define REG_PC_NAME "Program Counter"
 #define REG_CIR_NAME "Current Instruction Register"
 
+#define REG_FILE_NAME "Register File"
+#define REG_FILE_TYPE_NAME "REGISTER_FILE"
+
 class RegisterFile : public BussedItem {
 public:
-  RegisterFile();
+  RegisterFile(std::string name);
   ~RegisterFile();
-
 
   void SetupRegisters();
 
@@ -58,7 +60,7 @@ public:
   void WriteToRegister(int registerNumber);
 
 private:
-  Register<DATA_WIDTH> _reg[REGISTER_NUMBER];
+  Register<REGISTER_WIDTH> _reg[REGISTER_NUMBER];
 
   bool _registerEnables[REGISTER_NUMBER];
 };

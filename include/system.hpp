@@ -26,13 +26,17 @@
 
 #define WORD_WIDTH 8
 
-#define DATA_WIDTH 16
-#define ADDRESS_WIDTH 16
-#define MEMORY_SIZE 1 << ADDRESS_WIDTH
+//#define DATA_WIDTH 16
+//#define ADDRESS_WIDTH 16
 
-#define CONTROL_WIDTH 4
+#define BUS_WIDTH 16
+#define MEMORY_SIZE 1 << BUS_WIDTH
 
-#define REGISRER_NUMBER_WIDTH 5 // Must be the same as BITS_REG
+//#define CONTROL_WIDTH 4
+
+
+
+#define REGISRER_NUMBER_WIDTH 3 // Must be the same as BITS_REG
 #define REGISTER_NUMBER (1 << REGISRER_NUMBER_WIDTH)
 #define REGISTER_WIDTH 16
 
