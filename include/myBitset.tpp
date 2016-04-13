@@ -38,6 +38,9 @@ template<size_t N>
 void MyBitset<N>::SetParent(Item *parent) { _parent = parent; }
 
 template<size_t N>
+Item* MyBitset<N>::GetParent() { return _parent; }
+
+template<size_t N>
 std::string MyBitset<N>::GetDetails() {
   std::string toReturn;
   toReturn += createLogPrefix();

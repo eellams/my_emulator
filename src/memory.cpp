@@ -19,7 +19,14 @@
 
 #include "memory.hpp"
 
-Memory::Memory(std::string name) : BussedItem(MEMORY_TYPE_NAME, name) {};
+Memory::Memory(std::string name) : BussedItem(MEMORY_TYPE_NAME, name) {
+  _outputBuffer.SetParent(this);
+  _outputBuffer.SetName("Memory Output Buffer");
+
+  _outputBufferP = &_outputBuffer;
+  _output = &_outputBufferP;
+};
+
 Memory::~Memory() {};
 
 bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
@@ -91,40 +98,38 @@ void Memory::Clock() {
   MyBitset<BUS_WIDTH> **data;
   MyBitset<BUS_WIDTH> **control;
 
-  /*address = BussedItem<aN, dN, cN>::_addressBus->GetValue( CLOCK_GET_PREFIX );
-  data = BussedItem<aN, dN, cN>::_dataBus->GetValue();
-  control = BussedItem<aN, dN, cN>::_controlBus->GetValue();*/
+  address = BussedItem::_addressBus->GetValue();
+  data = BussedItem::_dataBus->GetValue();
+  control = BussedItem::_controlBus->GetValue();
 
-  /*address = BussedItem::_addressBus->GetValueP();
-  data = BussedItem::_dataBus->GetValueP();
-  control = BussedItem::_controlBus->GetValueP();*/
+  if ((*address)->to_ulong() < MEMORY_SIZE){
+    if ((*control)->test(CONTROL_READ) && !(*control)->test(CONTROL_WRITE)) {
+      // Change the output regardless
+      _outputBuffer = _memory[(*address)->to_ulong()];
 
-  /*
-  if (address->to_ulong() < MEMORY_SIZE){
-    if (control->test(CONTROL_READ) && !control->test(CONTROL_WRITE)) {
-      //LOG(LOG_TYPE_ERROR, createLogPrefix() + "Reading from memory not implemented yet");
-
-      _output = _memory[address->to_ulong()];
-      if (control->test(CONTROL_WHICH_BUS)) {
+      // Read to one of the two busses depending on the control flag
+      if ((*control)->test(CONTROL_WHICH_BUS)) {
         // Address bus
-        BussedItem<aN, dN, cN>::_addressBus->SetInput(_output);
+        log(LOG_TYPE_INFO, "Reading memory address: " + createString((*address)->to_ulong()) + " value: " + createString(_outputBuffer.to_ulong()) + " to address bus");
+        _addressBus->SetInput(_output);
       }
       else {
-        _output
+        // Data bus
+        log(LOG_TYPE_INFO, "Reading memory address: " + createString((*address)->to_ulong()) + " value: " + createString(_outputBuffer.to_ulong()) + " to data bus");
+        _dataBus->SetInput(_output);
       }
-
-      // TODO implement reading
     }
-    else if (!control->test(CONTROL_READ) && control->test(CONTROL_WRITE)) {
-      LOG(LOG_TYPE_ERROR, createLogPrefix() + "Writing to memory not implemented yet");
+
+    else if (!(*control)->test(CONTROL_READ) && (*control)->test(CONTROL_WRITE)) {
+      log(LOG_TYPE_ERROR, "Writing to memory not implemented yet");
       // TODO implement writing
     }
-    else if (control->test(CONTROL_READ) && control.test(CONTROL_WRITE)) {
-      LOG(LOG_TYPE_ERROR, createLogPrefix() + "Both reading and writing to memory: " + CreateString(address.to_ulong()));
+    else if ((*control)->test(CONTROL_READ) && (*control)->test(CONTROL_WRITE)) {
+      log(LOG_TYPE_ERROR, "Both reading and writing to memory: " + createString((*address)->to_ulong()));
     }
   }
   else {
-    LOG(LOG_TYPE_ERROR, "Memory address out of range");
+    log(LOG_TYPE_ERROR, "Memory address out of range");
   }
-  */
+
 }

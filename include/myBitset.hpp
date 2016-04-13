@@ -23,7 +23,7 @@
 #include "system.hpp"
 #include "singleton.hpp"
 #include "logger.hpp"
-#include "bussedItem.hpp"
+//#include "bussedItem.hpp"
 #include "item.hpp"
 
 #include <string>
@@ -43,6 +43,7 @@ public:
   std::string GetName();
 
   void SetParent(Item *parent);
+  Item* GetParent();
 
   std::string GetDetails();
 

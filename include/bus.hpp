@@ -28,8 +28,9 @@
 #include "singleton.hpp"
 #include "logger.hpp"
 #include "item.hpp"
+#include "myBitset.hpp"
 
-template<size_t N> class MyBitset;
+//template<size_t N> class MyBitset;
 
 #define BUS_DEFAULT_NAME "UNKNOWN_BUS"
 #define BUS_PREFIX "BUS"
@@ -45,6 +46,11 @@ public:
   }
 
   MyBitset<N>** GetValue() { return _input; }
+
+  void SetInput(MyBitset<BUS_WIDTH> **input) {
+    log(LOG_TYPE_DEBUG, "Setting bus input to: [" + (*input)->GetParent()->GetName() + ":" + (*input)->GetName() + "]" );
+    Item::SetInput(input);
+  }
 
   ~Bus() {};
 
