@@ -46,12 +46,15 @@ enum States{
   FETCH_PC = 0x00,
   FETCH_INSTRUCTION = 0x01,
   EXECUTE = 0x02,
-  FINISHED = 0x03
+  FINISHED = 0x03,
+  STARTUP
 };
 
 class Sequencer : public BussedItem {
 public:
-  Sequencer(std::string name = SEQUENCER_NAME) : BussedItem(SEQUENCER_TYPE_NAME, name) {}
+  Sequencer(std::string name = SEQUENCER_NAME) : BussedItem(SEQUENCER_TYPE_NAME, name) {
+    _numberOfClocks = 0;
+  }
   ~Sequencer() {}
 
   void Clock() {
@@ -59,6 +62,10 @@ public:
 
     log(LOG_TYPE_INFO, "Clock");
     switch (_state) {
+      case STARTUP:
+        _state = FETCH_PC;
+        break;
+
       case FETCH_PC:
         log(LOG_TYPE_INFO, "Fetching instruction address, which is stored in PC");
         // Set address bus to PC
@@ -122,6 +129,8 @@ public:
     _registerFileP->Clock();
     Update(); // Could change a bus value
 
+    _numberOfClocks += 1;
+
     LogSignals();
     _addressBusP->LogSignals();
     _dataBusP->LogSignals();
@@ -146,7 +155,12 @@ public:
      std::vector<struct Signal> toSend;
      struct Signal toAdd;
 
-     toAdd.Name = createLogPrefix() + std::string("Sequencer State");
+     toAdd.Name = createLogPrefix() + std::string("Clock number: ");
+     toAdd.Value = _numberOfClocks;
+     toAdd.Address = 0;
+     toSend.push_back(toAdd);
+
+     toAdd.Name = createLogPrefix() + std::string("Sequencer State (next): ") + getStateName();
      toAdd.Value = static_cast<long>(_state);
      toAdd.Address = 0;
 
@@ -164,11 +178,24 @@ public:
    }
 
 private:
+  std::string getStateName() {
+    std::string toReturn;
+
+    switch (_state) {
+      case FETCH_PC: toReturn =  std::string("Fetch PC"); break;
+      case FETCH_INSTRUCTION: toReturn = std::string("Fetch Instruction"); break;
+      case EXECUTE: toReturn = std::string("Execute"); break;
+    }
+
+    return toReturn;
+  }
+
   States _state;
   RegisterFile *_registerFileP;
   Memory *_memoryP;
   ALU *_aluP;
 
   MyBitset<BUS_WIDTH> _controlBusValue;
+  long _numberOfClocks;
 };
  #endif

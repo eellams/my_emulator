@@ -35,6 +35,9 @@ class Memory : public BussedItem {
 public:
   Memory(std::string name = MEMORY_NAME) : BussedItem(MEMORY_TYPE_NAME, name) {
     _read = _write = false;
+
+    _output.SetParent(this);
+    _output.SetName("Memory output");
   }
   ~Memory() {}
 
@@ -111,8 +114,10 @@ public:
     Update();
 
     if (_read) {
-      log(LOG_TYPE_INFO, "Reading from memory at address: " + createString(_addressBusP->GetValueP()->to_ulong()) + " value: " + createString(_memory[_addressBusP->GetValueP()->to_ulong()].to_ulong()));
-      _dataBusP->SetValueP(&_memory[_addressBusP->GetValueP()->to_ulong()]);
+      _output.SetValue(_memory[_addressBusP->GetValueP()->to_ulong()]); // Copy value to output
+
+      log(LOG_TYPE_INFO, "Reading from memory at address: " + createString(_addressBusP->GetValueP()->to_ulong()) + " value: " + createString(_output.to_ulong()));
+      _dataBusP->SetValueP(&_output);
     }
 
     if (_write) {
@@ -135,6 +140,10 @@ public:
     std::vector<struct Signal> toSend;
     struct Signal toAdd;
 
+    toAdd.Name = createLogPrefix() + _output.GetName();
+    toAdd.Value = _output.to_ulong();
+    toAdd.Address = static_cast<void*>(&_output);
+
     toSend.push_back(toAdd);
     sendSignals(toSend);
   }
@@ -142,6 +151,7 @@ public:
 
 private:
   MyBitset<BUS_WIDTH> _memory[MEMORY_SIZE];
+  MyBitset<BUS_WIDTH> _output;
 
   bool _read;
   bool _write;

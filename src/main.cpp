@@ -80,6 +80,9 @@ int main(int argc, char *argv[]) {
   sequencer.SetALUP(&alu);
   sequencer.SetMemoryP(&memory);
 
+  //sequencer.LogSignals();
+  //log->WriteSignals();
+
   for (int i=0; i<10; i++) {
     sequencer.Clock();
   }

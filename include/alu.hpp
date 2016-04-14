@@ -55,8 +55,7 @@ public:
       log(LOG_TYPE_INFO, "Adding value: " + createString(imm) + " to data bus, value: " + createString(_dataBusP->GetValueP()->to_ulong()));
       temp = _output.to_ulong() + imm;
 
-      _output ^= _output;
-      _output |= temp;
+      _output.SetValue(temp);
 
       _dataBusP->SetValueP(&_output);
       _add = false;
@@ -74,6 +73,10 @@ public:
   void LogSignals() {
     std::vector<struct Signal> toSend;
     struct Signal toAdd;
+
+    toAdd.Name = createLogPrefix() + _output.GetName();
+    toAdd.Value = _output.to_ulong();
+    toAdd.Address = static_cast<void*>(&_output);
 
     toSend.push_back(toAdd);
     sendSignals(toSend);
