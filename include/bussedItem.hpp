@@ -47,18 +47,16 @@ public:
     log(LOG_TYPE_INFO, "Setting address bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
      _addressBusP = bus;
    }
-  void SetControlBusP(Bus<BUS_WIDTH> *bus) {
-    //log(LOG_TYPE_INFO, "Setting control bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
-    //_controlBusP = bus;
-  }
+
+   // Assume all BussedItems should be synchronous
+   virtual void Clock() {
+     log(LOG_TYPE_ERROR, "Unimplemented Clock function");
+   }
 
 protected:
-
-  // TODO setInput and setOutput?
-
   Bus<BUS_WIDTH> *_addressBusP;
   Bus<BUS_WIDTH> *_dataBusP;
-  //Bus<BUS_WIDTH> *_controlBusP;
+
 };
 
  #endif

@@ -42,7 +42,6 @@ public:
 
   void Clock() {
     log(LOG_TYPE_DEBUG, "Clock");
-    Update();
 
     long data;
     long imm;
@@ -53,7 +52,7 @@ public:
 
 
     if (_add) {
-      log(LOG_TYPE_INFO, "Adding value: " + createString(imm));
+      log(LOG_TYPE_INFO, "Adding value: " + createString(imm) + " to data bus, value: " + createString(_dataBusP->GetValueP()->to_ulong()));
       temp = _output.to_ulong() + imm;
 
       _output ^= _output;
@@ -62,8 +61,22 @@ public:
       _dataBusP->SetValueP(&_output);
       _add = false;
     }
+  }
 
-    Update();
+  // This class has no children, and has no memory
+  //  so has nothing to update
+  //  Update therefore is seldom called
+  void Update() {
+    log(LOG_TYPE_UPDATE, "Update [EMPTY]");
+  };
+
+  // Nothing to log?
+  void LogSignals() {
+    std::vector<struct Signal> toSend;
+    struct Signal toAdd;
+
+    toSend.push_back(toAdd);
+    sendSignals(toSend);
   }
 
   void SetRegisterFileP(RegisterFile *value) { _registerFileP = value; }

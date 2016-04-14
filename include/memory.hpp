@@ -33,10 +33,12 @@
 
 class Memory : public BussedItem {
 public:
-  Memory(std::string name = MEMORY_NAME) : BussedItem(MEMORY_TYPE_NAME, name) {}
+  Memory(std::string name = MEMORY_NAME) : BussedItem(MEMORY_TYPE_NAME, name) {
+    _read = _write = false;
+  }
   ~Memory() {}
 
-  bool LoadFromFile(std::string fileName, bool isBinary) {
+  bool LoadFromFile(std::string fileName, bool isBinary = true) {
     std::ifstream inputFile;
     char read[8]; //TODO this should vary
     MyBitset<BUS_WIDTH> readWord(this, "Reading");
@@ -105,16 +107,16 @@ public:
   void Write() { _write = true; }
 
   void Clock() {
-    log(LOG_TYPE_ERROR, "Clock");
+    log(LOG_TYPE_DEBUG, "Clock");
     Update();
 
     if (_read) {
-      log(LOG_TYPE_INFO, "Reading from memory");
+      log(LOG_TYPE_INFO, "Reading from memory at address: " + createString(_addressBusP->GetValueP()->to_ulong()) + " value: " + createString(_memory[_addressBusP->GetValueP()->to_ulong()].to_ulong()));
       _dataBusP->SetValueP(&_memory[_addressBusP->GetValueP()->to_ulong()]);
     }
 
     if (_write) {
-      log(LOG_TYPE_INFO, "Writing to memory");
+      log(LOG_TYPE_INFO, "Writing to memory at address: " + createString(_addressBusP->GetValueP()->to_ulong()));
       _memory[_addressBusP->GetValueP()->to_ulong()] = *_dataBusP->GetValueP();
     }
 
@@ -123,7 +125,20 @@ public:
     Update();
   }
 
-  void Update() {};
+  // No memory, nothing to update?
+  void Update() {
+    log(LOG_TYPE_UPDATE, "Update [EMPTY]");
+  };
+
+  // Nothing to log?
+  void LogSignals() {
+    std::vector<struct Signal> toSend;
+    struct Signal toAdd;
+
+    toSend.push_back(toAdd);
+    sendSignals(toSend);
+  }
+
 
 private:
   MyBitset<BUS_WIDTH> _memory[MEMORY_SIZE];

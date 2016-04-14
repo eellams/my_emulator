@@ -33,10 +33,6 @@
 
 #define MY_BITSET_DEFAULT_NAME "UNKNOWN_BITSET"
 
-#define LOG_TYPE_INFO 0x00
-#define LOG_TYPE_DEBUG 0x01
-#define LOG_TYPE_ERROR 0x02
-
 template<size_t N>
 class MyBitset : public std::bitset<N> {
 public:

@@ -36,13 +36,14 @@ int main(int argc, char *argv[]) {
 
   // Startup all of the singleton instances
   Logger *log = Singleton<Logger>::GetInstance();
+  //log->SetLogLevel(LOG_TYPE_DEBUG);
+  log->SetLogLevel(LOG_TYPE_INFO);
 
-  MyBitset<BUS_WIDTH> zeros(0, "ZEROS");
-
+  // Busses
   Bus<BUS_WIDTH> addressBus("Address Bus");
   Bus<BUS_WIDTH> dataBus("Data Bus");
-  Bus<BUS_WIDTH> controlBus("Control Bus");
 
+  // Component parts - will be controlled by sequencer
   RegisterFile registerFile("RegisterFile");
   Sequencer sequencer("Sequencer");
   Memory memory("Main Memory");
@@ -52,47 +53,33 @@ int main(int argc, char *argv[]) {
   std::cout << "File to read (leave blank for testprogram): ";
   std::cin >> std::noskipws >> fileToExecute;
 
-  std::cin.clear();
-  std::cin >> std::skipws;
-
-  std::cout << std::endl << "File is binary? ";
-  std::cin >> isBinary;
-
   if (fileToExecute == "") fileToExecute = "testprogram";
   log->Log(LOG_TYPE_INFO, "Opening program: '" + fileToExecute + "'");
 
-  if (!memory.LoadFromFile(fileToExecute, isBinary)) {
+  if (!memory.LoadFromFile(fileToExecute)) {
     log->Log(LOG_TYPE_ERROR, "Something went wrong reading the file");
     return 0;
   }
 
-  dataBus.SetValueP(&zeros);
-  addressBus.SetValueP(&zeros);
-  controlBus.SetValueP(&zeros);
-
+  // Setup connections and Initialise
   registerFile.SetDataBusP(&dataBus);
   registerFile.SetAddressBusP(&addressBus);
-  registerFile.SetControlBusP(&controlBus);
-  registerFile.SetupRegisters();
+  registerFile.Initialise();
 
   alu.SetDataBusP(&dataBus);
   alu.SetAddressBusP(&addressBus);
-  alu.SetControlBusP(&controlBus);
   alu.SetRegisterFileP(&registerFile);
 
-  // Setup our connections
   memory.SetDataBusP(&dataBus);
   memory.SetAddressBusP(&addressBus);
-  memory.SetControlBusP(&controlBus);
 
+  // Sequencer controls the program
   sequencer.SetDataBusP(&dataBus);
   sequencer.SetAddressBusP(&addressBus);
-  sequencer.SetControlBusP(&controlBus);
   sequencer.SetRegisterFileP(&registerFile);
   sequencer.SetALUP(&alu);
   sequencer.SetMemoryP(&memory);
 
-  //while(!sequencer.Finished()) sequencer.Clock();
   for (int i=0; i<10; i++) {
     sequencer.Clock();
   }

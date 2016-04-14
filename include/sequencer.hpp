@@ -60,27 +60,34 @@ public:
     log(LOG_TYPE_INFO, "Clock");
     switch (_state) {
       case FETCH_PC:
+        log(LOG_TYPE_INFO, "Fetching instruction address, which is stored in PC");
         // Set address bus to PC
-        _addressBusP->SetValueP(_registerFileP->GetPCP());
+        _addressBusP->SetValueP(_registerFileP->GetRegisterP(REG_PC));
 
         _state = FETCH_INSTRUCTION;
         break;
 
       case FETCH_INSTRUCTION:
+        log(LOG_TYPE_INFO, "Fetching instruction from memory, storing in CIR");
         // Read at addreses bus, write to CIR
-        _memoryP->Read();
+        _memoryP->Read(); // Signal memory to read from address
 
-        _registerFileP->SetCIRP(_dataBusP->GetValueP());
+        // Not actually needed, the input is always the databus?
+        //_registerFileP->SetRegisterP(REG_CIR, _dataBusP->GetValueP());
+        _registerFileP->EnableRegister(REG_CIR);
 
         _state = EXECUTE;
         break;
+
       case EXECUTE:
+        log(LOG_TYPE_INFO, "Decoding and executing instruction");
         // Current instruction is on the data bus, and in CIR
         long data;
         long opcode;
         long imm;
 
-        data = _registerFileP->GetCIRP()->to_ulong();
+        // Get input, and bitmask into component bits
+        data = _registerFileP->GetRegisterP(REG_CIR)->to_ulong();
         opcode = data & BITS_OP;
         imm = data & BITS_IMM;
 
@@ -91,9 +98,12 @@ public:
             //  read databus into ACC
 
             log(LOG_TYPE_INFO, "Add command");
-            _alu->Add();
-            _registerFileP->SetACCP(_dataBusP->GetValueP());
+            _aluP->Add(); // Signal that we want the ALU to add
+
+            // Clock into ACC
+            _registerFileP->EnableRegister(REG_ACC);
             break;
+
           default:
             log(LOG_TYPE_ERROR, "Unknown instruction");
             break;
@@ -103,35 +113,36 @@ public:
         break;
     }
 
-    _alu->Clock();
-    Update();
+    _aluP->Clock();
+    Update(); // Could change a bus value
 
     _memoryP->Clock();
-    Update();
+    Update(); // Could change a bus value
 
     _registerFileP->Clock();
-    Update();
+    Update(); // Could change a bus value
 
     LogSignals();
     _addressBusP->LogSignals();
     _dataBusP->LogSignals();
-    //_controlBusP->LogSignals();
 
     _memoryP->LogSignals();
     _registerFileP->LogSignals();
+    _aluP->LogSignals();
+
     Singleton<Logger>::GetInstance()->WriteSignals();
   }
 
   void SetRegisterFileP(RegisterFile *registerFileP) { _registerFileP = registerFileP; }
   void SetMemoryP(Memory *memoryP) { _memoryP = memoryP; }
-  void SetALUP(ALU *alu) { _alu = alu; }
+  void SetALUP(ALU *aluP) { _aluP = aluP; }
 
   bool Finished() {
     if (_state == FINISHED) return true;
     return false;
    }
 
-   virtual void LogSignals() {
+   void LogSignals() {
      std::vector<struct Signal> toSend;
      struct Signal toAdd;
 
@@ -143,17 +154,20 @@ public:
      sendSignals(toSend);
    }
 
+   // Should be called whenever a bus's value is changed
    void Update() {
      log(LOG_TYPE_UPDATE, "Update");
+
      _registerFileP->Update();
      _memoryP->Update();
+     _aluP->Update();
    }
 
 private:
   States _state;
   RegisterFile *_registerFileP;
   Memory *_memoryP;
-  ALU *_alu;
+  ALU *_aluP;
 
   MyBitset<BUS_WIDTH> _controlBusValue;
 };

@@ -26,10 +26,10 @@
 #include "bussedItem.hpp"
 #include "register.hpp"
 
-#define REG_NUM 1 << REG_WIDTH
-#define REG_GEN_NAME "Registers" // Prefix used for generating names
-
 // Reserved registers
+#define REG_NUMBER 6 // The number of registers
+
+// The 'address' of the registers
 #define REG_ZERO 0
 #define REG_ACC 1
 #define REG_MAR 2
@@ -49,113 +49,118 @@
 
 class RegisterFile : public BussedItem {
 public:
-  RegisterFile(std::string name = REG_FILE_NAME) : BussedItem(REG_FILE_TYPE_NAME, name) {
-    _eACC = _ePC = _eCIR = false;
-  }
-
+  RegisterFile(std::string name = REG_FILE_NAME) : BussedItem(REG_FILE_TYPE_NAME, name) {}
   ~RegisterFile() {}
 
-  void SetupRegisters() {
-    _ACC.SetName("Accumulator");
-    _PC.SetName("Program Counter");
-    _CIR.SetName("Current Instruction Register");
+  void Initialise() {
+    // Set the name, enable and input as required
+    for (int i=0; i<REG_NUMBER; i++) {
+      switch(i) {
+        case REG_ZERO: _registers[i].SetName(REG_ZERO_NAME); break;
+        case REG_ACC: _registers[i].SetName(REG_ACC_NAME); break;
+        case REG_MAR: _registers[i].SetName(REG_MAR_NAME); break;
+        case REG_MDR: _registers[i].SetName(REG_MDR_NAME); break;
+        case REG_PC: _registers[i].SetName(REG_PC_NAME); break;
+        case REG_CIR: _registers[i].SetName(REG_CIR_NAME); break;
+      }
+      _registers[i].SetWriteEnableP(&_regEnalbes[i]);
+      _registers[i].SetInputP(_dataBusP->GetValueP());
+      _regEnalbes[i] = false;
+    }
 
-    _ACC.SetWriteEnableP(&_eACC);
-    SetACCP(_dataBusP->GetValueP());
+    _addressBusP->SetValueP(_registers[REG_ZERO].GetOutputP());
+    _dataBusP->SetValueP(_registers[REG_ZERO].GetOutputP());
 
-    _PC.SetWriteEnableP(&_ePC);
-    SetPCP(_dataBusP->GetValueP());
-
-    _CIR.SetWriteEnableP(&_eCIR);
-    SetCIRP(_dataBusP->GetValueP());
+    _incPC = false;
   }
 
-  MyBitset<REGISTER_WIDTH>* GetACCP() { return _ACC.GetOutputP(); }
-  void SetACCP(MyBitset<REGISTER_WIDTH> *value) {
-    log(LOG_TYPE_DEBUG, "Setting ACC value");
-    _ACC.SetInputP(value);
-    _eACC = true;
+  // Returns appropriate pointer to output
+  MyBitset<REGISTER_WIDTH>* GetRegisterP(size_t regNumber) {
+    return _registers[regNumber].GetOutputP();
   }
 
-  MyBitset<REGISTER_WIDTH>* GetPCP() { return _PC.GetOutputP(); }
-  void SetPCP(MyBitset<REGISTER_WIDTH> *value) {
-    log(LOG_TYPE_DEBUG, "Setting PC value");
-    _PC.SetInputP(value);
-    _ePC = true;
+  // Set the input and the enable flag as required
+  //  note that won't do anything until Clock called
+  void SetRegisterP(size_t regNumber, MyBitset<REGISTER_WIDTH> *value) {
+    _registers[regNumber].SetInputP(value);
+    //_regEnalbes[regNumber] = true;
   }
+
+  void EnableRegister(size_t regNumber) {
+    _regEnalbes[regNumber] = true;
+  }
+
+  // Signal that on the next clock cycle, we want to increment PC
   void IncPC() {
     _incPC = true;
   }
 
-  MyBitset<REGISTER_WIDTH>* GetCIRP() { return _CIR.GetOutputP(); }
-  void SetCIRP(MyBitset<REGISTER_WIDTH> *value) {
-    log(LOG_TYPE_DEBUG, "Setting CIR value");
-    _CIR.SetInputP(value);
-    _eCIR = true;
-  }
-
+  // Do all synchronous operations
   void Clock() {
-    Update();
+    long PC; // Value used for incrementing PC register
 
+    Update(); // Ensure all register inputs are up to date
+
+    // If we need to increment the program counter
     if (_incPC) {
-      long pcValue = _PC.GetOutputP()->to_ulong();
+      PC = _registers[REG_PC].GetOutputP()->to_ulong(); // Get the value
+      (*_registers[REG_PC].GetOutputP()) ^= PC; // XOR - sets the value to 0
 
-      log(LOG_TYPE_DEBUG, "Incrementing PC value from: " + createString(pcValue));
+      log(LOG_TYPE_INFO, "Incrementing PC from: " + createString(PC) + " to: " + createString(PC + 1));
+      PC++; // Actually increment
 
-      (*_PC.GetOutputP()) ^= pcValue;
-      pcValue += 1;
-      (*_PC.GetOutputP()) |= pcValue;
+      (*_registers[REG_PC].GetOutputP()) |= PC; // OR sets the bits as required
+
+      // Assumed to only last one clock cycle
       _incPC = false;
-
-      log(LOG_TYPE_DEBUG, "To: " + createString(_PC.GetOutputP()->to_ulong()));
     }
 
-    _ACC.Clock();
-    Update();
+    // Ignore the zero register, which should never change
+    //  which is why i=1
+    for (int i=1; i<REG_NUMBER; i++) {
 
-    _PC.Clock();
-    Update();
+      // Ensure input is correct
+      //  actually, this doesn't do anything right now
+      //  but in theory it could!
+      _registers[i].Update();
 
-    _CIR.Clock();
-    Update();
+      // Clock in data as required
+      _registers[i].Clock();
 
-    _eACC = false;
-    _ePC = false;
-    _eCIR = false;
+      // Reset the enable signal
+      //  assumed to only last one clock cycle
+      //  will have to be re-set as required
+      _regEnalbes[i] = false;
+    }
   }
 
   virtual void LogSignals() {
     std::vector<struct Signal> toSend;
     struct Signal toAdd;
 
-    _ACC.LogSignals();
-    _PC.LogSignals();
-    _CIR.LogSignals();
+    for (int i=0; i<REG_NUMBER; i++) {
+      _registers[i].LogSignals();
+    }
   }
 
   void Update() {
     log(LOG_TYPE_UPDATE, "Update");
-    MyBitset<BUS_WIDTH> *tempP = _dataBusP->GetValueP();
+    
+    // Update the register inputs
+    for (int i=0; i<REG_NUMBER; i++) {
+      // Set the input to latest data bus value
+      _registers[i].SetInputP(_dataBusP->GetValueP());
 
-    if (static_cast<void*>(tempP) != static_cast<void*>(_prevDataValue)) {
-      _ACC.SetInputP(tempP);
-      _PC.SetInputP(tempP);
-      _CIR.SetInputP(tempP);
-
-      //SetPCP(tempP);
-      //SetCIRP(tempP);
-      _prevDataValue = tempP;
+      // Update
+      _registers[i].Update();
     }
-
-    _ACC.Update();
-    _PC.Update();
-    _CIR.Update();
   }
 
 private:
-  Register<REGISTER_WIDTH> _ACC, _PC, _CIR;
+  bool _incPC;
 
-  bool _eACC, _ePC, _eCIR, _incPC;
+  Register<REGISTER_WIDTH> _registers[REG_NUMBER];
+  bool _regEnalbes[REG_NUMBER];
 
   MyBitset<REGISTER_WIDTH> *_prevDataValue;
 };

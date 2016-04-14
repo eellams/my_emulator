@@ -64,8 +64,10 @@ public:
     return &_output;
   }
 
+  // Nothing to update
+  //  as the input is updated within RegisterFile::Update
   void Update() {
-    log(LOG_TYPE_UPDATE, "Update");
+    log(LOG_TYPE_UPDATE, "Update [EMPTY]");
   }
 
   virtual void LogSignals() {

@@ -32,22 +32,24 @@
 #define MAX_TIME_STR 80
 
 #define LOG_FILE_LOG "emulator.log"
-#define LOG_FILE_SIGNAL "emulation.log"
+#define LOG_FILE_SIGNAL "emulation_signals.log"
 
 #define LOG_STRING_ERROR "ERROR:"
 #define LOG_STRING_DEBUG "DEBUG:"
 #define LOG_STRING_INFO "INFO:"
 #define LOG_STRING_UPDATE "UPDATE:"
 
-#define LOG_TYPE_INFO 0x00
-#define LOG_TYPE_DEBUG 0x01
-#define LOG_TYPE_ERROR 0x02
+#define LOG_TYPE_ERROR 0x00
+#define LOG_TYPE_INFO 0x01
+#define LOG_TYPE_DEBUG 0x02
 #define LOG_TYPE_UPDATE 0x03
 
 class Logger {
 public:
   Logger(std::string logFile = LOG_FILE_LOG, std::string signalFile = LOG_FILE_SIGNAL);
   ~Logger();
+
+  void SetLogLevel(int level) { _level = level; }
 
   bool Clock();
 
@@ -85,6 +87,8 @@ private:
   std::ofstream _signalFile;
 
   std::vector<struct Signal> _signals;
+
+  int _level;
 
   time_t _rawTime;
   struct tm *_timeInfo;

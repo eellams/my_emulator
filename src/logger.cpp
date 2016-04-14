@@ -31,6 +31,8 @@ Logger::Logger(std::string logFile, std::string signalFile) {
   _logFile.open(logFile.c_str());
   _signalFile.open(signalFile.c_str());
 
+  SetLogLevel(LOG_TYPE_INFO);
+
 }
 
 Logger::~Logger() {
@@ -48,16 +50,17 @@ bool Logger::Clock() {
 void Logger::Log(char type, std::string toWrite) {
   switch(type) {
     case LOG_TYPE_ERROR:
-      log(LOG_STRING_ERROR, toWrite);
+      if (_level >= LOG_TYPE_ERROR) log(LOG_STRING_ERROR, toWrite);
       break;
     case LOG_TYPE_DEBUG:
-      log(LOG_STRING_DEBUG, toWrite);
+      if (_level >= LOG_TYPE_DEBUG) log(LOG_STRING_DEBUG, toWrite);
       break;
     case LOG_TYPE_INFO:
-      log(LOG_STRING_INFO, toWrite);
+      if (_level >= LOG_TYPE_INFO) log(LOG_STRING_INFO, toWrite);
       break;
+
     case LOG_TYPE_UPDATE:
-      //log(LOG_STRING_UPDATE, toWrite);
+      if (_level >= LOG_TYPE_UPDATE) log(LOG_STRING_UPDATE, toWrite);
       break;
   }
 }
