@@ -46,6 +46,7 @@ public:
 
     long data;
     long imm;
+    long temp;
 
     data = _dataBusP->GetValueP()->to_ulong();
     imm = data & BITS_IMM;
@@ -53,16 +54,13 @@ public:
 
     if (_add) {
       log(LOG_TYPE_INFO, "Adding value: " + createString(imm));
-
-      std::cout << _dataBusP->GetValueP()->to_ulong() << std::endl;
+      temp = _output.to_ulong() + imm;
 
       _output ^= _output;
-      _output |= _output.to_ulong() + imm;
+      _output |= temp;
 
-
-
-      //_output += *(_dataBusP->GetValueP());
       _dataBusP->SetValueP(&_output);
+      _add = false;
     }
 
     Update();

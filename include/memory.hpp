@@ -119,9 +119,11 @@ public:
     }
 
     _read = _write = false;
-    
+
     Update();
   }
+
+  void Update() {};
 
 private:
   MyBitset<BUS_WIDTH> _memory[MEMORY_SIZE];
