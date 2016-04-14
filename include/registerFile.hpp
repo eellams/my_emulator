@@ -83,6 +83,9 @@ public:
     _PC.SetInputP(value);
     _ePC = true;
   }
+  void IncPC() {
+    _incPC = true;
+  }
 
   MyBitset<REGISTER_WIDTH>* GetCIRP() { return _CIR.GetOutputP(); }
   void SetCIRP(MyBitset<REGISTER_WIDTH> *value) {
@@ -93,6 +96,19 @@ public:
 
   void Clock() {
     Update();
+
+    if (_incPC) {
+      long pcValue = _PC.GetOutputP()->to_ulong();
+
+      log(LOG_TYPE_DEBUG, "Incrementing PC value from: " + createString(pcValue));
+
+      (*_PC.GetOutputP()) ^= pcValue;
+      pcValue += 1;
+      (*_PC.GetOutputP()) |= pcValue;
+      _incPC = false;
+
+      log(LOG_TYPE_DEBUG, "To: " + createString(_PC.GetOutputP()->to_ulong()));
+    }
 
     _ACC.Clock();
     Update();
@@ -139,7 +155,7 @@ public:
 private:
   Register<REGISTER_WIDTH> _ACC, _PC, _CIR;
 
-  bool _eACC, _ePC, _eCIR;
+  bool _eACC, _ePC, _eCIR, _incPC;
 
   MyBitset<REGISTER_WIDTH> *_prevDataValue;
 };

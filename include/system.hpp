@@ -63,6 +63,9 @@
 //  i.e. a 9-bit word would occupy 2 bytes, as would a 10-16 bit word width
 //  but, a 1-8 bit word width would only require 1 bit
 
+#define BITS_OP 0xE0
+#define BITS_IMM 0x1F
+
 #define INSTR_ADD 0x00
 
 struct Signal {

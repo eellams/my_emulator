@@ -28,6 +28,7 @@
 #include "sequencer.hpp"
 #include "register.hpp"
 #include "registerFile.hpp"
+#include "alu.hpp"
 
 int main(int argc, char *argv[]) {
   std::string fileToExecute;
@@ -45,6 +46,7 @@ int main(int argc, char *argv[]) {
   RegisterFile registerFile("RegisterFile");
   Sequencer sequencer("Sequencer");
   Memory memory("Main Memory");
+  ALU alu("ALU");
 
   // Get the file we are reading
   std::cout << "File to read (leave blank for testprogram): ";
@@ -73,6 +75,10 @@ int main(int argc, char *argv[]) {
   registerFile.SetControlBusP(&controlBus);
   registerFile.SetupRegisters();
 
+  alu.SetDataBusP(&dataBus);
+  alu.SetAddressBusP(&addressBus);
+  alu.SetControlBusP(&controlBus);
+  alu.SetRegisterFileP(&registerFile);
 
   // Setup our connections
   memory.SetDataBusP(&dataBus);
@@ -83,11 +89,13 @@ int main(int argc, char *argv[]) {
   sequencer.SetAddressBusP(&addressBus);
   sequencer.SetControlBusP(&controlBus);
   sequencer.SetRegisterFileP(&registerFile);
+  sequencer.SetALUP(&alu);
   sequencer.SetMemoryP(&memory);
 
-  //sequencer.SetupControlConnections(); // Sequencer controls control bus
-
-  while(!sequencer.Finished()) sequencer.Clock();
+  //while(!sequencer.Finished()) sequencer.Clock();
+  for (int i=0; i<10; i++) {
+    sequencer.Clock();
+  }
 
   log->Log(LOG_TYPE_INFO, "Program finished executing");
 

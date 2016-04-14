@@ -31,6 +31,7 @@
 #include "register.hpp"
 #include "registerFile.hpp"
 #include "memory.hpp"
+#include "alu.hpp"
 
 #define REG_CONTROL_NAME "Sequencer Control Register"
 #define REG_CIR_NAME "Current Instruction Register"
@@ -73,23 +74,33 @@ public:
 
         _state = EXECUTE;
         break;
-
       case EXECUTE:
         // Current instruction is on the data bus, and in CIR
-        long instruction;
-        instruction = _registerFileP->GetCIRP()->to_ulong();
+        long data;
+        long opcode;
+        long imm;
 
-        switch(instruction) {
+        data = _registerFileP->GetCIRP()->to_ulong();
+        opcode = data & BITS_OP;
+        imm = data & BITS_IMM;
+
+        switch(opcode) {
           case INSTR_ADD:
             log(LOG_TYPE_INFO, "Add command");
+            _alu->Add();
+            _registerFileP->SetACCP(_dataBusP->GetValueP());
             break;
           default:
             log(LOG_TYPE_ERROR, "Unknown instruction");
             break;
         }
-        _state = FINISHED;
+        _registerFileP->IncPC();
+        _state = FETCH_PC;
         break;
     }
+
+    _alu->Clock();
+    Update();
 
     _memoryP->Clock();
     Update();
@@ -109,6 +120,7 @@ public:
 
   void SetRegisterFileP(RegisterFile *registerFileP) { _registerFileP = registerFileP; }
   void SetMemoryP(Memory *memoryP) { _memoryP = memoryP; }
+  void SetALUP(ALU *alu) { _alu = alu; }
 
   bool Finished() {
     if (_state == FINISHED) return true;
@@ -137,6 +149,7 @@ private:
   States _state;
   RegisterFile *_registerFileP;
   Memory *_memoryP;
+  ALU *_alu;
 
   MyBitset<BUS_WIDTH> _controlBusValue;
 };
