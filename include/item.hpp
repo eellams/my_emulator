@@ -84,7 +84,7 @@ protected:
       return "0x" + ss.str();
     }
     else {
-      ss << input;
+      ss << std::dec << input;
       return ss.str();
     }
   }

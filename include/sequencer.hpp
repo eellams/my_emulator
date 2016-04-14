@@ -43,17 +43,18 @@
 #define SEQUENCER_TYPE_NAME "SEQUENCER"
 
 enum States{
-  FETCH_PC = 0x00,
-  FETCH_INSTRUCTION = 0x01,
+  STARTUP = 0x00,
+  FETCH = 0x01,
   EXECUTE = 0x02,
-  FINISHED = 0x03,
-  STARTUP
+  EXECUTE_LDI = 0x03,
+  FINISHED = 0x04,
 };
 
 class Sequencer : public BussedItem {
 public:
   Sequencer(std::string name = SEQUENCER_NAME) : BussedItem(SEQUENCER_TYPE_NAME, name) {
     _numberOfClocks = 0;
+    _state = STARTUP;
   }
   ~Sequencer() {}
 
@@ -61,27 +62,33 @@ public:
     Update();
 
     log(LOG_TYPE_INFO, "Clock");
+
+    // Actions taken depend on the current state
     switch (_state) {
       case STARTUP:
-        _state = FETCH_PC;
+        log(LOG_TYPE_INFO, "Startup clock - do nothing");
+        _state = FETCH;
         break;
 
-      case FETCH_PC:
-        log(LOG_TYPE_INFO, "Fetching instruction address, which is stored in PC");
+      case FETCH:
         // Set address bus to PC
-        _addressBusP->SetValueP(_registerFileP->GetRegisterP(REG_PC));
+        // Get memory, put on address Bus
+        // Clock address bus into CIR
+        // Increment PC
 
-        _state = FETCH_INSTRUCTION;
-        break;
+        // Set address bus to PC
+        _registerFileP->SetOutput(REG_PC);
+        _addressBusP->SetValueP(_registerFileP->GetOutputP());
 
-      case FETCH_INSTRUCTION:
-        log(LOG_TYPE_INFO, "Fetching instruction from memory, storing in CIR");
-        // Read at addreses bus, write to CIR
-        _memoryP->Read(); // Signal memory to read from address
+        // Get memory at address, put on data bus
+        _memoryP->Read();
 
-        // Not actually needed, the input is always the databus?
-        //_registerFileP->SetRegisterP(REG_CIR, _dataBusP->GetValueP());
+        // Clock address bus into CIR
         _registerFileP->EnableRegister(REG_CIR);
+        _state = FINISHED;
+
+        // Increment PC
+        _registerFileP->IncPC();
 
         _state = EXECUTE;
         break;
@@ -94,9 +101,17 @@ public:
         long imm;
 
         // Get input, and bitmask into component bits
-        data = _registerFileP->GetRegisterP(REG_CIR)->to_ulong();
-        opcode = data & BITS_OP;
-        imm = data & BITS_IMM;
+
+        // Get CIR, put on data bus
+        _registerFileP->SetOutput(REG_CIR);
+        _dataBusP->SetValueP(_registerFileP->GetOutputP());
+
+        data = _dataBusP->GetValueP()->to_ulong();
+
+        opcode = (data & BITMASK_OP) >> (WORD_WIDTH - BITMASK_OP_WIDTH);
+        imm = data & BITMASK_IMM;
+
+        log(LOG_TYPE_DEBUG, "Decoded instruction: " + createString(opcode) + " and operand: " + createString(imm));
 
         switch(opcode) {
           case INSTR_ADDI:
@@ -104,20 +119,55 @@ public:
             //  put value on databus,
             //  read databus into ACC
 
-            log(LOG_TYPE_INFO, "Add command");
+            log(LOG_TYPE_INFO, "ADDI command");
             _aluP->Add(); // Signal that we want the ALU to add
 
             // Clock into ACC
             _registerFileP->EnableRegister(REG_ACC);
+
+            _state = FETCH;
+            break;
+
+          case INSTR_JMPI:
+            log(LOG_TYPE_INFO, "JMPI command");
+
+            // Decoded instructiom
+            // Reset ACC
+            // Clock in operand to ACC
+
+            _registerFileP->ResetRegister(REG_ACC);
+            _aluP->Add();
+            _aluP->Signed();
+
+            _registerFileP->EnableRegister(REG_ACC);
+
+            _state = EXECUTE_LDI;
+
             break;
 
           default:
             log(LOG_TYPE_ERROR, "Unknown instruction");
+            _state = FINISHED;
             break;
         }
-        _registerFileP->IncPC();
-        _state = FETCH_PC;
+
         break;
+
+        case EXECUTE_LDI:
+          log(LOG_TYPE_INFO, "Executing second clock of LDI instruction");
+          // Set data bus to PC
+          // Add data bus to ACC
+          // Clock in data bus to PC
+
+          _registerFileP->SetOutput(REG_PC);
+          _dataBusP->SetValueP(_registerFileP->GetOutputP());
+
+          _aluP->Add();
+
+          _registerFileP->EnableRegister(REG_PC);
+
+          _state = FETCH;
+          break;
     }
 
     _aluP->Clock();
@@ -182,9 +232,11 @@ private:
     std::string toReturn;
 
     switch (_state) {
-      case FETCH_PC: toReturn =  std::string("Fetch PC"); break;
-      case FETCH_INSTRUCTION: toReturn = std::string("Fetch Instruction"); break;
+      case STARTUP: toReturn = std::string("Startup"); break;
+      case FETCH: toReturn = std::string("Fetch"); break;
       case EXECUTE: toReturn = std::string("Execute"); break;
+      case EXECUTE_LDI: toReturn = std::string("Execute LDI"); break;
+      case FINISHED: toReturn = std::string("Finished"); break;
     }
 
     return toReturn;

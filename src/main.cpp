@@ -36,8 +36,8 @@ int main(int argc, char *argv[]) {
 
   // Startup all of the singleton instances
   Logger *log = Singleton<Logger>::GetInstance();
-  //log->SetLogLevel(LOG_TYPE_DEBUG);
-  log->SetLogLevel(LOG_TYPE_INFO);
+  log->SetLogLevel(LOG_TYPE_DEBUG);
+  //log->SetLogLevel(LOG_TYPE_INFO);
 
   // Busses
   Bus<BUS_WIDTH> addressBus("Address Bus");
@@ -86,6 +86,10 @@ int main(int argc, char *argv[]) {
   for (int i=0; i<10; i++) {
     sequencer.Clock();
   }
+
+  /*while (!sequencer.Finished()) {
+    sequencer.Clock();
+  }*/
 
   log->Log(LOG_TYPE_INFO, "Program finished executing");
 

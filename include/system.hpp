@@ -44,11 +44,15 @@
 //  but, a 1-8 bit word width would only require 1 bit
 
 // Bitmasks for items in memory
-#define BITS_OP 0xE0 // Top 3 bits
-#define BITS_IMM 0x1F // Remaining 5 bits
+#define BITMASK_OP 0xE0 // Top 3 bits
+#define BITMASK_OP_WIDTH 3
+
+#define BITMASK_IMM 0x1F // Remaining 5 bits
+#define BITMASK_IMM_WIDTH 5
 
 #define INSTR_ADDI 0x00 // Add immediate to accumulator
-//#define INSTR_LOAD 0x01 // Load data from
+#define INSTR_JMPI 0x01 // Add immediate to PC - signed!
+
 //#define INSTR_STORE 0x02 // Store data bus in memory at address bus
 
 

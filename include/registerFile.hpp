@@ -27,15 +27,20 @@
 #include "register.hpp"
 
 // Reserved registers
-#define REG_NUMBER 6 // The number of registers
+#define REG_NUMBER 4 // The number of registers
 
 // The 'address' of the registers
 #define REG_ZERO 0
 #define REG_ACC 1
+#define REG_PC 2
+#define REG_CIR 3
+
+/*
 #define REG_MAR 2
 #define REG_MDR 3
 #define REG_PC 4
 #define REG_CIR 5
+*/
 
 #define REG_ZERO_NAME "Zero Reg"
 #define REG_ACC_NAME "Accumulator"
@@ -49,7 +54,10 @@
 
 class RegisterFile : public BussedItem {
 public:
-  RegisterFile(std::string name = REG_FILE_NAME) : BussedItem(REG_FILE_TYPE_NAME, name) {}
+  RegisterFile(std::string name = REG_FILE_NAME) : BussedItem(REG_FILE_TYPE_NAME, name) {
+    _output.SetParent(this);
+    _output.SetName("Output");
+  }
   ~RegisterFile() {}
 
   void Initialise() {
@@ -58,8 +66,8 @@ public:
       switch(i) {
         case REG_ZERO: _registers[i].SetName(REG_ZERO_NAME); break;
         case REG_ACC: _registers[i].SetName(REG_ACC_NAME); break;
-        case REG_MAR: _registers[i].SetName(REG_MAR_NAME); break;
-        case REG_MDR: _registers[i].SetName(REG_MDR_NAME); break;
+        //case REG_MAR: _registers[i].SetName(REG_MAR_NAME); break;
+        //case REG_MDR: _registers[i].SetName(REG_MDR_NAME); break;
         case REG_PC: _registers[i].SetName(REG_PC_NAME); break;
         case REG_CIR: _registers[i].SetName(REG_CIR_NAME); break;
       }
@@ -71,12 +79,17 @@ public:
     _addressBusP->SetValueP(_registers[REG_ZERO].GetOutputP());
     _dataBusP->SetValueP(_registers[REG_ZERO].GetOutputP());
 
+    _currentOutput = 0;
     _incPC = false;
   }
 
-  // Returns appropriate pointer to output
-  MyBitset<REGISTER_WIDTH>* GetRegisterP(size_t regNumber) {
-    return _registers[regNumber].GetOutputP();
+  void SetOutput(size_t registerNumber) {
+    log(LOG_TYPE_INFO, "Setting output to register: " + _registers[registerNumber].GetFullName() + " contents: " + createString(_registers[registerNumber].GetOutputP()->to_ulong()));
+    _output.SetValue(*(_registers[registerNumber].GetOutputP()));
+    _currentOutput = registerNumber;
+  }
+  MyBitset<BUS_WIDTH>* GetOutputP() {
+    return &_output;
   }
 
   // Set the input and the enable flag as required
@@ -93,6 +106,16 @@ public:
   // Signal that on the next clock cycle, we want to increment PC
   void IncPC() {
     _incPC = true;
+  }
+
+  // Should only be ever called once, in setting up the ALU
+  Register<REGISTER_WIDTH>* GetACCP() {
+    return &_registers[REG_ACC];
+  }
+
+  void ResetRegister(int registerNumber) {
+    log(LOG_TYPE_INFO, "Asynchronously resetting register: " + _registers[registerNumber].GetFullName() );
+    _registers[registerNumber].GetOutputP()->reset();
   }
 
   // Do all synchronous operations
@@ -145,7 +168,7 @@ public:
 
   void Update() {
     log(LOG_TYPE_UPDATE, "Update");
-    
+
     // Update the register inputs
     for (int i=0; i<REG_NUMBER; i++) {
       // Set the input to latest data bus value
@@ -154,6 +177,9 @@ public:
       // Update
       _registers[i].Update();
     }
+
+    //_output = *(_registers[_currentOutput].GetOutputP());
+    _output.SetValue(*(_registers[_currentOutput].GetOutputP()));
   }
 
 private:
@@ -161,6 +187,9 @@ private:
 
   Register<REGISTER_WIDTH> _registers[REG_NUMBER];
   bool _regEnalbes[REG_NUMBER];
+
+  MyBitset<REGISTER_WIDTH> _output;
+  int _currentOutput;
 
   MyBitset<REGISTER_WIDTH> *_prevDataValue;
 };
