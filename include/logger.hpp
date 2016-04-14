@@ -32,7 +32,7 @@
 #define MAX_TIME_STR 80
 
 #define LOG_FILE_LOG "emulator.log"
-#define LOG_FILE_SIGNAL "emulation.csv"
+#define LOG_FILE_SIGNAL "emulation.log"
 
 #define LOG_STRING_ERROR "ERROR:"
 #define LOG_STRING_DEBUG "DEBUG:"
