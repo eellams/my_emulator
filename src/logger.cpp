@@ -19,7 +19,9 @@
 
 #include "logger.hpp"
 
-Logger::Logger(std::string logFile, std::string signalFile) {
+Logger::Logger(std::string logFile, std::string signalFile, std::string signalFileCSV) {
+
+  _firstTimeWriteSignals = true;
 
   // Set up the time
   time(&_rawTime);
@@ -30,6 +32,7 @@ Logger::Logger(std::string logFile, std::string signalFile) {
 
   _logFile.open(logFile.c_str());
   _signalFile.open(signalFile.c_str());
+  _signalFileCSV.open(signalFileCSV.c_str());
 
   SetLogLevel(LOG_TYPE_INFO);
 
@@ -40,6 +43,7 @@ Logger::~Logger() {
 
   _logFile.close();
   _signalFile.close();
+  _signalFileCSV.close();
 }
 
 bool Logger::Clock() {

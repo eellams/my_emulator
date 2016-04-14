@@ -39,8 +39,8 @@
 #define REG_PC_NAME "Program Counter"
 #define REG_MDR_NAME "Memory Data Register"
 
-#define SEQUENCER_NAME "Sequencer"
 #define SEQUENCER_TYPE_NAME "SEQUENCER"
+#define SEQUENCER_NAME "Sequencer"
 
 enum States{
   STARTUP = 0x00,

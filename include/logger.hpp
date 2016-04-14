@@ -33,6 +33,7 @@
 
 #define LOG_FILE_LOG "emulator.log"
 #define LOG_FILE_SIGNAL "emulation_signals.log"
+#define LOG_FILE_SIGNAL_CSV "emulation_signals.csv"
 
 #define LOG_STRING_ERROR "ERROR:"
 #define LOG_STRING_DEBUG "DEBUG:"
@@ -46,7 +47,7 @@
 
 class Logger {
 public:
-  Logger(std::string logFile = LOG_FILE_LOG, std::string signalFile = LOG_FILE_SIGNAL);
+  Logger(std::string logFile = LOG_FILE_LOG, std::string signalFile = LOG_FILE_SIGNAL, std::string signalFileCSV = LOG_FILE_SIGNAL_CSV);
   ~Logger();
 
   void SetLogLevel(int level) { _level = level; }
@@ -70,9 +71,35 @@ public:
       _signalFile.flush();
     }
 
-    _signals.clear();
+    //_signals.clear();
 
     _signalFile << "End set\r\n";
+
+    if (_firstTimeWriteSignals) {
+      for (int i=0; i<_signals.size(); i++) {
+        _signalFileCSV << _signals[i].Name;
+        if (i != _signals.size() - 1) {
+          _signalFileCSV << ",";
+        } else {
+          _signalFileCSV << "\r\n";
+        }
+        _signalFileCSV.flush();
+      }
+      _firstTimeWriteSignals = false;
+    }
+
+    for (int i=0; i<_signals.size(); i++) {
+      _signalFileCSV << _signals[i].Value;
+      if (i != _signals.size() - 1) {
+        _signalFileCSV << ",";
+      } else {
+        _signalFileCSV << "\r\n";
+      }
+      _signalFileCSV.flush();
+    }
+
+    _signals.clear();
+
   }
 
 private:
@@ -85,10 +112,12 @@ private:
 
   std::ofstream _logFile;
   std::ofstream _signalFile;
+  std::ofstream _signalFileCSV;
 
   std::vector<struct Signal> _signals;
 
   int _level;
+  bool _firstTimeWriteSignals;
 
   time_t _rawTime;
   struct tm *_timeInfo;
