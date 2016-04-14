@@ -21,34 +21,17 @@
 #define _SYSTEM_HPP
 
 #include <string>
-#include <sstream>
-#include <bitset>
 
-#include <vector>
-#include <utility>
-
+// This is pretty standard these days - don't touch!
+#define BYTE_SIZE 8
+// The size of a word in this system
+//  currently set to 1 byte
 #define WORD_WIDTH 8
 
-//#define DATA_WIDTH 16
-//#define ADDRESS_WIDTH 16
-
+// For simplicity of being able to copy bus <=> register, these are the same
 #define BUS_WIDTH 16
-#define MEMORY_SIZE 1 << BUS_WIDTH
-
-//#define CONTROL_WIDTH 4
-
-
-
-#define REGISRER_NUMBER_WIDTH 3 // Must be the same as BITS_REG
-#define REGISTER_NUMBER (1 << REGISRER_NUMBER_WIDTH)
 #define REGISTER_WIDTH 16
-
-//#define REG_WIDTH 5 // Must match BITS_REG
-
-#define CONTROL_READ 0
-#define CONTROL_WRITE 1
-#define CONTROL_CLOCK 2 // Never actually used in this simulation
-#define CONTROL_WHICH_BUS 3
+#define MEMORY_SIZE 1 << BUS_WIDTH
 
 // Breakdown of each instructiom
 // Bit[7] | Bit[6] ] Bit[5] | Bit[4] | Bit[3] | Bit[2]   | Bit[1]   | Bit[0]
@@ -56,17 +39,18 @@
 // Op[3]  | Op[2]  | Op[1]  | Op[0] | R/I flag| RegIm[2] | RegIm[1] | RegIm[0]
 
 
-// This is pretty standard these days - don't touch!
-#define BYTE_SIZE 8
-
 // NOTE the compiled binary files will probably have wated space
 //  i.e. a 9-bit word would occupy 2 bytes, as would a 10-16 bit word width
 //  but, a 1-8 bit word width would only require 1 bit
 
-#define BITS_OP 0xE0
-#define BITS_IMM 0x1F
+// Bitmasks for items in memory
+#define BITS_OP 0xE0 // Top 3 bits
+#define BITS_IMM 0x1F // Remaining 5 bits
 
-#define INSTR_ADD 0x00
+#define INSTR_ADDI 0x00 // Add immediate to accumulator
+//#define INSTR_LOAD 0x01 // Load data from
+//#define INSTR_STORE 0x02 // Store data bus in memory at address bus
+
 
 struct Signal {
   std::string Name;

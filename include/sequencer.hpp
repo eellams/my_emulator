@@ -85,11 +85,11 @@ public:
         imm = data & BITS_IMM;
 
         switch(opcode) {
-          case INSTR_ADD:
+          case INSTR_ADDI:
             // Add the imm of the data bus with the value of ACC,
             //  put value on databus,
             //  read databus into ACC
-            
+
             log(LOG_TYPE_INFO, "Add command");
             _alu->Add();
             _registerFileP->SetACCP(_dataBusP->GetValueP());
