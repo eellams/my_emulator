@@ -47,7 +47,7 @@ enum States{
   FETCH = 0x01,
   EXECUTE = 0x02,
   EXECUTE_LDI = 0x03,
-  FINISHED = 0x04,
+  FINISHED = 0x05,
 };
 
 class Sequencer : public BussedItem {
@@ -72,6 +72,7 @@ public:
 
       case FETCH:
         log(LOG_TYPE_INFO, "Fetch");
+        _executeNumber = 0;
         // Set address bus to PC
         // Get memory, put on address Bus
         // Clock address bus into CIR
@@ -97,6 +98,7 @@ public:
       case EXECUTE:
         log(LOG_TYPE_INFO, "Decoding and executing instruction");
         // Current instruction is on the data bus, and in CIR
+
         long data;
         long opcode;
         long imm;
@@ -105,6 +107,11 @@ public:
         // Get input, and bitmask into component bits
 
         // Get CIR, put on data bus
+        //
+        // TODO this isn't in the spirit of this project, the data bus is
+        //  asynchronously loaded with CIR, only to be replaced in the below
+        //  switch
+        //  would make more sense to allow direct access to CIR in sequencer
         _registerFileP->SetOutput(REG_CIR);
         _dataBusP->SetValueP(_registerFileP->GetOutputP());
 
@@ -115,6 +122,7 @@ public:
 
         regA = (data & BITMASK_REG_A) >> (BITMASK_REG_B_WIDTH);
         regB = (data & BITMASK_REG_B);
+
 
         log(LOG_TYPE_DEBUG, "Decoded instruction: " + createString(opcode) + " and operand: " + createString(imm));
         log(LOG_TYPE_DEBUG, "Or Register A: " + createString(regA) + ", Register B: " + createString(regB));
@@ -134,7 +142,7 @@ public:
             _state = FETCH;
             break;
 
-          case INSTR_JMPI:
+          /*case INSTR_JMPI:
             log(LOG_TYPE_INFO, "JMPI command");
 
             // Decoded instructiom
@@ -149,6 +157,39 @@ public:
             //_registerFileP->EnableRegister(REG_ACC);
 
             _state = EXECUTE_LDI;
+            break;*/
+
+          case INSTR_ADD:
+            log(LOG_TYPE_INFO, "ADD command");
+
+            if (_executeNumber == 0) {
+              log(LOG_TYPE_INFO, "First clock cycle");
+              // Reset ACC
+              // ACC := RegA
+
+              _aluP->ResetACC();
+
+              _registerFileP->SetOutput(REG_RESERVED_NUMBER + regA);
+              _dataBusP->SetValueP(_registerFileP->GetOutputP());
+
+              _aluP->Add();
+
+              _state = EXECUTE;
+            }
+            else if (_executeNumber == 1){
+              log(LOG_TYPE_INFO, "Second clock cycle");
+              // ACC := RegB
+              // Store in RegA
+
+              _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
+              _dataBusP->SetValueP(_registerFileP->GetOutputP());
+
+              _aluP->Add();
+
+              _registerFileP->EnableRegister(REG_RESERVED_NUMBER + regA);
+
+              _state = FETCH;
+            }
             break;
 
           case INSTR_LOAD:
@@ -174,9 +215,11 @@ public:
             break;
         }
 
+        _executeNumber++;
+
         break;
 
-        case EXECUTE_LDI:
+        /*case EXECUTE_LDI:
           log(LOG_TYPE_INFO, "Executing second clock of LDI instruction");
           // Set data bus to PC
           // Add data bus to ACC
@@ -190,7 +233,7 @@ public:
           _registerFileP->EnableRegister(REG_PC);
 
           _state = FETCH;
-          break;
+          break;*/
     }
 
     _aluP->Clock();
@@ -271,6 +314,7 @@ private:
   ALU *_aluP;
 
   MyBitset<BUS_WIDTH> _controlBusValue;
+  long _executeNumber;
   long _numberOfClocks;
 };
  #endif

@@ -105,6 +105,10 @@ public:
     _incPC = true;
   }
 
+  /*MyBitset<REGISTER_WIDTH>* GetCIRP() {
+    return _registers[REG_CIR].GetOutputP();
+  }*/
+
   // Do all synchronous operations
   void Clock() {
     long PC; // Value used for incrementing PC register
@@ -177,8 +181,6 @@ private:
 
   MyBitset<REGISTER_WIDTH> _output;
   int _currentOutput;
-
-  MyBitset<REGISTER_WIDTH> *_prevDataValue;
 };
 
 #endif
