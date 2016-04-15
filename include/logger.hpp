@@ -71,8 +71,6 @@ public:
       _signalFile.flush();
     }
 
-    //_signals.clear();
-
     _signalFile << "End set\r\n";
 
     if (_firstTimeWriteSignals) {

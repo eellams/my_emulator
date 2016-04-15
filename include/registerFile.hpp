@@ -27,20 +27,14 @@
 #include "register.hpp"
 
 // Reserved registers
-#define REG_NUMBER 4 // The number of registers
+#define REG_RESERVED_NUMBER 3 // ZERO, PC, CIR
+#define REG_GENERAL_NUMBER 4 // 4 general purpose registers
+#define REG_NUMBER REG_RESERVED_NUMBER + REG_GENERAL_NUMBER
 
 // The 'address' of the registers
 #define REG_ZERO 0
-#define REG_ACC 1
-#define REG_PC 2
-#define REG_CIR 3
-
-/*
-#define REG_MAR 2
-#define REG_MDR 3
-#define REG_PC 4
-#define REG_CIR 5
-*/
+#define REG_PC 1
+#define REG_CIR 2
 
 #define REG_ZERO_NAME "Zero Reg"
 #define REG_ACC_NAME "Accumulator"
@@ -48,6 +42,7 @@
 #define REG_MDR_NAME "Memory Data Register"
 #define REG_PC_NAME "Program Counter"
 #define REG_CIR_NAME "Current Instruction Register"
+#define REG_GENERATION_NAME "General Register "
 
 #define REG_FILE_NAME "Register File"
 #define REG_FILE_TYPE_NAME "REGISTER_FILE"
@@ -65,11 +60,12 @@ public:
     for (int i=0; i<REG_NUMBER; i++) {
       switch(i) {
         case REG_ZERO: _registers[i].SetName(REG_ZERO_NAME); break;
-        case REG_ACC: _registers[i].SetName(REG_ACC_NAME); break;
+        //case REG_ACC: _registers[i].SetName(REG_ACC_NAME); break;
         //case REG_MAR: _registers[i].SetName(REG_MAR_NAME); break;
         //case REG_MDR: _registers[i].SetName(REG_MDR_NAME); break;
         case REG_PC: _registers[i].SetName(REG_PC_NAME); break;
         case REG_CIR: _registers[i].SetName(REG_CIR_NAME); break;
+        default: _registers[i].SetName(std::string(REG_GENERATION_NAME) + createString(i - REG_RESERVED_NUMBER)); break;
       }
       _registers[i].SetWriteEnableP(&_regEnalbes[i]);
       _registers[i].SetInputP(_dataBusP->GetValueP());
@@ -96,9 +92,10 @@ public:
   //  note that won't do anything until Clock called
   void SetRegisterP(size_t regNumber, MyBitset<REGISTER_WIDTH> *value) {
     _registers[regNumber].SetInputP(value);
-    //_regEnalbes[regNumber] = true;
   }
 
+  // Signal that on the next clock cycle, we want to load
+  //  address bus into the register
   void EnableRegister(size_t regNumber) {
     _regEnalbes[regNumber] = true;
   }
@@ -106,16 +103,6 @@ public:
   // Signal that on the next clock cycle, we want to increment PC
   void IncPC() {
     _incPC = true;
-  }
-
-  // Should only be ever called once, in setting up the ALU
-  Register<REGISTER_WIDTH>* GetACCP() {
-    return &_registers[REG_ACC];
-  }
-
-  void ResetRegister(int registerNumber) {
-    log(LOG_TYPE_INFO, "Asynchronously resetting register: " + _registers[registerNumber].GetFullName() );
-    _registers[registerNumber].GetOutputP()->reset();
   }
 
   // Do all synchronous operations
@@ -129,7 +116,7 @@ public:
       PC = _registers[REG_PC].GetOutputP()->to_ulong(); // Get the value
       (*_registers[REG_PC].GetOutputP()) ^= PC; // XOR - sets the value to 0
 
-      log(LOG_TYPE_INFO, "Incrementing PC from: " + createString(PC) + " to: " + createString(PC + 1));
+      log(LOG_TYPE_INFO, "Incrementing " + _registers[REG_PC].GetName() + " from: " + createString(PC) + " to: " + createString(PC + 1));
       PC++; // Actually increment
 
       (*_registers[REG_PC].GetOutputP()) |= PC; // OR sets the bits as required

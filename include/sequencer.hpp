@@ -71,6 +71,7 @@ public:
         break;
 
       case FETCH:
+        log(LOG_TYPE_INFO, "Fetch");
         // Set address bus to PC
         // Get memory, put on address Bus
         // Clock address bus into CIR
@@ -99,6 +100,7 @@ public:
         long data;
         long opcode;
         long imm;
+        long regA, regB;
 
         // Get input, and bitmask into component bits
 
@@ -111,7 +113,11 @@ public:
         opcode = (data & BITMASK_OP) >> (WORD_WIDTH - BITMASK_OP_WIDTH);
         imm = data & BITMASK_IMM;
 
+        regA = (data & BITMASK_REG_A) >> (BITMASK_REG_B_WIDTH);
+        regB = (data & BITMASK_REG_B);
+
         log(LOG_TYPE_DEBUG, "Decoded instruction: " + createString(opcode) + " and operand: " + createString(imm));
+        log(LOG_TYPE_DEBUG, "Or Register A: " + createString(regA) + ", Register B: " + createString(regB));
 
         switch(opcode) {
           case INSTR_ADDI:
@@ -123,7 +129,7 @@ public:
             _aluP->Add(); // Signal that we want the ALU to add
 
             // Clock into ACC
-            _registerFileP->EnableRegister(REG_ACC);
+            //_registerFileP->EnableRegister(REG_ACC);
 
             _state = FETCH;
             break;
@@ -135,18 +141,35 @@ public:
             // Reset ACC
             // Clock in operand to ACC
 
-            _registerFileP->ResetRegister(REG_ACC);
-            _aluP->Add();
+            //_registerFileP->ResetRegister(REG_ACC);
+            _aluP->ResetACC();
+            _aluP->Add(); // As ACC is 0, this effectively stores input in ACC
             _aluP->Signed();
 
-            _registerFileP->EnableRegister(REG_ACC);
+            //_registerFileP->EnableRegister(REG_ACC);
 
             _state = EXECUTE_LDI;
+            break;
 
+          case INSTR_LOAD:
+            log(LOG_TYPE_INFO, "LOAD command");
+
+            // Set address bus to RegB
+            // Read from memory
+            // Clock into RegA
+
+            _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
+            _dataBusP->SetValueP(_registerFileP->GetOutputP());
+
+            _memoryP->Read();
+
+            _registerFileP->EnableRegister(REG_RESERVED_NUMBER + regA);
+
+            _state = FETCH;
             break;
 
           default:
-            log(LOG_TYPE_ERROR, "Unknown instruction");
+            log(LOG_TYPE_ERROR, "Unknown instruction: " + createString(opcode));
             _state = FINISHED;
             break;
         }

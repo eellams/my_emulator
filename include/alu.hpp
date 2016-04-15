@@ -31,8 +31,8 @@
 class ALU : public BussedItem {
 public:
   ALU(std::string name = ALU_NAME) : BussedItem(ALU_TYPE_NAME, ALU_NAME) {
-    _output.SetParent(this);
-    _output.SetName("Output");
+    _ACC.SetParent(this);
+    _ACC.SetName("Accumulator");
   }
   ~ALU() {};
 
@@ -58,10 +58,10 @@ public:
 
 
     if (_add) {
-      log(LOG_TYPE_INFO, "Adding value: " + createString(imm) + " to Accumulator, value: " + createString(_ACCP->GetOutputP()->to_ulong()) ) ; //createString(_dataBusP->GetValueP()->to_ulong()));
+      log(LOG_TYPE_INFO, "Adding value: " + createString(imm) + " to Accumulator, value: " + createString(_ACC.to_ulong()) ) ; //createString(_dataBusP->GetValueP()->to_ulong()));
 
       if (_signed) {
-        log(LOG_TYPE_ERROR, "Signed flag provided, but not implemented" );
+        log(LOG_TYPE_ERROR, "Signed flag" );
 
         temp.SetValue(imm);
         if (temp.test(BITMASK_IMM_WIDTH - 1)) {
@@ -69,21 +69,21 @@ public:
 
           log(LOG_TYPE_DEBUG, "Number is negative, instead adding value: " + createString(negative) + " [" + createString(negative, false) + "]" );
 
-          temp.SetValue( (long)((long)_ACCP->GetOutputP()->to_ulong() + negative) );
+          temp.SetValue( (long)((long)_ACC.to_ulong() + negative) );
         }
         else {
           log(LOG_TYPE_DEBUG, "Number is positive");
-          temp.SetValue(imm + _ACCP->GetOutputP()->to_ulong());
+          temp.SetValue(imm + _ACC.to_ulong());
         }
       }
       else {
-        temp.SetValue(imm + _ACCP->GetOutputP()->to_ulong());
+        temp.SetValue(imm + _ACC.to_ulong());
       }
 
-      _output.SetValue(temp.to_ulong());
-      _dataBusP->SetValueP(&_output);
+      _ACC.SetValue(temp.to_ulong());
+      _dataBusP->SetValueP(&_ACC);
 
-      _dataBusP->SetValueP(&_output);
+      _dataBusP->SetValueP(&_ACC);
       _add = false;
       _signed = false;
     }
@@ -101,9 +101,9 @@ public:
     std::vector<struct Signal> toSend;
     struct Signal toAdd;
 
-    toAdd.Name = createLogPrefix() + _output.GetName();
-    toAdd.Value = _output.to_ulong();
-    toAdd.Address = static_cast<void*>(&_output);
+    toAdd.Name = createLogPrefix() + _ACC.GetName();
+    toAdd.Value = _ACC.to_ulong();
+    toAdd.Address = static_cast<void*>(&_ACC);
 
     toSend.push_back(toAdd);
     sendSignals(toSend);
@@ -111,14 +111,21 @@ public:
 
   void SetRegisterFileP(RegisterFile *value) {
     _registerFileP = value;
-    _ACCP = value->GetACCP();
+  }
+
+  void ResetACC() {
+    _ACC.reset();
+  }
+
+  MyBitset<BUS_WIDTH>* GetACCP() {
+    return &_ACC;
   }
 
 private:
   RegisterFile *_registerFileP;
-  Register<REGISTER_WIDTH>* _ACCP;
+  //Register<REGISTER_WIDTH>* _ACCP;
 
-  MyBitset<BUS_WIDTH> _output;
+  MyBitset<BUS_WIDTH> _ACC;
   bool _add, _signed;
 };
  #endif

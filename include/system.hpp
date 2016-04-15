@@ -33,10 +33,17 @@
 #define REGISTER_WIDTH 16
 #define MEMORY_SIZE 1 << BUS_WIDTH
 
-// Breakdown of each instructiom
-// Bit[7] | Bit[6] ] Bit[5] | Bit[4] | Bit[3] | Bit[2]   | Bit[1]   | Bit[0]
-// ---------------------------------------------------------------------------
-// Op[3]  | Op[2]  | Op[1]  | Op[0] | R/I flag| RegIm[2] | RegIm[1] | RegIm[0]
+// Breakdown of each instructions
+//
+// Type A: (will end with an I, e.g. ADDI, JMPI)
+// Bit[7] | Bit[6] ] Bit[5] | Bit[4] | Bit[3] | Bit[2] | Bit[1] | Bit[0]
+// ---------------------------------------------------------------------
+// Op[2]  | Op[1]  | Op[0]  | Imm[4] | Imm[3] | Imm[2] | Imm[1] | Imm[0]
+//
+// Type B: (other instructions)
+// Bit[7] | Bit[6] ] Bit[5] | Bit[4] | Bit[3] | Bit[2]   | Bit[1]  | Bit[0]
+// -------------------------------------------------------------------------
+// Op[2]  | Op[1]  | Op[0]  | Flag   | RegA[1] | RegA[0] | RegB[1] | RegB[0]
 
 
 // NOTE the compiled binary files will probably have wated space
@@ -50,8 +57,14 @@
 #define BITMASK_IMM 0x1F // Remaining 5 bits
 #define BITMASK_IMM_WIDTH 5
 
+#define BITMASK_REG_A 0x0C
+#define BITMASK_REG_A_WIDTH 2
+#define BITMASK_REG_B 0x03
+#define BITMASK_REG_B_WIDTH 2
+
 #define INSTR_ADDI 0x00 // Add immediate to accumulator
 #define INSTR_JMPI 0x01 // Add immediate to PC - signed!
+#define INSTR_LOAD 0x02 // Load RegA to address of RegB
 
 //#define INSTR_STORE 0x02 // Store data bus in memory at address bus
 

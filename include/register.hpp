@@ -87,8 +87,6 @@ public:
   }
 
 private:
-  std::string _name;
-
   MyBitset<N> *_inputP;
   MyBitset<N> _output;
 
