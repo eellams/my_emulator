@@ -17,37 +17,38 @@
  *    along with my_emulator.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _BUSSED_ITEM_HPP
-#define _BUSSED_ITEM_HPP
-
-#include <string>
-#include <sstream>
-
-#include "system.hpp"
-#include "item.hpp"
 #include "bus.hpp"
-#include "myBitset.hpp"
 
-#define BUSSED_ITEM_DEFAULT_NAME "UNKNOWN_ITEM"
-#define BUSSED_ITEM_DEFAULT_TYPE_NAME "UNKNOWN_TYPE"
+template<size_t N>
+Bus<N>::Bus(std::string name) : Item(BUS_PREFIX, name) {
 
-class BussedItem : public Item {
-public:
-  BussedItem(std::string typeName = BUSSED_ITEM_DEFAULT_TYPE_NAME,
-    std::string name = BUSSED_ITEM_DEFAULT_NAME);
+}
 
-  ~BussedItem();
-
-  void SetDataBusP(Bus<BUS_WIDTH> *bus);
-  void SetAddressBusP(Bus<BUS_WIDTH> *bus);
-
-  // Assume all BussedItems should be synchronous
-  virtual void Clock();
-
-protected:
-  Bus<BUS_WIDTH> *_addressBusP;
-  Bus<BUS_WIDTH> *_dataBusP;
+template<size_t N>
+Bus<N>::~Bus() {
 
 };
 
- #endif
+template<size_t N>
+MyBitset<N>* Bus<N>::GetValueP() {
+  return _valueP;
+}
+
+template<size_t N>
+void Bus<N>::SetValueP(MyBitset<N> *value) {
+  log(LOG_TYPE_INFO, "Setting to: " + value->GetFullName() + "value: " + createString(value->to_ulong()) );
+  _valueP = value;
+}
+
+template<size_t N>
+void Bus<N>::LogSignals() {
+  std::vector<struct Signal> toSend;
+  struct Signal toAdd;
+
+  toAdd.Name = createLogPrefix() + std::string("Bus value");
+  toAdd.Value = _valueP->to_ulong();
+  toAdd.Address = static_cast<void*>(_valueP);
+
+  toSend.push_back(toAdd);
+  sendSignals(toSend);
+}

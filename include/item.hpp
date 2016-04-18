@@ -37,62 +37,31 @@ template<size_t N> class MyBitset;
 class Item {
 public:
   Item(std::string typeName = ITEM_TYPE_DEFAULT_NAME,
-    std::string name = ITEM_DEFAULT_NAME) {
-      SetTypeName(typeName);
-      SetName(name);
-    }
+    std::string name = ITEM_DEFAULT_NAME);
 
-  ~Item() {}
+  ~Item();
 
-  void SetName(std::string name) {
-    if (_name != "") log(LOG_TYPE_DEBUG, "Changing name to: '" + name + "'");
-    _name = name;
-  }
-  std::string GetFullName() { return createLogPrefix(); }
+  void SetName(std::string name);
 
-  void SetTypeName(std::string typeName) { _typeName = typeName; }
-  std::string GetTypeName() { return _typeName; }
+  std::string GetFullName();
 
-  virtual void Update() {
-    log(LOG_TYPE_ERROR, "Unimplemented Update function");
-  }
+  void SetTypeName(std::string typeName);
+  std::string GetTypeName();
 
-  virtual void LogSignals() {
-    log(LOG_TYPE_ERROR, "Unimplemented LogSignals function");
-  }
+  virtual void Update();
+
+  virtual void LogSignals();
 
 protected:
-  void sendSignals(std::vector<struct Signal> toSend) {
-    Singleton<Logger>::GetInstance()->SendSignals(toSend);
-  }
+  void sendSignals(std::vector<struct Signal> toSend);
 
-  std::string createLogPrefix() {
-    std::string toReturn;
-    toReturn = "[" + GetTypeName() + ": " + _name + "] ";
-    return toReturn;
-  }
+  std::string createLogPrefix();
 
-  void log(int logType, std::string logStr) {
-    Singleton<Logger>::GetInstance()->Log(logType, createLogPrefix() + logStr);
-  }
+  void log(int logType, std::string logStr);
 
-  static std::string createString(long input, bool hex = true) {
-    std::ostringstream ss;
-    if (hex) {
-      ss << std::hex << input;
-      return "0x" + ss.str();
-    }
-    else {
-      ss << std::dec << input;
-      return ss.str();
-    }
-  }
+  static std::string createString(long input, bool hex = true);
 
-  static std::string createString(void* input) {
-    std::ostringstream ss;
-    ss << std::hex << input;
-    return ss.str();
-  }
+  static std::string createString(void* input);
 
   // TODO setInput and setOutput?
 

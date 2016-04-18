@@ -28,8 +28,6 @@
 #include "item.hpp"
 #include "myBitset.hpp"
 
-//template<size_t N> class MyBitset;
-
 #define BUS_DEFAULT_NAME "UNKNOWN_BUS"
 #define BUS_PREFIX "BUS"
 
@@ -39,29 +37,14 @@
 template<size_t N>
 class Bus : public Item {
 public:
-  Bus(std::string name = BUS_DEFAULT_NAME) : Item(BUS_PREFIX, name) {}
-  ~Bus() {};
+  Bus(std::string name = BUS_DEFAULT_NAME);
+  ~Bus();
 
-  MyBitset<N>* GetValueP() {
-    return _valueP;
-  }
+  MyBitset<N>* GetValueP();
 
-  void SetValueP(MyBitset<N> *value) {
-    log(LOG_TYPE_INFO, "Setting to: " + value->GetFullName() + "value: " + createString(value->to_ulong()) );
-    _valueP = value;
-  }
+  void SetValueP(MyBitset<N> *value);
 
-  virtual void LogSignals() {
-    std::vector<struct Signal> toSend;
-    struct Signal toAdd;
-
-    toAdd.Name = createLogPrefix() + std::string("Bus value");
-    toAdd.Value = _valueP->to_ulong();
-    toAdd.Address = static_cast<void*>(_valueP);
-
-    toSend.push_back(toAdd);
-    sendSignals(toSend);
-  }
+  virtual void LogSignals();
 
   // Has no memory, so has nothing to update
   //  nay even, Update should never be called - leave the default void function!
@@ -69,5 +52,7 @@ public:
 private:
   MyBitset<N> *_valueP;
 };
+
+#include "bus.tpp"
 
  #endif

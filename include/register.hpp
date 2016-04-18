@@ -33,58 +33,25 @@ template<size_t N>
 class Register : public BussedItem {
 public:
 
-  Register(std::string name = REGISTER_DEFAULT_NAME) : BussedItem(REGISTER_TYPE_NAME, name) {
-    _output.SetParent(this);
-    _output.SetName("Register Output");
-  }
-  ~Register() {  }
+  Register(std::string name = REGISTER_DEFAULT_NAME);
+  ~Register();
 
   // Clock in the input (if enabled)
-  void Clock() {
-    Update();
-    if ((*_writeEnableP) == true) {
-      log(LOG_TYPE_DEBUG, "Clocking in " + _inputP->GetFullName() + "value: " + createString(_inputP->to_ulong()));
-      _output.SetValue(*_inputP);
-      Update();
-    }
-  }
+  void Clock();
 
-  void SetWriteEnableP(bool *value) {
-    // TODO do we need to put a log here?
-    _writeEnableP = value;
-  }
+  void SetWriteEnableP(bool *value);
 
-  void SetInputP(MyBitset<N> *inputP) {
-    _inputP = inputP;
-  }
+  void SetInputP(MyBitset<N> *inputP);
 
   // Return the pointer to the output
   //  useful for setting busses
-  MyBitset<N>* GetOutputP() {
-    return &_output;
-  }
+  MyBitset<N>* GetOutputP();
 
   // Nothing to update
   //  as the input is updated within RegisterFile::Update
-  void Update() {
-    log(LOG_TYPE_UPDATE, "Update [EMPTY]");
-  }
+  void Update();
 
-  virtual void LogSignals() {
-    std::vector<struct Signal> toSend;
-    struct Signal toAdd;
-
-    toAdd.Name = createLogPrefix() + std::string("Input");
-    toAdd.Value = _inputP->to_ulong();
-    toAdd.Address = static_cast<void*>(_inputP);
-
-    toAdd.Name = createLogPrefix() + std::string("Contents");
-    toAdd.Value = _output.to_ulong();
-    toAdd.Address = static_cast<void*>(&_output);
-
-    toSend.push_back(toAdd);
-    sendSignals(toSend);
-  }
+  virtual void LogSignals();
 
 private:
   MyBitset<N> *_inputP;
@@ -93,5 +60,7 @@ private:
   bool *_writeEnableP;
 
 };
+
+#include "register.tpp"
 
 #endif
