@@ -77,6 +77,7 @@ int main(int argc, char *argv[]) {
   sequencer.SetDataBusP(&dataBus);
   sequencer.SetAddressBusP(&addressBus);
   sequencer.SetRegisterFileP(&registerFile);
+  sequencer.Initialise();
   sequencer.SetALUP(&alu);
   sequencer.SetMemoryP(&memory);
 

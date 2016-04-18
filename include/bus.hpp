@@ -47,7 +47,7 @@ public:
   }
 
   void SetValueP(MyBitset<N> *value) {
-    log(LOG_TYPE_INFO, "Setting bus value to: " + value->GetDetails() + "value: " + createString(value->to_ulong()) );
+    log(LOG_TYPE_INFO, "Setting to: " + value->GetFullName() + "value: " + createString(value->to_ulong()) );
     _valueP = value;
   }
 

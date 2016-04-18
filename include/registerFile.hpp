@@ -27,21 +27,15 @@
 #include "register.hpp"
 
 // Reserved registers
-#define REG_RESERVED_NUMBER 3 // ZERO, PC, CIR
+// Now have no reserved registers - stored elsewhere
+#define REG_RESERVED_NUMBER 0
 #define REG_GENERAL_NUMBER 4 // 4 general purpose registers
 #define REG_NUMBER REG_RESERVED_NUMBER + REG_GENERAL_NUMBER
 
 // The 'address' of the registers
 #define REG_ZERO 0
-#define REG_PC 1
-#define REG_CIR 2
 
 #define REG_ZERO_NAME "Zero Reg"
-#define REG_ACC_NAME "Accumulator"
-#define REG_MAR_NAME "Memory Address Register"
-#define REG_MDR_NAME "Memory Data Register"
-#define REG_PC_NAME "Program Counter"
-#define REG_CIR_NAME "Current Instruction Register"
 #define REG_GENERATION_NAME "General Register "
 
 #define REG_FILE_NAME "Register File"
@@ -60,11 +54,6 @@ public:
     for (int i=0; i<REG_NUMBER; i++) {
       switch(i) {
         case REG_ZERO: _registers[i].SetName(REG_ZERO_NAME); break;
-        //case REG_ACC: _registers[i].SetName(REG_ACC_NAME); break;
-        //case REG_MAR: _registers[i].SetName(REG_MAR_NAME); break;
-        //case REG_MDR: _registers[i].SetName(REG_MDR_NAME); break;
-        case REG_PC: _registers[i].SetName(REG_PC_NAME); break;
-        case REG_CIR: _registers[i].SetName(REG_CIR_NAME); break;
         default: _registers[i].SetName(std::string(REG_GENERATION_NAME) + createString(i - REG_RESERVED_NUMBER)); break;
       }
       _registers[i].SetWriteEnableP(&_regEnalbes[i]);
@@ -76,7 +65,6 @@ public:
     _dataBusP->SetValueP(_registers[REG_ZERO].GetOutputP());
 
     _currentOutput = 0;
-    _incPC = false;
   }
 
   void SetOutput(size_t registerNumber) {
@@ -91,6 +79,7 @@ public:
   // Set the input and the enable flag as required
   //  note that won't do anything until Clock called
   void SetRegisterP(size_t regNumber, MyBitset<REGISTER_WIDTH> *value) {
+    log(LOG_TYPE_DEBUG, "Setting this output to register: " + _registers[regNumber].GetFullName() + " contents: " + createString(_registers[regNumber].GetOutputP()->to_ulong()));
     _registers[regNumber].SetInputP(value);
   }
 
@@ -100,34 +89,11 @@ public:
     _regEnalbes[regNumber] = true;
   }
 
-  // Signal that on the next clock cycle, we want to increment PC
-  void IncPC() {
-    _incPC = true;
-  }
-
-  /*MyBitset<REGISTER_WIDTH>* GetCIRP() {
-    return _registers[REG_CIR].GetOutputP();
-  }*/
-
   // Do all synchronous operations
   void Clock() {
     long PC; // Value used for incrementing PC register
 
     Update(); // Ensure all register inputs are up to date
-
-    // If we need to increment the program counter
-    if (_incPC) {
-      PC = _registers[REG_PC].GetOutputP()->to_ulong(); // Get the value
-      (*_registers[REG_PC].GetOutputP()) ^= PC; // XOR - sets the value to 0
-
-      log(LOG_TYPE_INFO, "Incrementing " + _registers[REG_PC].GetName() + " from: " + createString(PC) + " to: " + createString(PC + 1));
-      PC++; // Actually increment
-
-      (*_registers[REG_PC].GetOutputP()) |= PC; // OR sets the bits as required
-
-      // Assumed to only last one clock cycle
-      _incPC = false;
-    }
 
     // Ignore the zero register, which should never change
     //  which is why i=1
@@ -174,8 +140,6 @@ public:
   }
 
 private:
-  bool _incPC;
-
   Register<REGISTER_WIDTH> _registers[REG_NUMBER];
   bool _regEnalbes[REG_NUMBER];
 

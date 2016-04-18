@@ -58,6 +58,31 @@ public:
   }
   ~Sequencer() {}
 
+  void Initialise() {
+    _PC.SetName("Program Counter");
+    _PC.SetWriteEnableP(&_ePC);
+    _PC.SetInputP(_dataBusP->GetValueP());
+
+    _CIR.SetName("Current Instruction Register");
+    _CIR.SetWriteEnableP(&_eCIR);
+    _CIR.SetInputP(_dataBusP->GetValueP());
+
+    _ePC = _eCIR = false;
+  }
+
+  void IncrementPC() {
+    // Increment PC
+    long PCVal;
+
+    PCVal = _PC.GetOutputP()->to_ulong(); // Get the value
+    (*_PC.GetOutputP()) ^= PCVal; // XOR - sets the value to 0
+
+    log(LOG_TYPE_INFO, "Incrementing " + _PC.GetFullName() + " from: " + createString(PCVal) + " to: " + createString(PCVal + 1));
+    PCVal++; // Actually increment
+
+    *(_PC.GetOutputP()) |= PCVal; // OR sets the bits as required
+  }
+
   void Clock() {
     Update();
 
@@ -79,18 +104,13 @@ public:
         // Increment PC
 
         // Set address bus to PC
-        _registerFileP->SetOutput(REG_PC);
-        _addressBusP->SetValueP(_registerFileP->GetOutputP());
+        _addressBusP->SetValueP(_PC.GetOutputP());
 
         // Get memory at address, put on data bus
         _memoryP->Read();
 
         // Clock address bus into CIR
-        _registerFileP->EnableRegister(REG_CIR);
-        _state = FINISHED;
-
-        // Increment PC
-        _registerFileP->IncPC();
+        _eCIR = true;
 
         _state = EXECUTE;
         break;
@@ -112,10 +132,9 @@ public:
         //  asynchronously loaded with CIR, only to be replaced in the below
         //  switch
         //  would make more sense to allow direct access to CIR in sequencer
-        _registerFileP->SetOutput(REG_CIR);
-        _dataBusP->SetValueP(_registerFileP->GetOutputP());
 
-        data = _dataBusP->GetValueP()->to_ulong();
+        // Current instruction - to be decoded
+        data = _CIR.GetOutputP()->to_ulong();
 
         opcode = (data & BITMASK_OP) >> (WORD_WIDTH - BITMASK_OP_WIDTH);
         imm = data & BITMASK_IMM;
@@ -136,28 +155,8 @@ public:
             log(LOG_TYPE_INFO, "ADDI command");
             _aluP->Add(); // Signal that we want the ALU to add
 
-            // Clock into ACC
-            //_registerFileP->EnableRegister(REG_ACC);
-
             _state = FETCH;
             break;
-
-          /*case INSTR_JMPI:
-            log(LOG_TYPE_INFO, "JMPI command");
-
-            // Decoded instructiom
-            // Reset ACC
-            // Clock in operand to ACC
-
-            //_registerFileP->ResetRegister(REG_ACC);
-            _aluP->ResetACC();
-            _aluP->Add(); // As ACC is 0, this effectively stores input in ACC
-            _aluP->Signed();
-
-            //_registerFileP->EnableRegister(REG_ACC);
-
-            _state = EXECUTE_LDI;
-            break;*/
 
           case INSTR_ADD:
             log(LOG_TYPE_INFO, "ADD command");
@@ -178,7 +177,7 @@ public:
             }
             else if (_executeNumber == 1){
               log(LOG_TYPE_INFO, "Second clock cycle");
-              // ACC := RegB
+              // ACC += RegB
               // Store in RegA
 
               _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
@@ -194,16 +193,18 @@ public:
 
           case INSTR_LOAD:
             log(LOG_TYPE_INFO, "LOAD command");
-
             // Set address bus to RegB
             // Read from memory
             // Clock into RegA
 
+            // Set the address bus to the register number
             _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
-            _dataBusP->SetValueP(_registerFileP->GetOutputP());
+            _addressBusP->SetValueP(_registerFileP->GetOutputP());
 
+            // Read from the adderss to data bus
             _memoryP->Read();
 
+            // Clock into
             _registerFileP->EnableRegister(REG_RESERVED_NUMBER + regA);
 
             _state = FETCH;
@@ -216,24 +217,7 @@ public:
         }
 
         _executeNumber++;
-
         break;
-
-        /*case EXECUTE_LDI:
-          log(LOG_TYPE_INFO, "Executing second clock of LDI instruction");
-          // Set data bus to PC
-          // Add data bus to ACC
-          // Clock in data bus to PC
-
-          _registerFileP->SetOutput(REG_PC);
-          _dataBusP->SetValueP(_registerFileP->GetOutputP());
-
-          _aluP->Add();
-
-          _registerFileP->EnableRegister(REG_PC);
-
-          _state = FETCH;
-          break;*/
     }
 
     _aluP->Clock();
@@ -244,6 +228,14 @@ public:
 
     _registerFileP->Clock();
     Update(); // Could change a bus value
+
+    _PC.Clock();
+    Update();
+
+    _CIR.Clock();
+    Update();
+
+    _ePC = _eCIR = false;
 
     _numberOfClocks += 1;
 
@@ -288,6 +280,12 @@ public:
    void Update() {
      log(LOG_TYPE_UPDATE, "Update");
 
+     _PC.SetInputP(_dataBusP->GetValueP());
+     _PC.Update();
+
+     _CIR.SetInputP(_dataBusP->GetValueP());
+     _CIR.Update();
+
      _registerFileP->Update();
      _memoryP->Update();
      _aluP->Update();
@@ -312,6 +310,10 @@ private:
   RegisterFile *_registerFileP;
   Memory *_memoryP;
   ALU *_aluP;
+
+  Register<REGISTER_WIDTH> _PC;
+  Register<REGISTER_WIDTH> _CIR;
+  bool _ePC, _eCIR;
 
   MyBitset<BUS_WIDTH> _controlBusValue;
   long _executeNumber;

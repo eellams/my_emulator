@@ -45,10 +45,9 @@ public:
   ~Item() {}
 
   void SetName(std::string name) {
-    if (_name != "") log(LOG_TYPE_INFO, "Changing name to: '" + name + "'");
+    if (_name != "") log(LOG_TYPE_DEBUG, "Changing name to: '" + name + "'");
     _name = name;
   }
-  std::string GetName() { return _name; }
   std::string GetFullName() { return createLogPrefix(); }
 
   void SetTypeName(std::string typeName) { _typeName = typeName; }
@@ -69,7 +68,7 @@ protected:
 
   std::string createLogPrefix() {
     std::string toReturn;
-    toReturn = "[" + GetTypeName() + ": " + GetName() + "] ";
+    toReturn = "[" + GetTypeName() + ": " + _name + "] ";
     return toReturn;
   }
 

@@ -21,11 +21,7 @@
 #define _MY_BITSET
 
 #include "system.hpp"
-//#include "singleton.hpp"
-//#include "logger.hpp"
 #include "item.hpp"
-
-//class Item;
 
 #include <string>
 #include <sstream>
@@ -56,15 +52,12 @@ public:
     (*this) |= value;
   }
 
-
-  std::string GetDetails();
+  std::string GetFullName();
 
   void set(size_t __position, bool __val = true);
   bool test(size_t __position);
   void reset();
   unsigned long to_ulong();
-  //void operator|=(const std::bitset<N>& __rhs) _GLIBCXX_NOEXCEPT;
-  //bool operator!=(const MyBitset<N>& __rhs) _GLIBCXX_NOEXCEPT { return std::bitset<N>::operator!=(__rhs); }
 
 private:
   std::string createLogPrefix();

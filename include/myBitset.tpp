@@ -41,11 +41,7 @@ template<size_t N>
 Item* MyBitset<N>::GetParent() { return _parent; }
 
 template<size_t N>
-std::string MyBitset<N>::GetDetails() {
-  std::string toReturn;
-  toReturn += createLogPrefix();
-  return toReturn;
-}
+std::string MyBitset<N>::GetFullName() { return createLogPrefix(); }
 
 template<size_t N>
 void MyBitset<N>::set(size_t __position, bool __val) {
@@ -72,14 +68,11 @@ unsigned long MyBitset<N>::to_ulong() {
   return std::bitset<N>::to_ulong();
 }
 
-//template<size_t N>
-//void MyBitset<N>::operator|=(const std::bitset<N>& __rhs) _GLIBCXX_NOEXCEPT { std::bitset<N>::operator|=(__rhs); }
-
 template<size_t N>
 std::string MyBitset<N>::createLogPrefix() {
   std::string toReturn;
   if (_parent) {
-    toReturn = "[" + _parent->GetTypeName() + ": " + _parent->GetName() + "] " + \
+    toReturn = _parent->GetFullName() + \
       "[MYBITSET: " + GetName() + "] ";
   } else {
     toReturn = std::string("[NO_PARENT]") + "[MYBITSET: " + GetName() + "] ";
