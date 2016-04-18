@@ -30,100 +30,36 @@
 
 class ALU : public BussedItem {
 public:
-  ALU(std::string name = ALU_NAME) : BussedItem(ALU_TYPE_NAME, ALU_NAME) {
-    _ACC.SetParent(this);
-    _ACC.SetName("Accumulator");
-  }
-  ~ALU() {};
+  ALU(std::string name = ALU_NAME);
+  ~ALU();
 
   // Adds data bus to accumulator
-  void Add() {
-    _add = true;
-  }
+  void Add();
 
-  void Signed() {
-    _signed = true;
-  }
+  // Send the flag that the numbers to be added are signed
+  void Signed();
 
-  void Clock() {
-    log(LOG_TYPE_DEBUG, "Clock");
-
-    unsigned long data;
-    unsigned long imm;
-    //unsigned long temp;
-    MyBitset<BUS_WIDTH> temp;
-
-    data = _dataBusP->GetValueP()->to_ulong();
-    imm = data & BITMASK_IMM;
-
-
-    if (_add) {
-      log(LOG_TYPE_INFO, "Adding value: " + createString(imm) + " to Accumulator, value: " + createString(_ACC.to_ulong()) ) ; //createString(_dataBusP->GetValueP()->to_ulong()));
-
-      if (_signed) {
-        log(LOG_TYPE_ERROR, "Signed flag" );
-
-        temp.SetValue(imm);
-        if (temp.test(BITMASK_IMM_WIDTH - 1)) {
-          long negative = (long)((long)temp.to_ulong() - (1 << BITMASK_IMM_WIDTH));
-
-          log(LOG_TYPE_DEBUG, "Number is negative, instead adding value: " + createString(negative) + " [" + createString(negative, false) + "]" );
-
-          temp.SetValue( (long)((long)_ACC.to_ulong() + negative) );
-        }
-        else {
-          log(LOG_TYPE_DEBUG, "Number is positive");
-          temp.SetValue(imm + _ACC.to_ulong());
-        }
-      }
-      else {
-        temp.SetValue(imm + _ACC.to_ulong());
-      }
-
-      _ACC.SetValue(temp.to_ulong());
-      _dataBusP->SetValueP(&_ACC);
-
-      _dataBusP->SetValueP(&_ACC);
-      _add = false;
-      _signed = false;
-    }
-  }
+  void Clock();
 
   // This class has no children, and has no memory
   //  so has nothing to update
   //  Update therefore is seldom called
-  void Update() {
-    log(LOG_TYPE_UPDATE, "Update [EMPTY]");
-  };
+  void Update();
 
   // Nothing to log?
-  void LogSignals() {
-    std::vector<struct Signal> toSend;
-    struct Signal toAdd;
+  void LogSignals();
 
-    toAdd.Name = createLogPrefix() + _ACC.GetName();
-    toAdd.Value = _ACC.to_ulong();
-    toAdd.Address = static_cast<void*>(&_ACC);
+  // Set the pointer to the register file class
+  void SetRegisterFileP(RegisterFile *value);
 
-    toSend.push_back(toAdd);
-    sendSignals(toSend);
-  }
+  // Reset the accumulator to zeros
+  void ResetACC();
 
-  void SetRegisterFileP(RegisterFile *value) {
-    _registerFileP = value;
-  }
-
-  void ResetACC() {
-    _ACC.reset();
-  }
-
-  MyBitset<BUS_WIDTH>* GetACCP() {
-    return &_ACC;
-  }
+  // Get a pointer to the ACC register
+  MyBitset<BUS_WIDTH>* GetACCP();
 
 private:
   RegisterFile *_registerFileP;
-  //Register<REGISTER_WIDTH>* _ACCP;
 
   MyBitset<BUS_WIDTH> _ACC;
   bool _add, _signed;

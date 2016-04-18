@@ -41,6 +41,18 @@ template<size_t N>
 Item* MyBitset<N>::GetParent() { return _parent; }
 
 template<size_t N>
+void  MyBitset<N>::SetValue(MyBitset<N> value) {
+  reset();
+  (*this) |= value;
+}
+
+template<size_t N>
+void  MyBitset<N>::SetValue(long value) {
+  reset();
+  (*this) |= value;
+}
+
+template<size_t N>
 std::string MyBitset<N>::GetFullName() { return createLogPrefix(); }
 
 template<size_t N>

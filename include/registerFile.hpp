@@ -47,10 +47,14 @@ public:
 
   ~RegisterFile();
 
+  // Initialise all of the registers
   void Initialise();
 
+  // Set _output to be equal to register by number index
   void SetOutput(size_t registerNumber);
 
+  // Get apointer to _output
+  //  useful for setting bus values
   MyBitset<BUS_WIDTH>* GetOutputP();
 
   // Set the input and the enable flag as required
@@ -65,7 +69,6 @@ public:
   void Clock();
 
   virtual void LogSignals();
-
   void Update();
 
 private:

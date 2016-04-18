@@ -39,6 +39,7 @@ public:
   // Clock in the input (if enabled)
   void Clock();
 
+  // Set the active high write enable
   void SetWriteEnableP(bool *value);
 
   void SetInputP(MyBitset<N> *inputP);

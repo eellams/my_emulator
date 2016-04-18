@@ -55,16 +55,21 @@ public:
   Sequencer(std::string name = SEQUENCER_NAME);
   ~Sequencer();
 
+  // Setupt the PC and CIR registers that are contained within this class
   void Initialise();
 
+  // Increment the Program Counter by 1
   void IncrementPC();
 
+  // The 'brains' of this emulator
   void Clock();
 
+  // Setup pointers to the other classes required for operation
   void SetRegisterFileP(RegisterFile *registerFileP);
   void SetMemoryP(Memory *memoryP);
   void SetALUP(ALU *aluP);
 
+  // Check if in the finished state
   bool Finished();
 
   void LogSignals();
@@ -73,18 +78,24 @@ public:
   void Update();
 
 private:
+  // Get the name of the current state
+  // TODO this needs to be updated
   std::string getStateName();
 
   States _state;
+
+  // Pointers to other classes
+  //  TODO, this really breaks encapsulation
   RegisterFile *_registerFileP;
   Memory *_memoryP;
   ALU *_aluP;
 
+  // Registers and enables in this module
   Register<REGISTER_WIDTH> _PC;
   Register<REGISTER_WIDTH> _CIR;
   bool _ePC, _eCIR;
 
-  MyBitset<BUS_WIDTH> _controlBusValue;
+  // Used for keeping track of where we are in the emulation
   long _executeNumber;
   long _numberOfClocks;
 };

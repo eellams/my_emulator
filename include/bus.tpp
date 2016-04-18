@@ -45,7 +45,7 @@ void Bus<N>::LogSignals() {
   std::vector<struct Signal> toSend;
   struct Signal toAdd;
 
-  toAdd.Name = createLogPrefix() + std::string("Bus value");
+  toAdd.Name = GetFullName() + std::string("Bus value");
   toAdd.Value = _valueP->to_ulong();
   toAdd.Address = static_cast<void*>(_valueP);
 

@@ -46,11 +46,6 @@ Logger::~Logger() {
   _signalFileCSV.close();
 }
 
-bool Logger::Clock() {
-  Log(LOG_TYPE_INFO, "Logger clock");
-  return true;
-}
-
 void Logger::Log(char type, std::string toWrite) {
   switch(type) {
     case LOG_TYPE_ERROR:
@@ -67,6 +62,49 @@ void Logger::Log(char type, std::string toWrite) {
       if (_level >= LOG_TYPE_UPDATE) log(LOG_STRING_UPDATE, toWrite);
       break;
   }
+}
+
+void Logger::SendSignals(std::vector<struct Signal> toSend) {
+  for (int i=0; i<toSend.size(); i++) {
+    _signals.push_back(toSend[i]);
+  }
+}
+
+void Logger::WriteSignals() {
+  Log(LOG_TYPE_DEBUG, "Writing signals");
+  _signalFile << "New set\r\n";
+
+  for(int i=0; i<_signals.size(); i++) {
+    _signalFile << std::hex << _signals[i].Name << ": 0x" << _signals[i].Value << ": " << _signals[i].Address << "\r\n";
+    _signalFile.flush();
+  }
+
+  _signalFile << "End set\r\n";
+
+  if (_firstTimeWriteSignals) {
+    for (int i=0; i<_signals.size(); i++) {
+      _signalFileCSV << _signals[i].Name;
+      if (i != _signals.size() - 1) {
+        _signalFileCSV << ",";
+      } else {
+        _signalFileCSV << "\r\n";
+      }
+      _signalFileCSV.flush();
+    }
+    _firstTimeWriteSignals = false;
+  }
+
+  for (int i=0; i<_signals.size(); i++) {
+    _signalFileCSV << _signals[i].Value;
+    if (i != _signals.size() - 1) {
+      _signalFileCSV << ",";
+    } else {
+      _signalFileCSV << "\r\n";
+    }
+    _signalFileCSV.flush();
+  }
+
+  _signals.clear();
 }
 
 std::string Logger::createTimeString() {

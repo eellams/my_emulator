@@ -61,7 +61,6 @@ bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
       if (i<=filesize) {
 
         inputFile.read(read, numberCharactersPerOpcode);
-        //std::cout << read << std::endl;
 
         // Need to 'flip' the read data, such that the first byte becomes
         //  the last byte
@@ -93,6 +92,7 @@ bool Memory::LoadFromFile(std::string fileName, bool isBinary) {
 
 // Read
 void Memory::Read() { _read = true; }
+
 void Memory::Write() { _write = true; }
 
 void Memory::Clock() {
@@ -126,7 +126,7 @@ void Memory::LogSignals() {
   std::vector<struct Signal> toSend;
   struct Signal toAdd;
 
-  toAdd.Name = createLogPrefix() + _output.GetName();
+  toAdd.Name = GetFullName() + _output.GetName();
   toAdd.Value = _output.to_ulong();
   toAdd.Address = static_cast<void*>(&_output);
 

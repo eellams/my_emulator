@@ -41,26 +41,32 @@ public:
 
   ~Item();
 
+  // Set the name of the item
   void SetName(std::string name);
 
+  // returns both the type name and the actual name of the item
   std::string GetFullName();
 
+  // Set the type name
   void SetTypeName(std::string typeName);
-  std::string GetTypeName();
 
+  // Virtual functions - need to be implemented by children
+  // Update all public/private/protected items
+  //  i.e. their inputs and outputs, as the pointers will probably have changed
   virtual void Update();
 
+  // Generate the log signals (see logging)
   virtual void LogSignals();
 
 protected:
+  // Send the log signals
   void sendSignals(std::vector<struct Signal> toSend);
 
-  std::string createLogPrefix();
-
+  // Send strings to the logger - see logger.hpp
   void log(int logType, std::string logStr);
 
+  // Helper functions - converts input to string
   static std::string createString(long input, bool hex = true);
-
   static std::string createString(void* input);
 
   // TODO setInput and setOutput?

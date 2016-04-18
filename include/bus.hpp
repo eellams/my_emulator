@@ -40,11 +40,13 @@ public:
   Bus(std::string name = BUS_DEFAULT_NAME);
   ~Bus();
 
+  // Get the pointer to the item currently on the bus
   MyBitset<N>* GetValueP();
 
+  // Set the item on the bus
   void SetValueP(MyBitset<N> *value);
 
-  virtual void LogSignals();
+  void LogSignals();
 
   // Has no memory, so has nothing to update
   //  nay even, Update should never be called - leave the default void function!

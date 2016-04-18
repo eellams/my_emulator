@@ -36,36 +36,39 @@ public:
 
   ~MyBitset();
 
+  // Set and get the name
   void SetName(std::string name);
   std::string GetName();
 
+  // Set and get the parent Item
   void SetParent(Item *parent);
   Item* GetParent();
 
-  void SetValue(MyBitset<N> value) {
-    reset();
-    (*this) |= value;
-  }
+  // Set the value - either from a long, or another MyBitset
+  void SetValue(MyBitset<N> value);
+  void SetValue(long value);
 
-  void SetValue(long value) {
-    reset();
-    (*this) |= value;
-  }
-
+  // For compatability with other classes
   std::string GetFullName();
 
+  // Wrappers for std::bitset components
   void set(size_t __position, bool __val = true);
   bool test(size_t __position);
   void reset();
   unsigned long to_ulong();
 
 private:
+  // Create the log prefix
   std::string createLogPrefix();
 
+  // Log the item
   void log(int logType, std::string logStr);
 
+  // Cteate a string from an integer
+  // TODO create string from another MyBitset?
   std::string createString(long input, bool hex = true);
 
+  
   Item *_parent;
 
   std::string _name;

@@ -63,13 +63,10 @@
 #define BITMASK_REG_B_WIDTH 2
 
 #define INSTR_ADDI 0x00 // Add immediate to accumulator
-//#define INSTR_JMPI 0x01 // Add immediate to PC - signed!
 #define INSTR_ADD 0x01 // RegA += RegB
 #define INSTR_LOAD 0x02 // Load RegA to address of RegB
 
-//#define INSTR_STORE 0x02 // Store data bus in memory at address bus
-
-
+// Used for logging
 struct Signal {
   std::string Name;
   long Value;

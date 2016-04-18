@@ -24,16 +24,22 @@ Item::Item(std::string typeName, std::string name) {
     SetName(name);
   }
 
-Item::~Item() {}
+Item::~Item() {
+
+}
 
 void Item::SetName(std::string name) {
   if (_name != "") log(LOG_TYPE_DEBUG, "Changing name to: '" + name + "'");
   _name = name;
 }
-std::string Item::GetFullName() { return createLogPrefix(); }
+
+std::string Item::GetFullName() {
+  std::string toReturn;
+  toReturn = "[" + _typeName + ": " + _name + "] ";
+  return toReturn;
+}
 
 void Item::SetTypeName(std::string typeName) { _typeName = typeName; }
-std::string Item::GetTypeName() { return _typeName; }
 
 void Item::Update() {
   log(LOG_TYPE_ERROR, "Unimplemented Update function");
@@ -47,14 +53,8 @@ void Item::sendSignals(std::vector<struct Signal> toSend) {
   Singleton<Logger>::GetInstance()->SendSignals(toSend);
 }
 
-std::string Item::createLogPrefix() {
-  std::string toReturn;
-  toReturn = "[" + GetTypeName() + ": " + _name + "] ";
-  return toReturn;
-}
-
 void Item::log(int logType, std::string logStr) {
-  Singleton<Logger>::GetInstance()->Log(logType, createLogPrefix() + logStr);
+  Singleton<Logger>::GetInstance()->Log(logType, GetFullName() + logStr);
 }
 
 std::string Item::createString(long input, bool hex) {

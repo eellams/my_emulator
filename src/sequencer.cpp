@@ -230,12 +230,12 @@ void Sequencer::LogSignals() {
   std::vector<struct Signal> toSend;
   struct Signal toAdd;
 
-  toAdd.Name = createLogPrefix() + std::string("Clock number: ");
+  toAdd.Name = GetFullName() + std::string("Clock number: ");
   toAdd.Value = _numberOfClocks;
   toAdd.Address = 0;
   toSend.push_back(toAdd);
 
-  toAdd.Name = createLogPrefix() + std::string("Sequencer State (next): ") + getStateName();
+  toAdd.Name = GetFullName() + std::string("Sequencer State (next): ") + getStateName();
   toAdd.Value = static_cast<long>(_state);
   toAdd.Address = 0;
 

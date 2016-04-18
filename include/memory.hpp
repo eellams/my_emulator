@@ -36,12 +36,17 @@ public:
   Memory(std::string name = MEMORY_NAME);
   ~Memory();
 
+  // Load from hec file, write to memory
+  //  will pad the rest of memeory with 0x00
   bool LoadFromFile(std::string fileName, bool isBinary = true);
 
+  // Flags - for next clock cycle
   // Read
   void Read();
+  // Write
   void Write();
 
+  // Clock the memory
   void Clock();
 
   // No memory, nothing to update?

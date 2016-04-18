@@ -69,11 +69,11 @@ void Register<N>::LogSignals() {
   std::vector<struct Signal> toSend;
   struct Signal toAdd;
 
-  toAdd.Name = createLogPrefix() + std::string("Input");
+  toAdd.Name = GetFullName() + std::string("Input");
   toAdd.Value = _inputP->to_ulong();
   toAdd.Address = static_cast<void*>(_inputP);
 
-  toAdd.Name = createLogPrefix() + std::string("Contents");
+  toAdd.Name = GetFullName() + std::string("Contents");
   toAdd.Value = _output.to_ulong();
   toAdd.Address = static_cast<void*>(&_output);
 

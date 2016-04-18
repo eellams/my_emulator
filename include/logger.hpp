@@ -40,72 +40,41 @@
 #define LOG_STRING_INFO "INFO:"
 #define LOG_STRING_UPDATE "UPDATE:"
 
-#define LOG_TYPE_ERROR 0x00
-#define LOG_TYPE_INFO 0x01
-#define LOG_TYPE_DEBUG 0x02
-#define LOG_TYPE_UPDATE 0x03
+#define LOG_TYPE_ERROR 0
+#define LOG_TYPE_INFO 1
+#define LOG_TYPE_DEBUG 2
+#define LOG_TYPE_UPDATE 3
 
 class Logger {
 public:
   Logger(std::string logFile = LOG_FILE_LOG, std::string signalFile = LOG_FILE_SIGNAL, std::string signalFileCSV = LOG_FILE_SIGNAL_CSV);
   ~Logger();
 
+  // Set the log level - all above level number
   void SetLogLevel(int level) { _level = level; }
 
-  bool Clock();
-
+  // Log a string
   void Log(char type, std::string toWrite);
 
-  void SendSignals(std::vector<struct Signal> toSend) {
-    for (int i=0; i<toSend.size(); i++) {
-      _signals.push_back(toSend[i]);
-    }
-  }
+  // Add signals to be written
+  void SendSignals(std::vector<struct Signal> toSend);
 
-  void WriteSignals() {
-    Log(LOG_TYPE_DEBUG, "Writing signals");
-    _signalFile << "New set\r\n";
-
-    for(int i=0; i<_signals.size(); i++) {
-      _signalFile << std::hex << _signals[i].Name << ": 0x" << _signals[i].Value << ": " << _signals[i].Address << "\r\n";
-      _signalFile.flush();
-    }
-
-    _signalFile << "End set\r\n";
-
-    if (_firstTimeWriteSignals) {
-      for (int i=0; i<_signals.size(); i++) {
-        _signalFileCSV << _signals[i].Name;
-        if (i != _signals.size() - 1) {
-          _signalFileCSV << ",";
-        } else {
-          _signalFileCSV << "\r\n";
-        }
-        _signalFileCSV.flush();
-      }
-      _firstTimeWriteSignals = false;
-    }
-
-    for (int i=0; i<_signals.size(); i++) {
-      _signalFileCSV << _signals[i].Value;
-      if (i != _signals.size() - 1) {
-        _signalFileCSV << ",";
-      } else {
-        _signalFileCSV << "\r\n";
-      }
-      _signalFileCSV.flush();
-    }
-
-    _signals.clear();
-
-  }
+  // Write all the queued signal to file
+  //  should always be sent in the same order, so will also be written in the
+  //  same order
+  void WriteSignals();
 
 private:
+  // Create a time string (not too useful for this application)
   std::string createTimeString();
+
+  // Creates a log prefix
   std::string createFullLogPrefix(std::string prefix);
 
+  // Write to log fie
   void writeToLog(std::string);
 
+  // Wrie a log string
   void log(std::string prefix, std::string toWrite);
 
   std::ofstream _logFile;

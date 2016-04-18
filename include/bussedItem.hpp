@@ -38,10 +38,12 @@ public:
 
   ~BussedItem();
 
+  // Ser pointers to the busses
   void SetDataBusP(Bus<BUS_WIDTH> *bus);
   void SetAddressBusP(Bus<BUS_WIDTH> *bus);
 
   // Assume all BussedItems should be synchronous
+  //  so give an error if no clock defined
   virtual void Clock();
 
 protected:
