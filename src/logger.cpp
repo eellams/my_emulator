@@ -65,7 +65,7 @@ void Logger::Log(char type, std::string toWrite) {
 }
 
 void Logger::SendSignals(std::vector<struct Signal> toSend) {
-  for (int i=0; i<toSend.size(); i++) {
+  for (size_t i=0; i<toSend.size(); i++) {
     _signals.push_back(toSend[i]);
   }
 }
@@ -74,7 +74,7 @@ void Logger::WriteSignals() {
   Log(LOG_TYPE_DEBUG, "Writing signals");
   _signalFile << "New set\r\n";
 
-  for(int i=0; i<_signals.size(); i++) {
+  for(size_t i=0; i<_signals.size(); i++) {
     _signalFile << std::hex << _signals[i].Name << ": 0x" << _signals[i].Value << ": " << _signals[i].Address << "\r\n";
     _signalFile.flush();
   }
@@ -82,7 +82,7 @@ void Logger::WriteSignals() {
   _signalFile << "End set\r\n";
 
   if (_firstTimeWriteSignals) {
-    for (int i=0; i<_signals.size(); i++) {
+    for (size_t i=0; i<_signals.size(); i++) {
       _signalFileCSV << _signals[i].Name;
       if (i != _signals.size() - 1) {
         _signalFileCSV << ",";
@@ -94,7 +94,7 @@ void Logger::WriteSignals() {
     _firstTimeWriteSignals = false;
   }
 
-  for (int i=0; i<_signals.size(); i++) {
+  for (size_t i=0; i<_signals.size(); i++) {
     _signalFileCSV << _signals[i].Value;
     if (i != _signals.size() - 1) {
       _signalFileCSV << ",";

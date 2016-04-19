@@ -11,7 +11,7 @@ SRC := $(SOURCES:$(SRCDIR)/%=%)
 SRC := $(basename $(SRC))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
-CFLAGS :=
+CFLAGS := -Wall
 LIB :=
 INC := -Iinclude
 

@@ -32,7 +32,6 @@
 
 int main(int argc, char *argv[]) {
   std::string fileToExecute;
-  bool isBinary = true;
 
   // Startup all of the singleton instances
   Logger *log = Singleton<Logger>::GetInstance();

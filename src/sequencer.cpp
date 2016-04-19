@@ -80,7 +80,6 @@ void Sequencer::Clock() {
       _addressBusP->SetValueP(_PC.GetOutputP());
 
       // Get memory at address, put on data bus
-      //_memoryP->Read();
       SetControlBit(CONTROL_BUS_MEMORY_READ);
 
       // Clock address bus into CIR
@@ -113,6 +112,7 @@ void Sequencer::Clock() {
       opcode = (data & BITMASK_OP) >> (WORD_WIDTH - BITMASK_OP_WIDTH);
       imm = data & BITMASK_IMM;
 
+      // Bitmask, and shift to remove redundant zeros
       regA = (data & BITMASK_REG_A) >> (BITMASK_REG_B_WIDTH);
       regB = (data & BITMASK_REG_B);
 
@@ -127,7 +127,7 @@ void Sequencer::Clock() {
           //  read databus into ACC
 
           log(LOG_TYPE_INFO, "ADDI command");
-          _aluP->Add(); // Signal that we want the ALU to add
+          SetControlBit(CONTROL_BUS_ALU_ADD);
 
           _state = FETCH;
           break;
@@ -136,28 +136,28 @@ void Sequencer::Clock() {
           log(LOG_TYPE_INFO, "ADD command");
 
           if (_executeNumber == 0) {
-            log(LOG_TYPE_INFO, "First clock cycle");
+            log(LOG_TYPE_INFO, "ADD First clock cycle");
             // Reset ACC
             // ACC := RegA
 
-            _aluP->ResetACC();
+            SetControlBit(CONTROL_BUS_ALU_RESET_ACC);
 
             _registerFileP->SetOutput(REG_RESERVED_NUMBER + regA);
             _dataBusP->SetValueP(_registerFileP->GetOutputP());
 
-            _aluP->Add();
+            SetControlBit(CONTROL_BUS_ALU_ADD);
 
             _state = EXECUTE;
           }
           else if (_executeNumber == 1){
-            log(LOG_TYPE_INFO, "Second clock cycle");
+            log(LOG_TYPE_INFO, "ADD Second clock cycle");
             // ACC += RegB
             // Store in RegA
 
             _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
             _dataBusP->SetValueP(_registerFileP->GetOutputP());
 
-            _aluP->Add();
+            SetControlBit(CONTROL_BUS_ALU_ADD);
 
             _registerFileP->EnableRegister(REG_RESERVED_NUMBER + regA);
 
@@ -176,7 +176,6 @@ void Sequencer::Clock() {
           _addressBusP->SetValueP(_registerFileP->GetOutputP());
 
           // Read from the adderss to data bus
-          //_memoryP->Read();
           SetControlBit(CONTROL_BUS_MEMORY_READ);
 
           // Clock into
@@ -191,7 +190,12 @@ void Sequencer::Clock() {
           break;
       }
 
+      IncrementPC();
       _executeNumber++;
+      break;
+
+    case FINISHED:
+      log(LOG_TYPE_ERROR, "Clocking after finish state entered");
       break;
   }
 
@@ -273,7 +277,6 @@ switch (_state) {
   case STARTUP: toReturn = std::string("Startup"); break;
   case FETCH: toReturn = std::string("Fetch"); break;
   case EXECUTE: toReturn = std::string("Execute"); break;
-  case EXECUTE_LDI: toReturn = std::string("Execute LDI"); break;
   case FINISHED: toReturn = std::string("Finished"); break;
 }
 

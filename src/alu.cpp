@@ -27,30 +27,40 @@ ALU::ALU(std::string name) : BussedItem(ALU_TYPE_NAME, ALU_NAME) {
 ALU::~ALU() {};
 
 // Adds data bus to accumulator
-void ALU::Add() {
+/*void ALU::Add() {
   _add = true;
-}
+}*/
 
-void ALU::Signed() {
+/*void ALU::Signed() {
   _signed = true;
-}
+}*/
 
 void ALU::Clock() {
   log(LOG_TYPE_DEBUG, "Clock");
 
   unsigned long data;
   unsigned long imm;
+  MyBitset<CONTROL_BUS_WDTH> controlValue;
   //unsigned long temp;
   MyBitset<BUS_WIDTH> temp;
 
   data = _dataBusP->GetValueP()->to_ulong();
   imm = data & BITMASK_IMM;
 
+  controlValue = *(_controlBusP->GetValueP());
 
-  if (_add) {
+  if (controlValue.test(CONTROL_BUS_ALU_RESET_ACC)) {
+    log(LOG_TYPE_INFO, "Reseting " + _ACC.GetFullName() + " to zeros");
+    _ACC.reset();
+  }
+
+
+  if (controlValue.test(CONTROL_BUS_ALU_ADD)) {
+    // Add to ACC
     log(LOG_TYPE_INFO, "Adding value: " + createString(imm) + " to Accumulator, value: " + createString(_ACC.to_ulong()) ) ; //createString(_dataBusP->GetValueP()->to_ulong()));
 
-    if (_signed) {
+    if (controlValue.test(CONTROL_BUS_ALU_SIGNED)) {
+      // If the signed flag is specified
       log(LOG_TYPE_ERROR, "Signed flag" );
 
       temp.SetValue(imm);
@@ -73,7 +83,6 @@ void ALU::Clock() {
     _ACC.SetValue(temp.to_ulong());
     _dataBusP->SetValueP(&_ACC);
 
-    _dataBusP->SetValueP(&_ACC);
     _add = false;
     _signed = false;
   }
@@ -103,10 +112,10 @@ void ALU::SetRegisterFileP(RegisterFile *value) {
   _registerFileP = value;
 }
 
-void ALU::ResetACC() {
+/*void ALU::ResetACC() {
   _ACC.reset();
-}
+}*/
 
-MyBitset<BUS_WIDTH>* ALU::GetACCP() {
+/*MyBitset<BUS_WIDTH>* ALU::GetACCP() {
   return &_ACC;
-}
+}*/

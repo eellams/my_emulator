@@ -46,7 +46,6 @@ enum States{
   STARTUP = 0x00,
   FETCH = 0x01,
   EXECUTE = 0x02,
-  EXECUTE_LDI = 0x03,
   FINISHED = 0x05,
 };
 

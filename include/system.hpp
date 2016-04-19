@@ -36,6 +36,9 @@
 
 #define CONTROL_BUS_MEMORY_WRITE 0
 #define CONTROL_BUS_MEMORY_READ 1
+#define CONTROL_BUS_ALU_RESET_ACC 2
+#define CONTROL_BUS_ALU_ADD 3
+#define CONTROL_BUS_ALU_SIGNED 4
 
 // Breakdown of each instructions
 //

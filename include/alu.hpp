@@ -34,7 +34,7 @@ public:
   ~ALU();
 
   // Adds data bus to accumulator
-  void Add();
+  //void Add();
 
   // Send the flag that the numbers to be added are signed
   void Signed();
