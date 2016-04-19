@@ -52,10 +52,6 @@ public:
 private:
   MyBitset<BUS_WIDTH> _memory[MEMORY_SIZE];
   MyBitset<BUS_WIDTH> _output;
-
-  bool _read;
-  bool _write;
-
 };
 
  #endif

@@ -26,15 +26,6 @@ ALU::ALU(std::string name) : BussedItem(ALU_TYPE_NAME, ALU_NAME) {
 
 ALU::~ALU() {};
 
-// Adds data bus to accumulator
-/*void ALU::Add() {
-  _add = true;
-}*/
-
-/*void ALU::Signed() {
-  _signed = true;
-}*/
-
 void ALU::Clock() {
   log(LOG_TYPE_DEBUG, "Clock");
 
@@ -82,9 +73,6 @@ void ALU::Clock() {
 
     _ACC.SetValue(temp.to_ulong());
     _dataBusP->SetValueP(&_ACC);
-
-    _add = false;
-    _signed = false;
   }
 }
 
@@ -107,15 +95,3 @@ void ALU::LogSignals() {
   toSend.push_back(toAdd);
   sendSignals(toSend);
 }
-
-void ALU::SetRegisterFileP(RegisterFile *value) {
-  _registerFileP = value;
-}
-
-/*void ALU::ResetACC() {
-  _ACC.reset();
-}*/
-
-/*MyBitset<BUS_WIDTH>* ALU::GetACCP() {
-  return &_ACC;
-}*/

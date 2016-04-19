@@ -68,12 +68,10 @@ private:
   // TODO create string from another MyBitset?
   std::string createString(long input, bool hex = true);
 
-  
+
   Item *_parent;
 
   std::string _name;
-  std::string _parentType;
-  std::string _parentName;
 };
 
 #include "myBitset.tpp"

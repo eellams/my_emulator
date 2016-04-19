@@ -20,8 +20,6 @@
 #include "memory.hpp"
 
 Memory::Memory(std::string name) : BussedItem(MEMORY_TYPE_NAME, name) {
-  _read = _write = false;
-
   _output.SetParent(this);
   _output.SetName("Memory output");
 }
@@ -109,8 +107,6 @@ void Memory::Clock() {
     log(LOG_TYPE_INFO, "Writing to memory at address: " + createString(_addressBusP->GetValueP()->to_ulong()));
     _memory[_addressBusP->GetValueP()->to_ulong()] = *_dataBusP->GetValueP();
   }
-
-  _read = _write = false;
 
   Update();
 }

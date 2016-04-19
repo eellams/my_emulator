@@ -70,13 +70,14 @@ int main(int argc, char *argv[]) {
   alu.SetDataBusP(&dataBus);
   alu.SetAddressBusP(&addressBus);
   alu.SetControlBusP(&controlBus);
-  alu.SetRegisterFileP(&registerFile);
 
   memory.SetDataBusP(&dataBus);
   memory.SetAddressBusP(&addressBus);
   memory.SetControlBusP(&controlBus);
 
   // Sequencer controls the program
+  //  the sequencer has access to other parts of the system
+  //  this slightly breaks encapsulation, but it seems ok?
   sequencer.SetDataBusP(&dataBus);
   sequencer.SetAddressBusP(&addressBus);
   sequencer.SetControlBusP(&controlBus);
@@ -85,9 +86,7 @@ int main(int argc, char *argv[]) {
   sequencer.SetALUP(&alu);
   sequencer.SetMemoryP(&memory);
 
-  //sequencer.LogSignals();
-  //log->WriteSignals();
-
+  // How many times we should execute
   for (int i=0; i<10; i++) {
     sequencer.Clock();
   }

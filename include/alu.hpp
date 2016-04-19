@@ -33,12 +33,6 @@ public:
   ALU(std::string name = ALU_NAME);
   ~ALU();
 
-  // Adds data bus to accumulator
-  //void Add();
-
-  // Send the flag that the numbers to be added are signed
-  void Signed();
-
   void Clock();
 
   // This class has no children, and has no memory
@@ -49,9 +43,6 @@ public:
   // Nothing to log?
   void LogSignals();
 
-  // Set the pointer to the register file class
-  void SetRegisterFileP(RegisterFile *value);
-
   // Reset the accumulator to zeros
   void ResetACC();
 
@@ -59,9 +50,6 @@ public:
   MyBitset<BUS_WIDTH>* GetACCP();
 
 private:
-  RegisterFile *_registerFileP;
-
   MyBitset<BUS_WIDTH> _ACC;
-  bool _add, _signed;
 };
  #endif
