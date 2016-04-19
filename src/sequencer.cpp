@@ -34,6 +34,12 @@ void Sequencer::Initialise() {
   _CIR.SetWriteEnableP(&_eCIR);
   _CIR.SetInputP(_dataBusP->GetValueP());
 
+  _controlBusValue.SetName("Control Bus Value");
+  _controlBusValue.SetParent(this);
+  _controlBusValue.reset();
+
+  _controlBusP->SetValueP(&_controlBusValue);
+
   _ePC = _eCIR = false;
 }
 
@@ -74,7 +80,8 @@ void Sequencer::Clock() {
       _addressBusP->SetValueP(_PC.GetOutputP());
 
       // Get memory at address, put on data bus
-      _memoryP->Read();
+      //_memoryP->Read();
+      SetControlBit(CONTROL_BUS_MEMORY_READ);
 
       // Clock address bus into CIR
       _eCIR = true;
@@ -169,7 +176,8 @@ void Sequencer::Clock() {
           _addressBusP->SetValueP(_registerFileP->GetOutputP());
 
           // Read from the adderss to data bus
-          _memoryP->Read();
+          //_memoryP->Read();
+          SetControlBit(CONTROL_BUS_MEMORY_READ);
 
           // Clock into
           _registerFileP->EnableRegister(REG_RESERVED_NUMBER + regA);
@@ -202,8 +210,8 @@ void Sequencer::Clock() {
   _CIR.Clock();
   Update();
 
+  _controlBusValue.reset();
   _ePC = _eCIR = false;
-
   _numberOfClocks += 1;
 
   LogSignals();

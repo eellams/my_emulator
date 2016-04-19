@@ -20,22 +20,27 @@
 #include "bussedItem.hpp"
 
 BussedItem::BussedItem(std::string typeName, std::string name) : Item(typeName, name) {
-  
+
 }
 
 BussedItem::~BussedItem() {}
 
 void BussedItem::SetDataBusP(Bus<BUS_WIDTH> *bus) {
-  log(LOG_TYPE_INFO, "Setting data bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
+  log(LOG_TYPE_DEBUG, "Setting data bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
   _dataBusP = bus;
 }
 
 void BussedItem::SetAddressBusP(Bus<BUS_WIDTH> *bus) {
-  log(LOG_TYPE_INFO, "Setting address bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
-   _addressBusP = bus;
- }
+  log(LOG_TYPE_DEBUG, "Setting address bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
+  _addressBusP = bus;
+}
 
- // Assume all BussedItems should be synchronous
+void BussedItem::SetControlBusP(Bus<BUS_WIDTH> *bus) {
+  log(LOG_TYPE_DEBUG, "Setting control bus to: " + bus->GetFullName() + ", address: " + createString(static_cast<void*>(bus)));
+  _controlBusP = bus;
+}
+
+// Assume all BussedItems should be synchronous
 void BussedItem::Clock() {
-   log(LOG_TYPE_ERROR, "Unimplemented Clock function");
- }
+  log(LOG_TYPE_ERROR, "Unimplemented Clock function");
+}

@@ -41,6 +41,7 @@ public:
   // Ser pointers to the busses
   void SetDataBusP(Bus<BUS_WIDTH> *bus);
   void SetAddressBusP(Bus<BUS_WIDTH> *bus);
+  void SetControlBusP(Bus<CONTROL_BUS_WDTH> *bus);
 
   // Assume all BussedItems should be synchronous
   //  so give an error if no clock defined
@@ -49,6 +50,7 @@ public:
 protected:
   Bus<BUS_WIDTH> *_addressBusP;
   Bus<BUS_WIDTH> *_dataBusP;
+  Bus<CONTROL_BUS_WDTH> *_controlBusP ;
 
 };
 

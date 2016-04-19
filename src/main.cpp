@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
   // Busses
   Bus<BUS_WIDTH> addressBus("Address Bus");
   Bus<BUS_WIDTH> dataBus("Data Bus");
+  Bus<CONTROL_BUS_WDTH> controlBus("Control Bus");
 
   // Component parts - will be controlled by sequencer
   RegisterFile registerFile("RegisterFile");
@@ -64,18 +65,22 @@ int main(int argc, char *argv[]) {
   // Setup connections and Initialise
   registerFile.SetDataBusP(&dataBus);
   registerFile.SetAddressBusP(&addressBus);
+  registerFile.SetControlBusP(&controlBus);
   registerFile.Initialise();
 
   alu.SetDataBusP(&dataBus);
   alu.SetAddressBusP(&addressBus);
+  alu.SetControlBusP(&controlBus);
   alu.SetRegisterFileP(&registerFile);
 
   memory.SetDataBusP(&dataBus);
   memory.SetAddressBusP(&addressBus);
+  memory.SetControlBusP(&controlBus);
 
   // Sequencer controls the program
   sequencer.SetDataBusP(&dataBus);
   sequencer.SetAddressBusP(&addressBus);
+  sequencer.SetControlBusP(&controlBus);
   sequencer.SetRegisterFileP(&registerFile);
   sequencer.Initialise();
   sequencer.SetALUP(&alu);

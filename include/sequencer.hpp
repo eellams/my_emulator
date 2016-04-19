@@ -61,6 +61,10 @@ public:
   // Increment the Program Counter by 1
   void IncrementPC();
 
+  void SetControlBit(long address, bool value = true  ) {
+    _controlBusValue.set(address, value);
+  }
+
   // The 'brains' of this emulator
   void Clock();
 
@@ -94,6 +98,8 @@ private:
   Register<REGISTER_WIDTH> _PC;
   Register<REGISTER_WIDTH> _CIR;
   bool _ePC, _eCIR;
+
+  MyBitset<CONTROL_BUS_WDTH> _controlBusValue;
 
   // Used for keeping track of where we are in the emulation
   long _executeNumber;

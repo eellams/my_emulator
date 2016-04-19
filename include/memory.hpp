@@ -40,12 +40,6 @@ public:
   //  will pad the rest of memeory with 0x00
   bool LoadFromFile(std::string fileName, bool isBinary = true);
 
-  // Flags - for next clock cycle
-  // Read
-  void Read();
-  // Write
-  void Write();
-
   // Clock the memory
   void Clock();
 

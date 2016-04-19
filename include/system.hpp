@@ -32,6 +32,10 @@
 #define BUS_WIDTH 16
 #define REGISTER_WIDTH 16
 #define MEMORY_SIZE 1 << BUS_WIDTH
+#define CONTROL_BUS_WDTH 16
+
+#define CONTROL_BUS_MEMORY_WRITE 0
+#define CONTROL_BUS_MEMORY_READ 1
 
 // Breakdown of each instructions
 //
