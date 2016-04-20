@@ -76,7 +76,7 @@ void ALU::Clock() {
     // If an immediate
     //  i.e. ignore the top 3 bits (the instruction)
     else if (controlValue.test(CONTROL_BUS_ALU_IMM)) {
-      temp.SetValue(imm + _ACC.to_ulong);
+      temp.SetValue(imm + _ACC.to_ulong());
     }
 
     else {
@@ -84,7 +84,16 @@ void ALU::Clock() {
       temp.SetValue(dataBusValue + _ACC.to_ulong());
     }
 
+    // Update the value of ACC, and the data bus
     _ACC.SetValue(temp.to_ulong());
+    _dataBusP->SetValueP(&_ACC);
+  }
+
+  if (controlValue.test(CONTROL_BUS_ALU_NAND)) {
+    // NAND the data bus with the ACC
+    log(LOG_TYPE_DEBUG, "Nanding data bus value: " + createString(dataBusValue) + " with ACC value: " + createString(_ACC.to_ulong()));
+
+    _ACC.SetValue( ~(dataBusValue & _ACC.to_ulong()) );
     _dataBusP->SetValueP(&_ACC);
   }
 }

@@ -203,6 +203,41 @@ void Sequencer::Clock() {
           // Store in memory
           SetControlBit(CONTROL_BUS_MEMORY_WRITE);
 
+          _state = FETCH;
+          break;
+
+        case INSTR_NAND:
+          // Set ACC to RegA NAND RegB (ACC = ~(RegA & RegB) )
+
+          // Reset ACC
+          // Set data bus to RegA
+          // Add data bus to ACC (i.e. set ACC to RegA)
+          // Clock
+          // Set data bus to RegB
+          // Send NAND flag to ACC
+
+          if (_executeNumber == 0) {
+            // Reset ACC
+            SetControlBit(CONTROL_BUS_ALU_RESET_ACC);
+
+            // Set data bus to RegA
+            _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
+            _dataBusP->SetValueP(_registerFileP->GetOutputP());
+
+            // Add data bus to ALU
+            SetControlBit(CONTROL_BUS_ALU_ADD);
+            _state = EXECUTE;
+          }
+          else if (_executeNumber == 1) {
+            // Set data bus to RegA
+            _registerFileP->SetOutput(REG_RESERVED_NUMBER + regA);
+            _dataBusP->SetValueP(_registerFileP->GetOutputP());
+
+            // Send NAND flag to ACC
+            SetControlBit(CONTROL_BUS_ALU_NAND);
+
+            _state = FETCH;
+          }
           break;
 
         default:

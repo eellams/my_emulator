@@ -40,6 +40,7 @@
 #define CONTROL_BUS_ALU_ADD 3
 #define CONTROL_BUS_ALU_SIGNED 4
 #define CONTROL_BUS_ALU_IMM 5
+#define CONTROL_BUS_ALU_NAND 6
 
 // Breakdown of each instructions
 //
@@ -70,10 +71,13 @@
 #define BITMASK_REG_B 0x03
 #define BITMASK_REG_B_WIDTH 2
 
+// ADD regB, 0 acts to store ACC in regB
+
 #define INSTR_ADDI 0x00  // Add immediate to accumulator
 #define INSTR_ADD 0x01   // Add RegB to RegA (RegA += RegB)
 #define INSTR_LOAD 0x02  // Load RegA to address in RegB
 #define INSTR_STORE 0x03 // Store ACC at address in RegB [RegA not used]
+#define INSTR_NAND 0x04  // Set ACC to RegA NAND RegB (ACC = ~(RegA & RegB) )
 
 
 // Used for logging
