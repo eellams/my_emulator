@@ -41,6 +41,7 @@ void BussedItem::SetControlBusP(Bus<BUS_WIDTH> *bus) {
 }
 
 // Assume all BussedItems should be synchronous
+//  this shouldn't ever be called
 void BussedItem::Clock() {
   log(LOG_TYPE_ERROR, "Unimplemented Clock function");
 }

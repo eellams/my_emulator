@@ -47,7 +47,9 @@ public:
   void ResetACC();
 
   // Get a pointer to the ACC register
-  MyBitset<BUS_WIDTH>* GetACCP();
+  MyBitset<BUS_WIDTH>* GetACCP() {
+    return &_ACC;
+  }
 
 private:
   MyBitset<BUS_WIDTH> _ACC;

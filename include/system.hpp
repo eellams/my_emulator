@@ -69,9 +69,11 @@
 #define BITMASK_REG_B 0x03
 #define BITMASK_REG_B_WIDTH 2
 
-#define INSTR_ADDI 0x00 // Add immediate to accumulator
-#define INSTR_ADD 0x01 // RegA += RegB
-#define INSTR_LOAD 0x02 // Load RegA to address of RegB
+#define INSTR_ADDI 0x00  // Add immediate to accumulator
+#define INSTR_ADD 0x01   // Add RegB to RegA (RegA += RegB)
+#define INSTR_LOAD 0x02  // Load RegA to address in RegB
+#define INSTR_STORE 0x03 // Store ACC at address in RegB [RegA not used]
+
 
 // Used for logging
 struct Signal {

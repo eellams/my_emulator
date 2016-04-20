@@ -29,29 +29,34 @@ ALU::~ALU() {};
 void ALU::Clock() {
   log(LOG_TYPE_DEBUG, "Clock");
 
-  unsigned long data;
+  // Used as local sotoring for values on the bus
+  unsigned long dataBusValue;
   unsigned long imm;
-  MyBitset<CONTROL_BUS_WDTH> controlValue;
-  //unsigned long temp;
-  MyBitset<BUS_WIDTH> temp;
 
-  data = _dataBusP->GetValueP()->to_ulong();
-  imm = data & BITMASK_IMM;
+  MyBitset<CONTROL_BUS_WDTH> controlValue;
+  MyBitset<BUS_WIDTH> temp; // Used in calculating a negative number
+
+  // Decode, so we can remove the databus value
+  dataBusValue = _dataBusP->GetValueP()->to_ulong();
+  imm = dataBusValue & BITMASK_IMM;
 
   controlValue = *(_controlBusP->GetValueP());
 
+  // Reset the accumulator before we do anything else
   if (controlValue.test(CONTROL_BUS_ALU_RESET_ACC)) {
     log(LOG_TYPE_INFO, "Reseting " + _ACC.GetFullName() + " to zeros");
     _ACC.reset();
   }
 
-
+  // If the add flag is present, add the data to the accumulator
+  //  (not including the op-code - see above)
   if (controlValue.test(CONTROL_BUS_ALU_ADD)) {
     // Add to ACC
-    log(LOG_TYPE_INFO, "Adding value: " + createString(imm) + " to Accumulator, value: " + createString(_ACC.to_ulong()) ) ; //createString(_dataBusP->GetValueP()->to_ulong()));
+    log(LOG_TYPE_INFO, "Adding value: " + createString(imm) + " to Accumulator, value: " + createString(_ACC.to_ulong()) );
 
+    // If the signed flag is specified
+    //  convert the a negative
     if (controlValue.test(CONTROL_BUS_ALU_SIGNED)) {
-      // If the signed flag is specified
       log(LOG_TYPE_ERROR, "Signed flag" );
 
       temp.SetValue(imm);
@@ -68,6 +73,7 @@ void ALU::Clock() {
       }
     }
     else {
+      // Not signed - just add the number to the ACC
       temp.SetValue(imm + _ACC.to_ulong());
     }
 
@@ -76,14 +82,12 @@ void ALU::Clock() {
   }
 }
 
-// This class has no children, and has no memory
-//  so has nothing to update
-//  Update therefore is seldom called
+// Update this and children
 void ALU::Update() {
   log(LOG_TYPE_UPDATE, "Update [EMPTY]");
 };
 
-// Nothing to log?
+// Log signals
 void ALU::LogSignals() {
   std::vector<struct Signal> toSend;
   struct Signal toAdd;

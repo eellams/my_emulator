@@ -68,9 +68,10 @@ private:
   // TODO create string from another MyBitset?
   std::string createString(long input, bool hex = true);
 
-
+  // Pointer to the item parent
   Item *_parent;
 
+  // The name of this bitset
   std::string _name;
 };
 

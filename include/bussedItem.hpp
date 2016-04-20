@@ -47,11 +47,12 @@ public:
   //  so give an error if no clock defined
   virtual void Clock();
 
+// Will be the parent class to lots of other classes
+//  so need to make this protected (inheritable)
 protected:
   Bus<BUS_WIDTH> *_addressBusP;
   Bus<BUS_WIDTH> *_dataBusP;
   Bus<CONTROL_BUS_WDTH> *_controlBusP ;
-
 };
 
  #endif

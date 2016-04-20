@@ -184,6 +184,26 @@ void Sequencer::Clock() {
           _state = FETCH;
           break;
 
+        case INSTR_STORE:
+          log(LOG_TYPE_INFO, "STORE command");
+          // Store ACC at address in RegB [RegA not used]
+
+          // Set address bus to RegB
+          // Set data bus to ACC
+          // Store in memory
+
+          // Set address bus to RegA
+          _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
+          _addressBusP->SetValueP(_registerFileP->GetOutputP());
+
+          // Set data bus to ACC
+          _dataBusP->SetValueP(_aluP->GetACCP());
+
+          // Store in memory
+          SetControlBit(CONTROL_BUS_MEMORY_WRITE);
+
+          break;
+
         default:
           log(LOG_TYPE_ERROR, "Unknown instruction: " + createString(opcode));
           _state = FINISHED;
