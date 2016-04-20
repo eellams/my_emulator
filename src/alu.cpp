@@ -72,9 +72,16 @@ void ALU::Clock() {
         temp.SetValue(imm + _ACC.to_ulong());
       }
     }
+
+    // If an immediate
+    //  i.e. ignore the top 3 bits (the instruction)
+    else if (controlValue.test(CONTROL_BUS_ALU_IMM)) {
+      temp.SetValue(imm + _ACC.to_ulong);
+    }
+
     else {
       // Not signed - just add the number to the ACC
-      temp.SetValue(imm + _ACC.to_ulong());
+      temp.SetValue(dataBusValue + _ACC.to_ulong());
     }
 
     _ACC.SetValue(temp.to_ulong());

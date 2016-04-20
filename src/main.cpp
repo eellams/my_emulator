@@ -48,10 +48,7 @@ int main(int argc, char *argv[]) {
   Sequencer sequencer("Sequencer");
   Memory memory("Main Memory");
   ALU alu("ALU");
-
-  Register<REGISTER_WIDTH> PC;
-  Register<REGISTER_WIDTH> CIR;
-
+  
   // Get the file we are reading
   std::cout << "File to read (leave blank for testprogram): ";
   std::cin >> std::noskipws >> fileToExecute;
@@ -91,7 +88,6 @@ int main(int argc, char *argv[]) {
 
   // How many times we should execute
   for (int i=0; i<10; i++) {
-
     sequencer.Clock();
   }
 

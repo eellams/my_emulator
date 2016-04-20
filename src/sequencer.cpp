@@ -128,6 +128,7 @@ void Sequencer::Clock() {
 
           log(LOG_TYPE_INFO, "ADDI command");
           SetControlBit(CONTROL_BUS_ALU_ADD);
+          SetControlBit(CONTROL_BUS_ALU_IMM); // Signals not to add top 3 bits
 
           _state = FETCH;
           break;

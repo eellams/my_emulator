@@ -39,6 +39,7 @@
 #define CONTROL_BUS_ALU_RESET_ACC 2
 #define CONTROL_BUS_ALU_ADD 3
 #define CONTROL_BUS_ALU_SIGNED 4
+#define CONTROL_BUS_ALU_IMM 5
 
 // Breakdown of each instructions
 //

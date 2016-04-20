@@ -89,6 +89,7 @@ private:
 
   // Pointers to other classes
   //  TODO, this really breaks encapsulation
+  //  But, the sequencer needs to control everything?
   RegisterFile *_registerFileP;
   Memory *_memoryP;
   ALU *_aluP;
