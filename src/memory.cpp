@@ -104,7 +104,7 @@ void Memory::Clock() {
   }
 
   if (controlValue.test(CONTROL_BUS_MEMORY_WRITE)) {
-    log(LOG_TYPE_INFO, "Writing to memory at address: " + createString(_addressBusP->GetValueP()->to_ulong()));
+    log(LOG_TYPE_INFO, "Writing to memory value: " + createString(_dataBusP->GetValueP()->to_ulong()) + " at address: " + createString(_addressBusP->GetValueP()->to_ulong()));
     _memory[_addressBusP->GetValueP()->to_ulong()] = *_dataBusP->GetValueP();
   }
 

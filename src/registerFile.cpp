@@ -67,8 +67,6 @@ void RegisterFile::EnableRegister(size_t regNumber) {
 
 // Do all synchronous operations
 void RegisterFile::Clock() {
-  long PC; // Value used for incrementing PC register
-
   Update(); // Ensure all register inputs are up to date
 
   // Ignore the zero register, which should never change

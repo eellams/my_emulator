@@ -54,7 +54,7 @@ void ALU::Clock() {
   }
 
   if (controlValue.test(CONTROL_BUS_ALU_IMM)) {
-    log(LOG_TYPE_DEBUG, "Immediate");
+    log(LOG_TYPE_DEBUG, "Immediate initial value: " + createString(imm));
     if (controlValue.test(CONTROL_BUS_ALU_SIGNED)) {
       // Signed IMM
       log(LOG_TYPE_DEBUG, "Signed Immediate");
@@ -63,6 +63,7 @@ void ALU::Clock() {
         log(LOG_TYPE_DEBUG, "Negative signed Immediate");
         toAdd = imm - (1 << BITMASK_IMM_WIDTH);
       }
+      else toAdd = imm;
     }
     else toAdd = imm;
     log(LOG_TYPE_DEBUG, "Immediate value: " + createString(toAdd));
@@ -90,87 +91,40 @@ void ALU::Clock() {
   }
 
   else {
-    log(LOG_TYPE_DEBUG, "Not an immediate value");
+    log(LOG_TYPE_DEBUG, "A full-bus value initial value: " + createString(dataBusValue));
 
     if(controlValue.test(CONTROL_BUS_ALU_SIGNED)) {
       log(LOG_TYPE_DEBUG, "Signed value");
 
       if (dataBusValue & (1 << (BUS_WIDTH - 1))) {
         log(LOG_TYPE_DEBUG, "Negative value");
+        toAdd = dataBusValue - (1 << BUS_WIDTH);
       }
+      else toAdd = dataBusValue;
     }
     else toAdd = dataBusValue;
-    log(LOG_TYPE_INFO, "Full bus value: " + createString(toAdd) + " [" + createString(toAdd, false) + "]");
+    log(LOG_TYPE_DEBUG, "Full bus value: " + createString(toAdd) + " [" + createString(toAdd, false) + "]");
   }
 
 
   if (controlValue.test(CONTROL_BUS_ALU_ADD)) {
+    log(LOG_TYPE_INFO, "Adding value: " + createString(toAdd) + " to ACC: " + createString(_ACC.to_ulong()));
     _ACC.SetValue(_ACC.to_ulong() + toAdd);
     _dataBusP->SetValueP(&_ACC);
   }
 
   else if (controlValue.test(CONTROL_BUS_ALU_NAND)) {
+    log(LOG_TYPE_INFO, "Nanding value: " + createString(toAdd) + " to ACC: " + createString(_ACC.to_ulong()));
     _ACC.SetValue( ~(toAdd & _ACC.to_ulong()) );
     _dataBusP->SetValueP(&_ACC);
   }
-
-  // If the add flag is present, add the data to the accumulator
-  //  (not including the op-code - see above)
-  /*if (controlValue.test(CONTROL_BUS_ALU_ADD)) {
-    // Add to ACC
-    log(LOG_TYPE_INFO, "Adding value: " + createString(imm) + " to Accumulator, value: " + createString(_ACC.to_ulong()) );
-
-    // If the signed flag is specified
-    //  convert the a negative
-    if (controlValue.test(CONTROL_BUS_ALU_SIGNED)) {
-      log(LOG_TYPE_ERROR, "Signed flag" );
-
-      temp.SetValue(imm);
-      if (temp.test(BITMASK_IMM_WIDTH - 1)) {
-        long negative = (long)((long)temp.to_ulong() - (1 << BITMASK_IMM_WIDTH));
-
-        log(LOG_TYPE_DEBUG, "Number is negative, instead adding value: " + createString(negative) + " [" + createString(negative, false) + "]" );
-
-        temp.SetValue( (long)((long)_ACC.to_ulong() + negative) );
-      }
-      else {
-        log(LOG_TYPE_DEBUG, "Number is positive");
-        temp.SetValue(imm + _ACC.to_ulong());
-      }
-    }
-
-    // If an immediate
-    //  i.e. ignore the top 3 bits (the instruction)
-    else if (controlValue.test(CONTROL_BUS_ALU_IMM)) {
-      temp.SetValue(imm + _ACC.to_ulong());
-    }
-
-    else {
-      // Not signed - just add the number to the ACC
-      temp.SetValue(dataBusValue + _ACC.to_ulong());
-    }
-
-    // Update the value of ACC, and the data bus
-    _ACC.SetValue(temp.to_ulong());
-    _dataBusP->SetValueP(&_ACC);
-  }
-
-
-  if (controlValue.test(CONTROL_BUS_ALU_NAND)) {
-    // NAND the data bus with the ACC
-    log(LOG_TYPE_DEBUG, "Nanding data bus value: " + createString(dataBusValue) + " with ACC value: " + createString(_ACC.to_ulong()));
-
-    _ACC.SetValue( ~(dataBusValue & _ACC.to_ulong()) );
-    _dataBusP->SetValueP(&_ACC);
-  }
-  */
 
   if (_ACC.to_ulong() == 0) {
     log(LOG_TYPE_INFO, "Zero flag set");
     _zeroFlag = true;
   }
   else if (_zeroFlag) {
-    log(LOG_TYPE_INFO, "Unsetting zero flag");
+    log(LOG_TYPE_DEBUG, "Unsetting zero flag");
     _zeroFlag = false;
   }
 }

@@ -140,7 +140,7 @@ void Sequencer::Clock() {
 
         case INSTR_ADDI:
           // RegA := RegA + imm
-          log(LOG_TYPE_INFO, "ADDI command");
+          log(LOG_TYPE_INFO, "ADDI, " + createString(shortImm, false) + ", " + createString(regB, false) + " command");
 
           // Reset ACC
           // Add RegB to ACC
@@ -149,6 +149,7 @@ void Sequencer::Clock() {
           // Store in RegB
 
           if (_executeNumber == 0) {
+            log(LOG_TYPE_INFO, "First ADDI clock cycle");
             // Reset ACC
             SetControlBit(CONTROL_BUS_ALU_RESET_ACC);
 
@@ -162,6 +163,7 @@ void Sequencer::Clock() {
             _state = EXECUTE;
           }
           else if (_executeNumber == 1) {
+            log(LOG_TYPE_INFO, "Second ADDI clock cycle");
             // Set data bus to CIR
             _dataBusP->SetValueP(_CIR.GetOutputP());
 
@@ -173,12 +175,14 @@ void Sequencer::Clock() {
 
             // Store in RegB
             _registerFileP->EnableRegister(REG_RESERVED_NUMBER + regB);
-            _state = FINISHED;
+
+            IncrementPC();
+            _state = FETCH;
           }
           break;
 
         case INSTR_ADD:
-          log(LOG_TYPE_INFO, "ADD command");
+          log(LOG_TYPE_INFO, "ADD, " + createString(regA, false) + ", " + createString(regB, false) + " command");
 
           if (_executeNumber == 0) {
             log(LOG_TYPE_INFO, "ADD First clock cycle");
@@ -213,49 +217,84 @@ void Sequencer::Clock() {
           break;
 
         case INSTR_STORE:
-          log(LOG_TYPE_INFO, "STORE command");
-          // Set address bus to RegB
-          // Read from memory
-          // Clock into RegA
+          log(LOG_TYPE_INFO, "STORE, " + createString(regA, false) + ", " + createString(regB, false) + " command");
 
-          // Set the address bus to the register number
-          _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
-          _addressBusP->SetValueP(_registerFileP->GetOutputP());
+          // Reset ACC
+          // Add RegB to ACC
+          // Clock
+          // Set address bus to ACC
+          // Set data bus to RegA
+          // Write to memory
 
-          // Read from the adderss to data bus
-          SetControlBit(CONTROL_BUS_MEMORY_READ);
+          if (_executeNumber == 0) {
+            // Clear ACC
+            SetControlBit(CONTROL_BUS_ALU_RESET_ACC);
 
-          // Clock into
-          _registerFileP->EnableRegister(REG_RESERVED_NUMBER + regA);
+            // Add RegB to ACC
+            _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
+            _dataBusP->SetValueP(_registerFileP->GetOutputP());
 
-          IncrementPC();
-          _state = FETCH;
+            SetControlBit(CONTROL_BUS_ALU_ADD);
+
+            _state = EXECUTE;
+          }
+          else if (_executeNumber == 1) {
+            // Set address bus to ACC
+            _addressBusP->SetValueP(_aluP->GetACCP());
+
+            // Set data bus to RegA
+            _registerFileP->SetOutput(REG_RESERVED_NUMBER + regA);
+            _dataBusP->SetValueP(_registerFileP->GetOutputP());
+
+            // Write
+            SetControlBit(CONTROL_BUS_MEMORY_WRITE);
+
+            IncrementPC();
+            _state = FETCH;
+          }
           break;
 
         case INSTR_LOAD:
-          log(LOG_TYPE_INFO, "LOAD command");
-          // Store ACC at address in RegB [RegA not used]
+          log(LOG_TYPE_INFO, "LOAD, " + createString(regA, false) + ", " + createString(regB, false) + " command");
+          // Store RegA with memory at address in RegB
 
-          // Set address bus to RegB
-          // Set data bus to ACC
-          // Store in memory
+          // Clear ACC
+          // Set ACC to RegB
+          // Clock
+          // Set address bus to ACC
+          // Set read flag
+          // Clock into RegA
 
-          // Set address bus to RegA
-          _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
-          _addressBusP->SetValueP(_registerFileP->GetOutputP());
+          if (_executeNumber == 0) {
+            // Clear ACC
+            SetControlBit(CONTROL_BUS_ALU_RESET_ACC);
 
-          // Set data bus to ACC
-          _dataBusP->SetValueP(_aluP->GetACCP());
+            // Add RegB to ACC
+            _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
+            _dataBusP->SetValueP(_registerFileP->GetOutputP());
 
-          // Store in memory
-          SetControlBit(CONTROL_BUS_MEMORY_WRITE);
+            SetControlBit(CONTROL_BUS_ALU_ADD);
 
-          IncrementPC();
-          _state = FETCH;
+            _state = EXECUTE;
+          }
+          else if (_executeNumber == 1) {
+            // Set address bus to ACC
+            //_registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
+            //_addressBusP->SetValueP(_registerFileP->GetOutputP());
+
+            _addressBusP->SetValueP(_aluP->GetACCP());
+
+            SetControlBit(CONTROL_BUS_MEMORY_READ);
+
+            _registerFileP->EnableRegister(REG_RESERVED_NUMBER + regA);
+
+            IncrementPC();
+            _state = FETCH;
+          }
           break;
 
         case INSTR_NAND:
-          log(LOG_TYPE_INFO, "NAND command");
+          log(LOG_TYPE_INFO, "NAND, " + createString(regA, false) + ", " + createString(regB, false) + " command");
           // Set RegA to RegA NAND RegB (Reg = ~(RegA & RegB) )
 
           // Reset ACC
@@ -267,6 +306,7 @@ void Sequencer::Clock() {
           // Store in RegA
 
           if (_executeNumber == 0) {
+            log(LOG_TYPE_INFO, "First NAND clock cycle");
             // Reset ACC
             SetControlBit(CONTROL_BUS_ALU_RESET_ACC);
 
@@ -279,6 +319,7 @@ void Sequencer::Clock() {
             _state = EXECUTE;
           }
           else if (_executeNumber == 1) {
+            log(LOG_TYPE_INFO, "Second JMPI clock cycle");
             // Set data bus to RegB
             _registerFileP->SetOutput(REG_RESERVED_NUMBER + regB);
             _dataBusP->SetValueP(_registerFileP->GetOutputP());
@@ -297,7 +338,7 @@ void Sequencer::Clock() {
           break;
 
         case INSTR_JMPI:
-          log(LOG_TYPE_INFO, "JMPI command");
+          log(LOG_TYPE_INFO, "JMPI, " + createString(imm, false) + " command");
           // Reset ACC
           // Set data bus to PC
           // Set ADD flag to ALU
@@ -307,6 +348,7 @@ void Sequencer::Clock() {
           // Clock [ACC] into PC
 
           if (_executeNumber == 0) {
+            log(LOG_TYPE_INFO, "First JMPI clock cycle");
             // Reset ACC
             SetControlBit(CONTROL_BUS_ALU_RESET_ACC);
 
@@ -320,6 +362,7 @@ void Sequencer::Clock() {
           }
 
           else {
+            log(LOG_TYPE_INFO, "Second JMPI clock cycle");
             // Set data bus to CIR
             _dataBusP->SetValueP(_CIR.GetOutputP());
 
@@ -334,12 +377,14 @@ void Sequencer::Clock() {
           break;
 
         case INSTR_BZ:
-          log(LOG_TYPE_INFO, "BZ command");
+          log(LOG_TYPE_INFO, "BZ, " + createString(imm, false) + " command");
           // If zero flag is not set, add IMM to PC
           // IMM can be signed
 
           if ( _aluP->GetZeroFlag() && (_executeNumber == 0) ) {
             log(LOG_TYPE_DEBUG, "Zero flag was set - jumping");
+            log(LOG_TYPE_DEBUG, "First BZ clock cycle");
+
             // Reset ACC
             SetControlBit(CONTROL_BUS_ALU_RESET_ACC);
 
@@ -350,6 +395,7 @@ void Sequencer::Clock() {
             _state = EXECUTE;
           }
           else if (_executeNumber == 1) {
+            log(LOG_TYPE_DEBUG, "Second BZ clock cycle");
             // Add IMM to ACC (which contains PC)
             _dataBusP->SetValueP(_CIR.GetOutputP());
 
@@ -364,7 +410,7 @@ void Sequencer::Clock() {
           }
           else if (_executeNumber == 0) {
             // Flag was not zero, carry on execution
-            log(LOG_TYPE_DEBUG, "Zero flag was not set");
+            log(LOG_TYPE_INFO, "Zero flag was not set");
             IncrementPC();
             _state = FETCH;
           }

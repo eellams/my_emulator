@@ -29,10 +29,10 @@
 #define WORD_WIDTH 8
 
 // For simplicity of being able to copy bus <=> register, these are the same
-#define BUS_WIDTH 16
-#define REGISTER_WIDTH 16
+#define BUS_WIDTH 8
+#define REGISTER_WIDTH 8
 #define MEMORY_SIZE 1 << BUS_WIDTH
-#define CONTROL_BUS_WDTH 16
+#define CONTROL_BUS_WDTH 8
 
 #define CONTROL_BUS_MEMORY_WRITE 0
 #define CONTROL_BUS_MEMORY_READ 1
@@ -45,7 +45,7 @@
 
 // Breakdown of each instructions
 //
-// Type A: (will end with an I, e.g. ADDI, JMPI)
+// Type A: (e.g. JMPI, BZ)
 // Bit[7] | Bit[6] ] Bit[5] | Bit[4] | Bit[3] | Bit[2] | Bit[1] | Bit[0]
 // ---------------------------------------------------------------------
 // Op[2]  | Op[1]  | Op[0]  | Imm[4] | Imm[3] | Imm[2] | Imm[1] | Imm[0]
@@ -54,6 +54,11 @@
 // Bit[7] | Bit[6] ] Bit[5] | Bit[4] | Bit[3] | Bit[2]   | Bit[1]  | Bit[0]
 // -------------------------------------------------------------------------
 // Op[2]  | Op[1]  | Op[0]  | Flag   | RegA[1] | RegA[0] | RegB[1] | RegB[0]
+//
+// Type C: (ADDI)
+// Bit[7] | Bit[6] ] Bit[5] | Bit[4] | Bit[3] | Bit[2]   | Bit[1]  | Bit[0]
+// -------------------------------------------------------------------------
+// Op[2]  | Op[1]  | Op[0]  | Imm[2]  | Imm[1] | Imm[0] | RegB[1] | RegB[0]
 
 
 // NOTE the compiled binary files will probably have wated space
@@ -71,7 +76,7 @@
 #define BITMASK_IMM_SHORT_WIDTH 3
 
 #define BITMASK_REG_A 0x0C
-#define BITMASK_REG_A_WIDTH 2 // 2 bits below
+#define BITMASK_REG_A_WIDTH 2 // 2 bits of register
 #define BITMASK_REG_B 0x03
 #define BITMASK_REG_B_WIDTH 2
 

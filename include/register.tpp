@@ -33,7 +33,7 @@ template<size_t N>
 void Register<N>::Clock() {
   Update();
   if ((*_writeEnableP) == true) {
-    log(LOG_TYPE_DEBUG, "Clocking in " + _inputP->GetFullName() + "value: " + createString(_inputP->to_ulong()));
+    log(LOG_TYPE_INFO, "Clocking in " + _inputP->GetFullName() + "value: " + createString(_inputP->to_ulong()));
     _output.SetValue(*_inputP);
     Update();
   }
