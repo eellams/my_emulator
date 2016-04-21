@@ -33,6 +33,8 @@ public:
   ALU(std::string name = ALU_NAME);
   ~ALU();
 
+  bool GetZeroFlag() { return _zeroFlag; }
+
   void Clock();
 
   // This class has no children, and has no memory
@@ -43,9 +45,6 @@ public:
   // Nothing to log?
   void LogSignals();
 
-  // Reset the accumulator to zeros
-  void ResetACC();
-
   // Get a pointer to the ACC register
   MyBitset<BUS_WIDTH>* GetACCP() {
     return &_ACC;
@@ -53,5 +52,6 @@ public:
 
 private:
   MyBitset<BUS_WIDTH> _ACC;
+  bool _zeroFlag;
 };
  #endif

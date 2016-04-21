@@ -22,6 +22,8 @@
 ALU::ALU(std::string name) : BussedItem(ALU_TYPE_NAME, ALU_NAME) {
   _ACC.SetParent(this);
   _ACC.SetName("Accumulator");
+
+  _zeroFlag = true;
 }
 
 ALU::~ALU() {};
@@ -30,8 +32,10 @@ void ALU::Clock() {
   log(LOG_TYPE_DEBUG, "Clock");
 
   // Used as local sotoring for values on the bus
-  unsigned long dataBusValue;
-  unsigned long imm;
+  unsigned long dataBusValue = 0;
+  unsigned long imm = 0;
+  unsigned long shortImm = 0;
+  long toAdd = 0;
 
   MyBitset<CONTROL_BUS_WDTH> controlValue;
   MyBitset<BUS_WIDTH> temp; // Used in calculating a negative number
@@ -39,6 +43,7 @@ void ALU::Clock() {
   // Decode, so we can remove the databus value
   dataBusValue = _dataBusP->GetValueP()->to_ulong();
   imm = dataBusValue & BITMASK_IMM;
+  shortImm = (dataBusValue & BITMASK_IMM_SHORT) >> (BITMASK_REG_B_WIDTH);
 
   controlValue = *(_controlBusP->GetValueP());
 
@@ -48,9 +53,70 @@ void ALU::Clock() {
     _ACC.reset();
   }
 
+  if (controlValue.test(CONTROL_BUS_ALU_IMM)) {
+    log(LOG_TYPE_DEBUG, "Immediate");
+    if (controlValue.test(CONTROL_BUS_ALU_SIGNED)) {
+      // Signed IMM
+      log(LOG_TYPE_DEBUG, "Signed Immediate");
+      if (imm & (1 << (BITMASK_IMM_WIDTH - 1))) {
+        // A negative number
+        log(LOG_TYPE_DEBUG, "Negative signed Immediate");
+        toAdd = imm - (1 << BITMASK_IMM_WIDTH);
+      }
+    }
+    else toAdd = imm;
+    log(LOG_TYPE_DEBUG, "Immediate value: " + createString(toAdd));
+  }
+
+  else if (controlValue.test(CONTROL_BUS_ALU_IMM_SHORT)) {
+    // Short IMM
+    log(LOG_TYPE_DEBUG, "Short immediate");
+    log(LOG_TYPE_DEBUG, "Initial short immediate value: " + createString(shortImm));
+
+    if (controlValue.test(CONTROL_BUS_ALU_SIGNED)) {
+      // Signed short IMM
+      log(LOG_TYPE_DEBUG, "Signed short immediate");
+
+      if (shortImm & (1 << (BITMASK_IMM_SHORT_WIDTH - 1))) {
+        // Negative signed short imm
+        log(LOG_TYPE_DEBUG, "Negative signed short immediate");
+        toAdd = shortImm - (1 << BITMASK_IMM_SHORT_WIDTH);
+      }
+      else toAdd = shortImm;
+    }
+    else toAdd = shortImm;
+
+    log (LOG_TYPE_DEBUG, "Short immediate value: " + createString(toAdd) + " [" + createString(toAdd, false) + "]");
+  }
+
+  else {
+    log(LOG_TYPE_DEBUG, "Not an immediate value");
+
+    if(controlValue.test(CONTROL_BUS_ALU_SIGNED)) {
+      log(LOG_TYPE_DEBUG, "Signed value");
+
+      if (dataBusValue & (1 << (BUS_WIDTH - 1))) {
+        log(LOG_TYPE_DEBUG, "Negative value");
+      }
+    }
+    else toAdd = dataBusValue;
+    log(LOG_TYPE_INFO, "Full bus value: " + createString(toAdd) + " [" + createString(toAdd, false) + "]");
+  }
+
+
+  if (controlValue.test(CONTROL_BUS_ALU_ADD)) {
+    _ACC.SetValue(_ACC.to_ulong() + toAdd);
+    _dataBusP->SetValueP(&_ACC);
+  }
+
+  else if (controlValue.test(CONTROL_BUS_ALU_NAND)) {
+    _ACC.SetValue( ~(toAdd & _ACC.to_ulong()) );
+    _dataBusP->SetValueP(&_ACC);
+  }
+
   // If the add flag is present, add the data to the accumulator
   //  (not including the op-code - see above)
-  if (controlValue.test(CONTROL_BUS_ALU_ADD)) {
+  /*if (controlValue.test(CONTROL_BUS_ALU_ADD)) {
     // Add to ACC
     log(LOG_TYPE_INFO, "Adding value: " + createString(imm) + " to Accumulator, value: " + createString(_ACC.to_ulong()) );
 
@@ -89,12 +155,23 @@ void ALU::Clock() {
     _dataBusP->SetValueP(&_ACC);
   }
 
+
   if (controlValue.test(CONTROL_BUS_ALU_NAND)) {
     // NAND the data bus with the ACC
     log(LOG_TYPE_DEBUG, "Nanding data bus value: " + createString(dataBusValue) + " with ACC value: " + createString(_ACC.to_ulong()));
 
     _ACC.SetValue( ~(dataBusValue & _ACC.to_ulong()) );
     _dataBusP->SetValueP(&_ACC);
+  }
+  */
+
+  if (_ACC.to_ulong() == 0) {
+    log(LOG_TYPE_INFO, "Zero flag set");
+    _zeroFlag = true;
+  }
+  else if (_zeroFlag) {
+    log(LOG_TYPE_INFO, "Unsetting zero flag");
+    _zeroFlag = false;
   }
 }
 

@@ -41,6 +41,7 @@
 #define CONTROL_BUS_ALU_SIGNED 4
 #define CONTROL_BUS_ALU_IMM 5
 #define CONTROL_BUS_ALU_NAND 6
+#define CONTROL_BUS_ALU_IMM_SHORT 7
 
 // Breakdown of each instructions
 //
@@ -66,18 +67,25 @@
 #define BITMASK_IMM 0x1F // Remaining 5 bits
 #define BITMASK_IMM_WIDTH 5
 
+#define BITMASK_IMM_SHORT 0x1C // 3 bits between command and RegB
+#define BITMASK_IMM_SHORT_WIDTH 3
+
 #define BITMASK_REG_A 0x0C
-#define BITMASK_REG_A_WIDTH 2
+#define BITMASK_REG_A_WIDTH 2 // 2 bits below
 #define BITMASK_REG_B 0x03
 #define BITMASK_REG_B_WIDTH 2
 
 // ADD regB, 0 acts to store ACC in regB
 
-#define INSTR_ADDI 0x00  // Add immediate to accumulator
-#define INSTR_ADD 0x01   // Add RegB to RegA (RegA += RegB)
-#define INSTR_LOAD 0x02  // Load RegA to address in RegB
-#define INSTR_STORE 0x03 // Store ACC at address in RegB [RegA not used]
-#define INSTR_NAND 0x04  // Set ACC to RegA NAND RegB (ACC = ~(RegA & RegB) )
+//#define INSTR_ADDI   0x00   // Add immediate to accumulator
+#define INSTR_ADDI   0x00   // Add immediate to RegB
+#define INSTR_ADD    0x01   // Add RegB to RegA (RegA += RegB)
+#define INSTR_LOAD   0x02   // Load address at RegB into RegB
+#define INSTR_STORE  0x03   // Store RegA at address in RegB
+#define INSTR_NAND   0x04   // Set RegA to RegA NAND RegB (Reg = ~(RegA & RegB) )
+#define INSTR_JMPI   0x05   // Add immediate to PC
+#define INSTR_BZ     0x06   // Jump if ACC is zero by imm
+#define INSTR_FINISH 0x07   // End the emulation
 
 
 // Used for logging

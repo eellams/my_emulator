@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
   Sequencer sequencer("Sequencer");
   Memory memory("Main Memory");
   ALU alu("ALU");
-  
+
   // Get the file we are reading
   std::cout << "File to read (leave blank for testprogram): ";
   std::cin >> std::noskipws >> fileToExecute;
@@ -87,13 +87,13 @@ int main(int argc, char *argv[]) {
   sequencer.SetMemoryP(&memory);
 
   // How many times we should execute
-  for (int i=0; i<10; i++) {
-    sequencer.Clock();
-  }
-
-  /*while (!sequencer.Finished()) {
+  /*for (int i=0; i<10; i++) {
     sequencer.Clock();
   }*/
+
+  while (!sequencer.Finished()) {
+    sequencer.Clock();
+  }
 
   log->Log(LOG_TYPE_INFO, "Program finished executing");
 
