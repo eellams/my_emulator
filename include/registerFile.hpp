@@ -55,7 +55,7 @@ public:
 
   // Get apointer to _output
   //  useful for setting bus values
-  MyBitset<BUS_WIDTH>* GetOutputP();
+  ///MyBitset<BUS_WIDTH>* GetOutputP();
 
   // Set the input and the enable flag as required
   //  note that won't do anything until Clock called

@@ -31,9 +31,9 @@
 // For simplicity of being able to copy bus <=> register, these are the same
 #define BUS_WIDTH 8
 #define REGISTER_WIDTH 8
-#define MEMORY_SIZE 1 << BUS_WIDTH
-#define CONTROL_BUS_WDTH 8
+#define MEMORY_SIZE 1 << BUS_WIDTH // Memory size depends on bus width
 
+#define CONTROL_BUS_WDTH 8 // The number of control signals
 #define CONTROL_BUS_MEMORY_WRITE 0
 #define CONTROL_BUS_MEMORY_READ 1
 #define CONTROL_BUS_ALU_RESET_ACC 2
@@ -69,28 +69,29 @@
 #define BITMASK_OP 0xE0 // Top 3 bits
 #define BITMASK_OP_WIDTH 3
 
+// For type A commands
 #define BITMASK_IMM 0x1F // Remaining 5 bits
 #define BITMASK_IMM_WIDTH 5
 
-#define BITMASK_IMM_SHORT 0x1C // 3 bits between command and RegB
-#define BITMASK_IMM_SHORT_WIDTH 3
-
+// For type B commands
 #define BITMASK_REG_A 0x0C
 #define BITMASK_REG_A_WIDTH 2 // 2 bits of register
 #define BITMASK_REG_B 0x03
 #define BITMASK_REG_B_WIDTH 2
 
-// ADD regB, 0 acts to store ACC in regB
+// For type C commands
+#define BITMASK_IMM_SHORT 0x1C // 3 bits between command and RegB
+#define BITMASK_IMM_SHORT_WIDTH 3
 
-//#define INSTR_ADDI   0x00   // Add immediate to accumulator
-#define INSTR_ADDI   0x00   // Add immediate to RegB
-#define INSTR_ADD    0x01   // Add RegB to RegA (RegA += RegB)
-#define INSTR_LOAD   0x02   // Load address at RegB into RegB
-#define INSTR_STORE  0x03   // Store RegA at address in RegB
-#define INSTR_NAND   0x04   // Set RegA to RegA NAND RegB (Reg = ~(RegA & RegB) )
-#define INSTR_JMPI   0x05   // Add immediate to PC
-#define INSTR_BZ     0x06   // Jump if ACC is zero by imm
-#define INSTR_FINISH 0x07   // End the emulation
+// Instruction set
+#define INSTR_ADDI   0x00  // Add short immediate to RegB (RegB := RegB + s_imm)
+#define INSTR_ADD    0x01  // Add RegB to RegA (RegA := RegA + RegB)
+#define INSTR_LOAD   0x02  // Load address of RegB into RegA (RegA := Mem[RegB])
+#define INSTR_STORE  0x03  // Store RegA in address of RegB (Mem[RegB] := RegA)
+#define INSTR_NAND   0x04  // Set RegA to RegA NAND RegB (RegA := ~(RegA & RegB))
+#define INSTR_JMPI   0x05  // Add immediate to PC (PC := PC + imm)
+#define INSTR_BZ     0x06  // Jump if ACC is zero by imm (PC := PC + (zflag)imm)
+#define INSTR_FINISH 0x07  // End the emulation
 
 
 // Used for logging

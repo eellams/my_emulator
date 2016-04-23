@@ -47,10 +47,12 @@ void RegisterFile::SetOutput(size_t registerNumber) {
   log(LOG_TYPE_INFO, "Setting output to register: " + _registers[registerNumber].GetFullName() + " contents: " + createString(_registers[registerNumber].GetOutputP()->to_ulong()));
   _output.SetValue(*(_registers[registerNumber].GetOutputP()));
   _currentOutput = registerNumber;
+
+  _dataBusP->SetValueP(&_output);
 }
-MyBitset<BUS_WIDTH>* RegisterFile::GetOutputP() {
+/*MyBitset<BUS_WIDTH>* RegisterFile::GetOutputP() {
   return &_output;
-}
+}*/
 
 // Set the input and the enable flag as required
 //  note that won't do anything until Clock called
