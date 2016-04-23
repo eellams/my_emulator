@@ -1,5 +1,8 @@
 
-FILE_TO_READ = 'hello.asm'
+
+
+FILE_TO_READ = raw_input('What asm file to open?: ')
+FILE_TO_WRITE = raw_input("File to write?: ")
 
 contents = [] # What the file is read into
 tokens = []
@@ -14,7 +17,7 @@ def Make2sCompliment(value, bits):
         value = 0
         for i in xrange(bits):
             value |= (1 << i)
-        value += ovalue
+        value += ovalue + 1
 
     print "Binary of: ", ovalue, " to ", bits , " bits is: ", value, " [" + bin(value) + "]"
     return value
@@ -50,6 +53,7 @@ for i in xrange(len(tokens)):
 
         print "Adding to memory header, address: ", tokens[i][1], ", value: ", tokens[i][2]
         binHeader[tokens[i][1]] = chr(int(tokens[i][2]))
+        print "Added: ", ord(binHeader[tokens[i][1]])
 
         tokenCount += 1
 
@@ -61,9 +65,9 @@ for i in xrange(len(tokens)):
             tokens[i][1] = int(tokens[i][1])
 
             if tokens[i][0] == 'JMPI':
-                binary = binary + str(chr(0xa0 + Make2sCompliment(tokens[i][1], 5) ))
+                binary = binary + str(chr(0xa0 | Make2sCompliment(tokens[i][1], 5) ))
             elif tokens[i][0] == 'BZ':
-                binary = binary + str(chr(0xc0 + Make2sCompliment(tokens[i][1], 5) ))
+                binary = binary + str(chr(0xc0 | Make2sCompliment(tokens[i][1], 5) ))
 
 
         else:
@@ -78,23 +82,23 @@ for i in xrange(len(tokens)):
                 print "Line ", i
 
             if tokens[i][0] == 'ADD':
-                binary = binary + str(chr(0x20 + (tokens[i][1] << 2) + tokens[i][2] ))
+                binary = binary + str(chr(0x20 | (tokens[i][1] << 2) | tokens[i][2] ))
             elif tokens[i][0] == 'LOAD':
-                binary = binary + str(chr(0x40 + (tokens[i][1] << 2) + tokens[i][2] ))
+                binary = binary + str(chr(0x40 | (tokens[i][1] << 2) | tokens[i][2] ))
             elif tokens[i][0] == 'STORE':
-                binary = binary + str(chr(0x60 + (tokens[i][1] << 2) + tokens[i][2] ))
+                binary = binary + str(chr(0x60 | (tokens[i][1] << 2) | tokens[i][2] ))
             elif tokens[i][0] == 'NAND':
-                binary = binary + str(chr(0x80 + (tokens[i][1] << 2) + tokens[i][2] ))
+                binary = binary + str(chr(0x80 | (tokens[i][1] << 2) | tokens[i][2] ))
 
             elif tokens[i][0] == 'ADDI':
-                binary = binary + str(chr(0x00 + (Make2sCompliment(tokens[i][1], 3) << 2) + tokens[i][2] ))
+                binary = binary + str(chr(0x00 | (Make2sCompliment(tokens[i][1], 3) << 2) | tokens[i][2] ))
 
 # Add header to program
 for i in xrange(len(binHeader)):
-    binary = binHeader[i] + binary
+    binary = binHeader[len(binHeader)-1-i] + binary
 
 # Ensure 1st byte jumps to where the actual instructions are
-binary = str(chr(0xa0 + Make2sCompliment(len(binHeader)+1, 5) )) + binary[1:]
+binary = str(chr(0xa0 + Make2sCompliment(len(binHeader), 5) )) + binary[1:]
 
 print
 print "Contents:"
@@ -112,3 +116,6 @@ for i in xrange(len(binary)):
     else:
         print i, ": ", binary[i], ' : ', hex(ord(binary[i])), ' : ', bin(ord(binary[i])), " : ", tokens[tokenCount]
         tokenCount += 1
+
+with open(FILE_TO_WRITE, "wb") as f:
+    f.write(binary)

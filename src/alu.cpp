@@ -116,6 +116,7 @@ void ALU::Clock() {
   else if (controlValue.test(CONTROL_BUS_ALU_NAND)) {
     log(LOG_TYPE_INFO, "Nanding value: " + createString(toAdd) + " to ACC: " + createString(_ACC.to_ulong()));
     _ACC.SetValue( ~(toAdd & _ACC.to_ulong()) );
+    log(LOG_TYPE_INFO, "Producing: " + createString(_ACC.to_ulong()));
     _dataBusP->SetValueP(&_ACC);
   }
 
